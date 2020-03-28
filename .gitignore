@@ -1,3 +1,10 @@
+#IDE folders and build folders
 .git
 .vs
+cmake-build-debug
 out
+
+#build files
+SmartTester.exe
+SmartTester.ilk
+SmartTester.pdb
