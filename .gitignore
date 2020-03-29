@@ -8,3 +8,11 @@ out
 SmartTester.exe
 SmartTester.ilk
 SmartTester.pdb
+
+#.idea files
+/.idea/vcs.xml
+/.idea/SmartTester.iml
+/.idea/.gitignore
+/.idea/deployment.xml
+/.idea/misc.xml
+/.idea/modules.xml
