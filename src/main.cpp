@@ -2,7 +2,7 @@
 //
 
 #include <iostream>
-#include "../smartcgms/src/common/rtl/Dynamic_Library.h"
+#include "../../smartcgms/src/common/rtl/Dynamic_Library.h"
 
 #ifdef _WIN32
 const wchar_t* lib_dir = L"../smartcgms/windows_64/filters/";
