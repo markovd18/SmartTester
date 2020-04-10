@@ -5,11 +5,12 @@
 #include "../../smartcgms/src/common/rtl/Dynamic_Library.h"
 #include "../../smartcgms/src/common/iface/FilterIface.h"
 #include "../../smartcgms/src/common/rtl/guid.h"
+#include "TestFilter.h"
 
 #ifdef _WIN32
  wchar_t* lib_dir = L"../smartcgms/windows_64/filters/";
 #elif __APPLE__
-const wchar_t* lib_dir = L".../smartcgms/macos_64/filters/";
+const wchar_t* lib_dir = L"../smartcgms/macos_64/filters/";
 #else
 const wchar_t* lib_dir = L"../smartcgms/debian_64/filters/";
 #endif
@@ -36,14 +37,17 @@ int execute_unit_testing(const char *filter_name){
     library.Load(L"log.dll");
 
     auto creator = library.Resolve<scgms::TCreate_Filter>("do_create_filter");
-    scgms::IFilter* created_filter; // ??
+    scgms::IFilter** created_filter; // ??
 
     // id log filtru
     GUID guid = {0xc0e942b9, 0x3928, 0x4B81, { 0x9b, 0x43, 0xa3, 0x47, 0x66, 0x82, 0x00, 0xba}};
 
-    auto result = creator(&guid, nullptr, &created_filter);
+    TestFilter *filter = new TestFilter;
+    auto result = creator(&guid, filter, created_filter);
     if (result == S_OK){
         std::cout << "Povedlo se vytvorit.";
+    } else {
+        std::cout << result;
     }
 
     return 0;
