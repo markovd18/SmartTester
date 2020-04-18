@@ -20,15 +20,3 @@ HRESULT IfaceCalling TestFilter::Configure(IFilter_Configuration* configuration,
 HRESULT IfaceCalling TestFilter::Execute(scgms::IDevice_Event *event){
     return 0;
 }
-
-//ULONG IfaceCalling TestFilter::AddRef(){
-//    return 0;
-//}
-//
-//ULONG IfaceCalling TestFilter::Release(){
-//    return 0;
-//}
-
-//HRESULT IfaceCalling TestFilter::QueryInterface(const GUID*  riid, void ** ppvObj){
-//    return 0;
-//}
