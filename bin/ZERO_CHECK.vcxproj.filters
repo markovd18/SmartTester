@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\David\Documents\Programy_skola\ZSWI\SmartTester\bin\CMakeFiles\a834afb2d996de8006c9f573ad0c2113\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{92652BC1-4478-3E22-AEBD-D45F7229D679}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

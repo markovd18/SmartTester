@@ -1,0 +1,10 @@
+^C:\USERS\DAVID\DOCUMENTS\PROGRAMY_SKOLA\ZSWI\SMARTTESTER\BIN\CMAKEFILES\A834AFB2D996DE8006C9F573AD0C2113\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/David/Documents/Programy_skola/ZSWI/SmartTester -BC:/Users/David/Documents/Programy_skola/ZSWI/SmartTester/bin --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Users/David/Documents/Programy_skola/ZSWI/SmartTester/bin/SmartTester.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

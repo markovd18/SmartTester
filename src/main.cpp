@@ -8,11 +8,11 @@
 #include "TestFilter.h"
 
 #ifdef _WIN32
- wchar_t* lib_dir = L"../smartcgms/windows_64/filters/";
+ wchar_t* LIB_DIR = L"../smartcgms/windows_64/filters/";
 #elif __APPLE__
-const wchar_t* lib_dir = L"../smartcgms/macos_64/filters/";
+const wchar_t* LIB_DIR = L"../smartcgms/macos_64/filters/";
 #else
-const wchar_t* lib_dir = L"../smartcgms/debian_64/filters/";
+const wchar_t* LIB_DIR = L"../smartcgms/debian_64/filters/";
 #endif
 
 
@@ -26,7 +26,7 @@ void print_help(){
 }
 
 int execute_unit_testing(const char *filter_name){
-    CDynamic_Library::Set_Library_Base(lib_dir);
+    CDynamic_Library::Set_Library_Base(LIB_DIR);
 
     if (!CDynamic_Library::Is_Library(L"log.dll")){
         std::wcerr << "Not a library!\n";
@@ -37,19 +37,19 @@ int execute_unit_testing(const char *filter_name){
     library.Load(L"log.dll");
 
     auto creator = library.Resolve<scgms::TCreate_Filter>("do_create_filter");
-    scgms::IFilter** created_filter; // ??
+
+    scgms::IFilter *created_filter = nullptr;
 
     // id log filtru
     GUID guid = {0xc0e942b9, 0x3928, 0x4B81, { 0x9b, 0x43, 0xa3, 0x47, 0x66, 0x82, 0x00, 0xba}};
-
-    TestFilter *filter = new TestFilter;
-    auto result = creator(&guid, filter, created_filter);
+    TestFilter filter = TestFilter(nullptr);
+    std::cout << "Breakpoint";
+    auto result = creator(&guid, &filter, &created_filter);
     if (result == S_OK){
         std::cout << "Povedlo se vytvorit.";
     } else {
         std::cout << result;
     }
-
     return 0;
 }
 

@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\David\Documents\Programy_skola\ZSWI\smartcgms\src\common\rtl\scgmsLib.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\David\Documents\Programy_skola\ZSWI\SmartTester\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{72F4AB07-4CBD-392C-A886-0AEC31294038}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
