@@ -1,0 +1,8 @@
+﻿  Checking Build System
+  CMake is re-running because C:/Users/Straky23/Documents/VisualStudioProjects/SmartTester/bin/CMakeFiles/generate.stamp is out-of-date.
+    the file 'C:/Users/Straky23/Documents/VisualStudioProjects/SmartTester/CMakeLists.txt'
+    is newer than 'C:/Users/Straky23/Documents/VisualStudioProjects/SmartTester/bin/CMakeFiles/generate.stamp.depend'
+    result='-1'
+  -- Configuring done
+  -- Generating done
+  -- Build files have been written to: C:/Users/Straky23/Documents/VisualStudioProjects/SmartTester/bin

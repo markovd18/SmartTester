@@ -1,0 +1,10 @@
+^C:\USERS\STRAKY23\DOCUMENTS\VISUALSTUDIOPROJECTS\SMARTTESTER\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/Straky23/Documents/VisualStudioProjects/SmartTester -BC:/Users/Straky23/Documents/VisualStudioProjects/SmartTester/bin --check-stamp-file C:/Users/Straky23/Documents/VisualStudioProjects/SmartTester/bin/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

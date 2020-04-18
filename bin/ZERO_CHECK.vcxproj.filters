@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\6d89287bb10779d27d7acd77da627a28\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{0B66D8A1-3B9F-3494-8B4B-1D628BC1A1EB}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

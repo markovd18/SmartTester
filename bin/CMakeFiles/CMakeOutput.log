@@ -1,0 +1,147 @@
+The system is: Windows - 10.0.18362 - AMD64
+Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+Compiler:  
+Build flags: 
+Id flags:  
+
+The output was:
+0
+Microsoft (R) Build Engine verze 16.5.0+d4cbfca49 pro .NET Framework
+Copyright (C) Microsoft Corporation. Vçechna pr va vyhrazena.
+
+Vytv ýenˇ sestavenˇ bylo zah jeno 18.04.2020 15:22:28.
+Projekt C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdC\CompilerIdC.vcxproj v uzlu 1 (věchozˇ cˇle).
+PrepareForBuild:
+  Probˇh  vytv ýenˇ adres ýe Debug\.
+  Probˇh  vytv ýenˇ adres ýe Debug\CompilerIdC.tlog\.
+InitializeBuildStatus:
+  Probˇh  vytv ýenˇ souboru Debug\CompilerIdC.tlog\unsuccessfulbuild v d…sledku zad nˇ AlwaysCreate.
+ClCompile:
+  C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.25.28610\bin\HostX64\x64\CL.exe /c /nologo /W0 /WX- /diagnostics:column /Od /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug\\" /Fd"Debug\vc142.pdb" /Gd /TC /FC /errorReport:queue CMakeCCompilerId.c
+  CMakeCCompilerId.c
+Link:
+  C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.25.28610\bin\HostX64\x64\link.exe /ERRORREPORT:QUEUE /OUT:".\CompilerIdC.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /PDB:".\CompilerIdC.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:".\CompilerIdC.lib" /MACHINE:X64 Debug\CMakeCCompilerId.obj
+  CompilerIdC.vcxproj -> C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdC\.\CompilerIdC.exe
+PostBuildEvent:
+  for %%i in (cl.exe) do @echo CMAKE_C_COMPILER=%%~$PATH:i
+  :VCEnd
+  CMAKE_C_COMPILER=C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.25.28610\bin\Hostx64\x64\cl.exe
+FinalizeBuildStatus:
+  Probˇh  odstraĺov nˇ souboru Debug\CompilerIdC.tlog\unsuccessfulbuild.
+  Probˇh  aktualizace źasov‚ho razˇtka pro Debug\CompilerIdC.tlog\CompilerIdC.lastbuildstate.
+Sestavenˇ projektu C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdC\CompilerIdC.vcxproj (s věchozˇmi cˇli) bylo dokonźeno.
+
+Vytv ýenˇ sestavenˇ bylo ŁspŘçnŘ dokonźeno.
+    0 upozornŘnˇ
+    Poźet chyb: 0
+
+Uplynulě źas 00:00:00.59
+
+
+Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CompilerIdC.exe"
+
+Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CompilerIdC.vcxproj"
+
+The C compiler identification is MSVC, found in "C:/Users/Straky23/Documents/VisualStudioProjects/SmartTester/bin/CMakeFiles/3.17.1/CompilerIdC/CompilerIdC.exe"
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler:  
+Build flags: 
+Id flags:  
+
+The output was:
+0
+Microsoft (R) Build Engine verze 16.5.0+d4cbfca49 pro .NET Framework
+Copyright (C) Microsoft Corporation. Vçechna pr va vyhrazena.
+
+Vytv ýenˇ sestavenˇ bylo zah jeno 18.04.2020 15:22:29.
+Projekt C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdCXX\CompilerIdCXX.vcxproj v uzlu 1 (věchozˇ cˇle).
+PrepareForBuild:
+  Probˇh  vytv ýenˇ adres ýe Debug\.
+  Probˇh  vytv ýenˇ adres ýe Debug\CompilerIdCXX.tlog\.
+InitializeBuildStatus:
+  Probˇh  vytv ýenˇ souboru Debug\CompilerIdCXX.tlog\unsuccessfulbuild v d…sledku zad nˇ AlwaysCreate.
+ClCompile:
+  C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.25.28610\bin\HostX64\x64\CL.exe /c /nologo /W0 /WX- /diagnostics:column /Od /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug\\" /Fd"Debug\vc142.pdb" /Gd /TP /FC /errorReport:queue CMakeCXXCompilerId.cpp
+  CMakeCXXCompilerId.cpp
+Link:
+  C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.25.28610\bin\HostX64\x64\link.exe /ERRORREPORT:QUEUE /OUT:".\CompilerIdCXX.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /PDB:".\CompilerIdCXX.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:".\CompilerIdCXX.lib" /MACHINE:X64 Debug\CMakeCXXCompilerId.obj
+  CompilerIdCXX.vcxproj -> C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdCXX\.\CompilerIdCXX.exe
+PostBuildEvent:
+  for %%i in (cl.exe) do @echo CMAKE_CXX_COMPILER=%%~$PATH:i
+  :VCEnd
+  CMAKE_CXX_COMPILER=C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.25.28610\bin\Hostx64\x64\cl.exe
+FinalizeBuildStatus:
+  Probˇh  odstraĺov nˇ souboru Debug\CompilerIdCXX.tlog\unsuccessfulbuild.
+  Probˇh  aktualizace źasov‚ho razˇtka pro Debug\CompilerIdCXX.tlog\CompilerIdCXX.lastbuildstate.
+Sestavenˇ projektu C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdCXX\CompilerIdCXX.vcxproj (s věchozˇmi cˇli) bylo dokonźeno.
+
+Vytv ýenˇ sestavenˇ bylo ŁspŘçnŘ dokonźeno.
+    0 upozornŘnˇ
+    Poźet chyb: 0
+
+Uplynulě źas 00:00:00.46
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CompilerIdCXX.exe"
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CompilerIdCXX.vcxproj"
+
+The CXX compiler identification is MSVC, found in "C:/Users/Straky23/Documents/VisualStudioProjects/SmartTester/bin/CMakeFiles/3.17.1/CompilerIdCXX/CompilerIdCXX.exe"
+
+Determining if the C compiler works passed with the following output:
+Change Dir: C:/Users/Straky23/Documents/VisualStudioProjects/SmartTester/bin/CMakeFiles/CMakeTmp
+
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_d710b.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine verze 16.5.0+d4cbfca49 pro .NET Framework
+Copyright (C) Microsoft Corporation. Vçechna pr va vyhrazena.
+
+  Microsoft (R) C/C++ Optimizing Compiler Version 19.25.28614 for x64
+  testCCompiler.c
+  Copyright (C) Microsoft Corporation.  All rights reserved.
+  cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_d710b.dir\Debug\\" /Fd"cmTC_d710b.dir\Debug\vc142.pdb" /Gd /TC /errorReport:queue C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\CMakeTmp\testCCompiler.c
+  cmTC_d710b.vcxproj -> C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\CMakeTmp\Debug\cmTC_d710b.exe
+
+
+
+Detecting C compiler ABI info compiled with the following output:
+Change Dir: C:/Users/Straky23/Documents/VisualStudioProjects/SmartTester/bin/CMakeFiles/CMakeTmp
+
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_2bb9c.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine verze 16.5.0+d4cbfca49 pro .NET Framework
+Copyright (C) Microsoft Corporation. Vçechna pr va vyhrazena.
+
+  Microsoft (R) C/C++ Optimizing Compiler Version 19.25.28614 for x64
+  Copyright (C) Microsoft Corporation.  All rights reserved.
+  CMakeCCompilerABI.c
+  cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_2bb9c.dir\Debug\\" /Fd"cmTC_2bb9c.dir\Debug\vc142.pdb" /Gd /TC /errorReport:queue "C:\Program Files\CMake\share\cmake-3.17\Modules\CMakeCCompilerABI.c"
+  cmTC_2bb9c.vcxproj -> C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\CMakeTmp\Debug\cmTC_2bb9c.exe
+
+
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: C:/Users/Straky23/Documents/VisualStudioProjects/SmartTester/bin/CMakeFiles/CMakeTmp
+
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_fee7a.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine verze 16.5.0+d4cbfca49 pro .NET Framework
+Copyright (C) Microsoft Corporation. Vçechna pr va vyhrazena.
+
+  Microsoft (R) C/C++ Optimizing Compiler Version 19.25.28614 for x64
+  testCXXCompiler.cxx
+  Copyright (C) Microsoft Corporation.  All rights reserved.
+  cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_fee7a.dir\Debug\\" /Fd"cmTC_fee7a.dir\Debug\vc142.pdb" /Gd /TP /errorReport:queue C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\CMakeTmp\testCXXCompiler.cxx
+  cmTC_fee7a.vcxproj -> C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\CMakeTmp\Debug\cmTC_fee7a.exe
+
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: C:/Users/Straky23/Documents/VisualStudioProjects/SmartTester/bin/CMakeFiles/CMakeTmp
+
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_ce820.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine verze 16.5.0+d4cbfca49 pro .NET Framework
+Copyright (C) Microsoft Corporation. Vçechna pr va vyhrazena.
+
+  Microsoft (R) C/C++ Optimizing Compiler Version 19.25.28614 for x64
+  CMakeCXXCompilerABI.cpp
+  Copyright (C) Microsoft Corporation.  All rights reserved.
+  cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_ce820.dir\Debug\\" /Fd"cmTC_ce820.dir\Debug\vc142.pdb" /Gd /TP /errorReport:queue "C:\Program Files\CMake\share\cmake-3.17\Modules\CMakeCXXCompilerABI.cpp"
+  cmTC_ce820.vcxproj -> C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\CMakeTmp\Debug\cmTC_ce820.exe
+
+
+

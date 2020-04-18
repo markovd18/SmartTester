@@ -9,6 +9,7 @@ project ("SmartTester")
 set(CMAKE_CXX_STANDARD 17)
 
 add_library(Dynamic_Library "../smartcgms/src/common/rtl/Dynamic_Library.cpp")
+add_library(ReferencedImpl "../smartcgms/src/common/rtl/referencedImpl.cpp")
 # Add source to this project's executable.
 add_executable (SmartTester "src/main.cpp" src/TestFilter.cpp src/TestFilter.h)
 
@@ -29,7 +30,7 @@ FOREACH(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
     SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} "${output_dir}/${ORIG_OUT_CONFIG}")
 ENDFOREACH(OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES)
 
-target_link_libraries(SmartTester PUBLIC Dynamic_Library)
+target_link_libraries(SmartTester PUBLIC Dynamic_Library ReferencedImpl)
 set_target_properties( SmartTester PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR} )
 
 

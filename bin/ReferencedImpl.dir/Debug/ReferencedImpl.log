@@ -1,0 +1,15 @@
+﻿  Building Custom Rule C:/Users/Straky23/Documents/VisualStudioProjects/SmartTester/CMakeLists.txt
+  referencedImpl.cpp
+C:\Users\Straky23\Documents\VisualStudioProjects\smartcgms\src\common\rtl\manufactory.h(45,60): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
+C:\Users\Straky23\Documents\VisualStudioProjects\smartcgms\src\common\rtl\referencedImpl.h(240): message : see reference to function template instantiation 'HRESULT Manufacture_Object<refcnt::internal::CVector_Container<T>,refcnt::IVector_Container<T>,>(I **)' being compiled
+          with
+          [
+              T=wchar_t,
+              I=refcnt::IVector_Container<wchar_t>
+          ]
+C:\Users\Straky23\Documents\VisualStudioProjects\smartcgms\src\common\rtl\referencedImpl.cpp(92): message : see reference to function template instantiation 'refcnt::IVector_Container<wchar_t> *refcnt::Create_Container<wchar_t>(T *,T *)' being compiled
+          with
+          [
+              T=wchar_t
+          ]
+  ReferencedImpl.vcxproj -> C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\Debug\ReferencedImpl.lib

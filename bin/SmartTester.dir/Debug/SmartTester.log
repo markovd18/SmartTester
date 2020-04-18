@@ -1,0 +1,7 @@
+﻿  main.cpp
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.25.28610\include\ostream(318,1): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.25.28610\include\ostream(311): message : while compiling class template member function 'std::basic_ostream<char,std::char_traits<char>> &std::basic_ostream<char,std::char_traits<char>>::operator <<(long)'
+C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\src\main.cpp(50): message : see reference to function template instantiation 'std::basic_ostream<char,std::char_traits<char>> &std::basic_ostream<char,std::char_traits<char>>::operator <<(long)' being compiled
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.25.28610\include\ostream(638): message : see reference to class template instantiation 'std::basic_ostream<char,std::char_traits<char>>' being compiled
+C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\src\main.cpp(46): warning C4700: uninitialized local variable 'created_filter' used
+  SmartTester.vcxproj -> C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\Debug\SmartTester.exe
