@@ -5,22 +5,18 @@
 #ifndef SMARTTESTER_TESTFILTER_H
 #define SMARTTESTER_TESTFILTER_H
 
-#include "../../smartcgms/src/common/rtl/FilterLib.h"
+#include "../../smartcgms/src/common/iface/FilterIface.h"
 #include "../../smartcgms/src/common/rtl/referencedImpl.h"
 
-#pragma warning( push )
-#pragma warning( disable : 4250 )
-
-class TestFilter : public scgms::CBase_Filter{
-protected:
-    virtual HRESULT Do_Execute(scgms::UDevice_Event event) override final;
-    virtual HRESULT Do_Configure(scgms::SFilter_Configuration configuration, refcnt::Swstr_list& error_description) override final;
+class TestFilter : public virtual scgms::IFilter, public virtual refcnt::CNotReferenced {
 public:
     explicit TestFilter(scgms::IFilter *output);
     virtual ~TestFilter();
 
-    virtual HRESULT IfaceCalling QueryInterface(const GUID*  riid, void ** ppvObj) override final;
+    virtual HRESULT IfaceCalling Execute(scgms::IDevice_Event *event) override final;
+    virtual HRESULT IfaceCalling Configure(IFilter_Configuration* configuration, refcnt::wstr_list *error_description) override final;
+    //virtual HRESULT IfaceCalling QueryInterface(const GUID*  riid, void ** ppvObj) override final;
+    //virtual ULONG IfaceCalling AddRef() override final;
+    //virtual ULONG IfaceCalling Release() override final;
 };
-#pragma warning( pop )
-
-#endif //SMARTTESTER_TESTFILTER_H
+#endif SMARTTESTER_TESTFILTER_H

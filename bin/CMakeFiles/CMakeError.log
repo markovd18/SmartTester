@@ -1,0 +1,172 @@
+Compiling the C compiler identification source file "CMakeCCompilerId.c" failed.
+Compiler:  
+Build flags: 
+Id flags:  
+
+The output was:
+1
+Microsoft (R) Build Engine verze 16.5.0+d4cbfca49 pro .NET Framework
+Copyright (C) Microsoft Corporation. Vçechna pr va vyhrazena.
+
+Vytv ýenˇ sestavenˇ bylo zah jeno 18.04.2020 14:58:41.
+Projekt C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdC\CompilerIdC.vcxproj v uzlu 1 (věchozˇ cˇle).
+PrepareForBuild:
+  Probˇh  vytv ýenˇ adres ýe Debug\.
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(449,5): warning MSB8003: The WindowsSDKDir property is not defined. Some build tools may not be found. [C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdC\CompilerIdC.vcxproj]
+  Probˇh  vytv ýenˇ adres ýe Debug\CompilerIdC.tlog\.
+InitializeBuildStatus:
+  Probˇh  vytv ýenˇ souboru Debug\CompilerIdC.tlog\unsuccessfulbuild v d…sledku zad nˇ AlwaysCreate.
+ClCompile:
+  C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.25.28610\bin\HostX64\x64\CL.exe /c /nologo /W0 /WX- /diagnostics:column /Od /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug\\" /Fd"Debug\vc142.pdb" /Gd /TC /FC /errorReport:queue CMakeCCompilerId.c
+  CMakeCCompilerId.c
+Link:
+  C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.25.28610\bin\HostX64\x64\link.exe /ERRORREPORT:QUEUE /OUT:".\CompilerIdC.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /PDB:".\CompilerIdC.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:".\CompilerIdC.lib" /MACHINE:X64 Debug\CMakeCCompilerId.obj
+LINK : fatal error LNK1181: cannot open input file 'kernel32.lib' [C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdC\CompilerIdC.vcxproj]
+Sestavenˇ projektu C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdC\CompilerIdC.vcxproj (s věchozˇmi cˇli) bylo dokonźeno: CHYBA.
+
+Sestavenˇ SE NEZDAüILO.
+
+"C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdC\CompilerIdC.vcxproj" (věchozˇ cˇl) (1) ->
+(cˇl PrepareForBuild) -> 
+  C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(449,5): warning MSB8003: The WindowsSDKDir property is not defined. Some build tools may not be found. [C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdC\CompilerIdC.vcxproj]
+
+
+"C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdC\CompilerIdC.vcxproj" (věchozˇ cˇl) (1) ->
+(cˇl Link) -> 
+  LINK : fatal error LNK1181: cannot open input file 'kernel32.lib' [C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdC\CompilerIdC.vcxproj]
+
+    1 upozornŘnˇ
+    Poźet chyb: 1
+
+Uplynulě źas 00:00:00.88
+
+
+Compiling the C compiler identification source file "CMakeCCompilerId.c" failed.
+Compiler:  
+Build flags: 
+Id flags:  
+
+The output was:
+1
+Microsoft (R) Build Engine verze 16.5.0+d4cbfca49 pro .NET Framework
+Copyright (C) Microsoft Corporation. Vçechna pr va vyhrazena.
+
+Vytv ýenˇ sestavenˇ bylo zah jeno 18.04.2020 14:58:42.
+Projekt C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdC\CompilerIdC.vcxproj v uzlu 1 (věchozˇ cˇle).
+PrepareForBuild:
+  Probˇh  vytv ýenˇ adres ýe Debug\.
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(449,5): warning MSB8003: The WindowsSDKDir property is not defined. Some build tools may not be found. [C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdC\CompilerIdC.vcxproj]
+  Probˇh  vytv ýenˇ adres ýe Debug\CompilerIdC.tlog\.
+InitializeBuildStatus:
+  Probˇh  vytv ýenˇ souboru Debug\CompilerIdC.tlog\unsuccessfulbuild v d…sledku zad nˇ AlwaysCreate.
+ClCompile:
+  C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.25.28610\bin\HostX64\x64\CL.exe /c /nologo /W0 /WX- /diagnostics:column /Od /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug\\" /Fd"Debug\vc142.pdb" /Gd /TC /FC /errorReport:queue CMakeCCompilerId.c
+  CMakeCCompilerId.c
+Link:
+  C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.25.28610\bin\HostX64\x64\link.exe /ERRORREPORT:QUEUE /OUT:".\CompilerIdC.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /PDB:".\CompilerIdC.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:".\CompilerIdC.lib" /MACHINE:X64 Debug\CMakeCCompilerId.obj
+LINK : fatal error LNK1181: cannot open input file 'kernel32.lib' [C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdC\CompilerIdC.vcxproj]
+Sestavenˇ projektu C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdC\CompilerIdC.vcxproj (s věchozˇmi cˇli) bylo dokonźeno: CHYBA.
+
+Sestavenˇ SE NEZDAüILO.
+
+"C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdC\CompilerIdC.vcxproj" (věchozˇ cˇl) (1) ->
+(cˇl PrepareForBuild) -> 
+  C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(449,5): warning MSB8003: The WindowsSDKDir property is not defined. Some build tools may not be found. [C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdC\CompilerIdC.vcxproj]
+
+
+"C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdC\CompilerIdC.vcxproj" (věchozˇ cˇl) (1) ->
+(cˇl Link) -> 
+  LINK : fatal error LNK1181: cannot open input file 'kernel32.lib' [C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdC\CompilerIdC.vcxproj]
+
+    1 upozornŘnˇ
+    Poźet chyb: 1
+
+Uplynulě źas 00:00:00.74
+
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+Compiler:  
+Build flags: 
+Id flags:  
+
+The output was:
+1
+Microsoft (R) Build Engine verze 16.5.0+d4cbfca49 pro .NET Framework
+Copyright (C) Microsoft Corporation. Vçechna pr va vyhrazena.
+
+Vytv ýenˇ sestavenˇ bylo zah jeno 18.04.2020 14:58:43.
+Projekt C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdCXX\CompilerIdCXX.vcxproj v uzlu 1 (věchozˇ cˇle).
+PrepareForBuild:
+  Probˇh  vytv ýenˇ adres ýe Debug\.
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(449,5): warning MSB8003: The WindowsSDKDir property is not defined. Some build tools may not be found. [C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdCXX\CompilerIdCXX.vcxproj]
+  Probˇh  vytv ýenˇ adres ýe Debug\CompilerIdCXX.tlog\.
+InitializeBuildStatus:
+  Probˇh  vytv ýenˇ souboru Debug\CompilerIdCXX.tlog\unsuccessfulbuild v d…sledku zad nˇ AlwaysCreate.
+ClCompile:
+  C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.25.28610\bin\HostX64\x64\CL.exe /c /nologo /W0 /WX- /diagnostics:column /Od /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug\\" /Fd"Debug\vc142.pdb" /Gd /TP /FC /errorReport:queue CMakeCXXCompilerId.cpp
+  CMakeCXXCompilerId.cpp
+Link:
+  C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.25.28610\bin\HostX64\x64\link.exe /ERRORREPORT:QUEUE /OUT:".\CompilerIdCXX.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /PDB:".\CompilerIdCXX.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:".\CompilerIdCXX.lib" /MACHINE:X64 Debug\CMakeCXXCompilerId.obj
+LINK : fatal error LNK1181: cannot open input file 'kernel32.lib' [C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdCXX\CompilerIdCXX.vcxproj]
+Sestavenˇ projektu C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdCXX\CompilerIdCXX.vcxproj (s věchozˇmi cˇli) bylo dokonźeno: CHYBA.
+
+Sestavenˇ SE NEZDAüILO.
+
+"C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdCXX\CompilerIdCXX.vcxproj" (věchozˇ cˇl) (1) ->
+(cˇl PrepareForBuild) -> 
+  C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(449,5): warning MSB8003: The WindowsSDKDir property is not defined. Some build tools may not be found. [C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdCXX\CompilerIdCXX.vcxproj]
+
+
+"C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdCXX\CompilerIdCXX.vcxproj" (věchozˇ cˇl) (1) ->
+(cˇl Link) -> 
+  LINK : fatal error LNK1181: cannot open input file 'kernel32.lib' [C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdCXX\CompilerIdCXX.vcxproj]
+
+    1 upozornŘnˇ
+    Poźet chyb: 1
+
+Uplynulě źas 00:00:00.79
+
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+Compiler:  
+Build flags: 
+Id flags:  
+
+The output was:
+1
+Microsoft (R) Build Engine verze 16.5.0+d4cbfca49 pro .NET Framework
+Copyright (C) Microsoft Corporation. Vçechna pr va vyhrazena.
+
+Vytv ýenˇ sestavenˇ bylo zah jeno 18.04.2020 14:58:44.
+Projekt C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdCXX\CompilerIdCXX.vcxproj v uzlu 1 (věchozˇ cˇle).
+PrepareForBuild:
+  Probˇh  vytv ýenˇ adres ýe Debug\.
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(449,5): warning MSB8003: The WindowsSDKDir property is not defined. Some build tools may not be found. [C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdCXX\CompilerIdCXX.vcxproj]
+  Probˇh  vytv ýenˇ adres ýe Debug\CompilerIdCXX.tlog\.
+InitializeBuildStatus:
+  Probˇh  vytv ýenˇ souboru Debug\CompilerIdCXX.tlog\unsuccessfulbuild v d…sledku zad nˇ AlwaysCreate.
+ClCompile:
+  C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.25.28610\bin\HostX64\x64\CL.exe /c /nologo /W0 /WX- /diagnostics:column /Od /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug\\" /Fd"Debug\vc142.pdb" /Gd /TP /FC /errorReport:queue CMakeCXXCompilerId.cpp
+  CMakeCXXCompilerId.cpp
+Link:
+  C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.25.28610\bin\HostX64\x64\link.exe /ERRORREPORT:QUEUE /OUT:".\CompilerIdCXX.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /PDB:".\CompilerIdCXX.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:".\CompilerIdCXX.lib" /MACHINE:X64 Debug\CMakeCXXCompilerId.obj
+LINK : fatal error LNK1181: cannot open input file 'kernel32.lib' [C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdCXX\CompilerIdCXX.vcxproj]
+Sestavenˇ projektu C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdCXX\CompilerIdCXX.vcxproj (s věchozˇmi cˇli) bylo dokonźeno: CHYBA.
+
+Sestavenˇ SE NEZDAüILO.
+
+"C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdCXX\CompilerIdCXX.vcxproj" (věchozˇ cˇl) (1) ->
+(cˇl PrepareForBuild) -> 
+  C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(449,5): warning MSB8003: The WindowsSDKDir property is not defined. Some build tools may not be found. [C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdCXX\CompilerIdCXX.vcxproj]
+
+
+"C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdCXX\CompilerIdCXX.vcxproj" (věchozˇ cˇl) (1) ->
+(cˇl Link) -> 
+  LINK : fatal error LNK1181: cannot open input file 'kernel32.lib' [C:\Users\Straky23\Documents\VisualStudioProjects\SmartTester\bin\CMakeFiles\3.17.1\CompilerIdCXX\CompilerIdCXX.vcxproj]
+
+    1 upozornŘnˇ
+    Poźet chyb: 1
+
+Uplynulě źas 00:00:00.74
+
+

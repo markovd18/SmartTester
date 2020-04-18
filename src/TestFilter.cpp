@@ -4,7 +4,7 @@
 #include <iostream>
 #include "TestFilter.h"
 
-TestFilter::TestFilter(scgms::IFilter *output) : CBase_Filter(output) {
+TestFilter::TestFilter(){
     //
 }
 
@@ -12,20 +12,23 @@ TestFilter::~TestFilter() {
     //
 }
 
-HRESULT TestFilter::QueryInterface(const GUID*  riid, void ** ppvObj) {
-    //
+HRESULT IfaceCalling TestFilter::Configure(IFilter_Configuration* configuration, refcnt::wstr_list *error_description){
+    //TODO
     return 0;
 }
 
-HRESULT TestFilter::Do_Configure(scgms::SFilter_Configuration configuration, refcnt::Swstr_list& error_description) {
-    //
+HRESULT IfaceCalling TestFilter::Execute(scgms::IDevice_Event *event){
     return 0;
 }
 
-HRESULT TestFilter::Do_Execute(scgms::UDevice_Event event){
-    //
-    std::cout << "hovno";
-    return 0;
-}
+//ULONG IfaceCalling TestFilter::AddRef(){
+//    return 0;
+//}
+//
+//ULONG IfaceCalling TestFilter::Release(){
+//    return 0;
+//}
 
-
+//HRESULT IfaceCalling TestFilter::QueryInterface(const GUID*  riid, void ** ppvObj){
+//    return 0;
+//}
