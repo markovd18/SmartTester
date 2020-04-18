@@ -8,6 +8,8 @@ out
 SmartTester.exe
 SmartTester.ilk
 SmartTester.pdb
+bin
+Debug
 
 #.idea files
 /.idea/vcs.xml

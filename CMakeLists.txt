@@ -1,4 +1,4 @@
-# CMakeList.txt : CMake project for SmartTester, include source and define
+﻿# CMakeList.txt : CMake project for SmartTester, include source and define
 # project specific logic here.
 #
 cmake_minimum_required (VERSION 3.0)
@@ -9,9 +9,13 @@ project ("SmartTester")
 set(CMAKE_CXX_STANDARD 17)
 
 add_library(Dynamic_Library "../smartcgms/src/common/rtl/Dynamic_Library.cpp")
-
+add_library(referencedImpl "../smartcgms/src/common/rtl/referencedImpl.cpp")
+add_library(FilterLib "../smartcgms/src/common/rtl/FilterLib.cpp")
+add_library(scgmsLib "../smartcgms/src/common/rtl/scgmsLib.cpp")
+add_library(DeviceLib "../smartcgms/src/common/rtl/DeviceLib.cpp")
+add_library(string_utils "../smartcgms/src/common/utils/string_utils.cpp")
 # Add source to this project's executable.
-add_executable (SmartTester "src/main.cpp")
+add_executable (SmartTester "src/main.cpp" src/TestFilter.cpp src/TestFilter.h src/UnitTester.cpp src/UnitTester.h)
 
 # set output directory to
 SET(output_dir "${PROJECT_SOURCE_DIR}/compiled")
@@ -30,9 +34,7 @@ FOREACH(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
     SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} "${output_dir}/${ORIG_OUT_CONFIG}")
 ENDFOREACH(OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES)
 
-target_link_libraries(SmartTester PUBLIC Dynamic_Library)
-
+target_link_libraries(SmartTester PUBLIC Dynamic_Library referencedImpl FilterLib scgmsLib DeviceLib string_utils)
 set_target_properties( SmartTester PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR} )
 
 
-# TODO: Add tests and install targets if needed.

@@ -3,46 +3,97 @@
 
 #include <iostream>
 #include "../../smartcgms/src/common/rtl/Dynamic_Library.h"
+#include "../../smartcgms/src/common/iface/FilterIface.h"
+#include "../../smartcgms/src/common/rtl/guid.h"
+#include "TestFilter.h"
 
 #ifdef _WIN32
-const wchar_t* lib_dir = L"../smartcgms/windows_64/filters/";
+ wchar_t* LIB_DIR = L"../../smartcgms/windows_64/filters/";
 #elif __APPLE__
-const wchar_t* lib_dir = L".../smartcgms/macos_64/filters/";
+const wchar_t* LIB_DIR = L"../../smartcgms/macos_64/filters/";
 #else
-const wchar_t* lib_dir = L"../smartcgms/debian_64/filters/";
+const wchar_t* LIB_DIR = L"../../smartcgms/debian_64/filters/";
 #endif
 
 /**
-*	Creates complete path to library from given path to folder and library file name.
+    Prints few types how to use the application and which parameters to specify.
 */
-wchar_t* get_library_path(const wchar_t* lib_dir, const wchar_t* lib) {
-	//zatím nefunguje
-	size_t path_len = std::wcslen(lib_dir);
-	size_t name_len = std::wcslen(lib);
-
-	wchar_t* path = new wchar_t[(size_t)path_len];
-	memcpy(path, lib_dir, path_len);
-	wcscat(path, lib);
-
-	std::cout << path;
-	return path;
+void print_help(){
+    std::wcerr << "Execute with two parameters <test_type> <tested_subject>\n"
+                  "<test_type> ... '-u' = filter unit tests, '-r' = scenario regression tests\n"
+                  "<tested_subject> ... <filter_path> - filter to test with unit tests, "
+                  "<config_path> - path to filter chain config file\n"
+                  "a) -u <filter_path>\n"
+                  "b) -r <config_path>\n";
 }
 
-int MainCalling main()
+/**
+    Loads library of given filter and starts unit tests.
+*/
+int execute_unit_testing(const char *filter_name){
+    CDynamic_Library::Set_Library_Base(LIB_DIR);
+
+    CDynamic_Library library;
+
+    if (!library.Load(L"log.dll")) {
+        std::cout << "Couldn't load library!";
+        return 3;
+    }
+
+    auto creator = library.Resolve<scgms::TCreate_Filter>("do_create_filter");
+
+    scgms::IFilter *created_filter = nullptr;
+
+    // id log filtru
+    GUID guid = {0xc0e942b9, 0x3928, 0x4B81, { 0x9b, 0x43, 0xa3, 0x47, 0x66, 0x82, 0x00, 0xba}};
+
+    TestFilter filter = TestFilter();
+    auto result = creator(&guid, &filter, &created_filter);
+    if (result == S_OK){
+        std::cout << "Filter created succesfully.";
+    } else {
+        std::cout << result;
+    }
+    return 0;
+}
+
+/**
+    Loads filter configuration and executes regression tests.
+*/
+int execute_regression_testing(const char* config_path){
+    return 0;
+}
+
+/**
+    Entry point of application.
+*/
+int MainCalling main(int argc, char * argv[])
 {
-	const wchar_t* lib = L"..\\smartcgms\\windows_64\\filters\\log.dll";
+    if (argc < 3){
+        std::wcerr << L"Wrong parameter count!\n";
+        print_help();
+        return 1;
+    }
 
-	CDynamic_Library* library = new CDynamic_Library();
-	
-	library->Load(lib);
-
-	if (library->Resolve("do_create_filter") != NULL) {
-		std::cout << true;
-	}
-	else {
-		std::cout << false << std::endl;
-	}
-
+    if (argv[1][0] == '-'){
+        switch (argv[1][1]){
+            case 'u':
+                //TODO unit testing
+                return execute_unit_testing(argv[2]);
+            case 'r':
+                //TODO regression testing
+                return execute_regression_testing(argv[2]);
+            default:
+                std::wcerr << L"Unknown type of testing requested!\n";
+                print_help();
+                return 2;
+        }
+    }
+    else {
+        std::wcerr << L"Unsupported command: " << argv[1] << "\n";
+        print_help();
+        return 2;
+    }
 
 	return 0;
 }
