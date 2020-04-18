@@ -9,8 +9,9 @@
 #include "../../smartcgms/src/common/rtl/referencedImpl.h"
 
 class TestFilter : public virtual scgms::IFilter, public virtual refcnt::CNotReferenced {
+    using IFilter_Configuration = refcnt::IVector_Container<scgms::IFilter_Parameter*>;
 public:
-    explicit TestFilter(scgms::IFilter *output);
+    explicit TestFilter();
     virtual ~TestFilter();
 
     virtual HRESULT IfaceCalling Execute(scgms::IDevice_Event *event) override final;

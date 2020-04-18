@@ -38,7 +38,7 @@ int execute_unit_testing(const char *filter_name){
 
     auto creator = library.Resolve<scgms::TCreate_Filter>("do_create_filter");
 
-    scgms::IFilter *created_filter = nullptr;
+    scgms::IFilter **created_filter = nullptr;
 
     // id log filtru
     GUID guid = {0xc0e942b9, 0x3928, 0x4B81, { 0x9b, 0x43, 0xa3, 0x47, 0x66, 0x82, 0x00, 0xba}};
