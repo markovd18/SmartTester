@@ -14,8 +14,9 @@ private:
     CDynamic_Library* library;
     TestFilter* testFilter;
     GUID* tested_guid;
+    scgms::IFilter* testedFilter;
+
     void loadLibrary();
-    void loadFilter();
 public:
     UnitTester(CDynamic_Library* library, TestFilter* testFilter);
     UnitTester(CDynamic_Library* library, TestFilter* testFilter, GUID* guid);
