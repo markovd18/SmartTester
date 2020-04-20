@@ -18,5 +18,6 @@ HRESULT IfaceCalling TestFilter::Configure(IFilter_Configuration* configuration,
 }
 
 HRESULT IfaceCalling TestFilter::Execute(scgms::IDevice_Event *event){
+    
     return 0;
 }

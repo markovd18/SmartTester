@@ -11,9 +11,10 @@
 
 class UnitTester {
 private:
-    CDynamic_Library *library;
-    TestFilter *testFilter;
+    CDynamic_Library* library;
+    TestFilter* testFilter;
     GUID* tested_guid;
+    scgms::IFilter* testedFilter;
 
     void loadLibrary();
 public:
