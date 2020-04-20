@@ -5,7 +5,9 @@
 #include "../../smartcgms/src/common/rtl/Dynamic_Library.h"
 #include "../../smartcgms/src/common/iface/FilterIface.h"
 #include "../../smartcgms/src/common/rtl/guid.h"
+#include "../../smartcgms/src/common/rtl/hresult.h"
 #include "TestFilter.h"
+#include "UnitTester.h"
 
 #ifdef _WIN32
 const wchar_t* LIB_DIR = L"../../smartcgms/windows_64/filters/";
@@ -14,6 +16,8 @@ const wchar_t* LIB_DIR = L"../../smartcgms/macos_64/filters/";
 #else
 const wchar_t* LIB_DIR = L"../../smartcgms/debian_64/filters/";
 #endif
+
+const wchar_t* GUID_FORMAT = L"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
 
 /**
     Prints few types how to use the application and which parameters to specify.
@@ -33,86 +37,87 @@ void print_help(){
 GUID parse_guid(std::string guid_string) {
     GUID guid{};
 
-    std::string delimeter = "-";
-    std::string token;
-    std::string sub_token;
-    size_t position = 0;
-    int counter = 0;
+    if (!guid_string.empty()) {
+        std::string delimeter = "-";
+        std::string token;
+        std::string sub_token;
+        size_t position = 0;
+        int counter = 0;
 
-    try {
-        while ((position = guid_string.find(delimeter)) != std::string::npos) {
-            token = guid_string.substr(0, position);
+        try {
+            while ((position = guid_string.find(delimeter)) != std::string::npos) {
+                token = guid_string.substr(0, position);
 
-            switch (counter) {
-            case 0:
-                guid.Data1 = std::stoul(token, nullptr, 16);
-                break;
-            case 1:
-                guid.Data2 = std::stoi(token, nullptr, 16);
-                break;
-            case 2:
-                guid.Data3 = std::stoi(token, nullptr, 16);
-                break;
-            case 3:
-                for (int i = 0; i < 2; i++) {
-                    sub_token = token.substr(0, 2 * sizeof(char));
-                    guid.Data4[i] = std::stoi(sub_token, nullptr, 16);
-                    token.erase(0, 2 * sizeof(char));
+                switch (counter) {
+                case 0:
+                    guid.Data1 = std::stoul(token, nullptr, 16);
+                    break;
+                case 1:
+                    guid.Data2 = std::stoi(token, nullptr, 16);
+                    break;
+                case 2:
+                    guid.Data3 = std::stoi(token, nullptr, 16);
+                    break;
+                case 3:
+                    for (int i = 0; i < 2; i++) {
+                        sub_token = token.substr(0, 2 * sizeof(char));
+                        guid.Data4[i] = std::stoi(sub_token, nullptr, 16);
+                        token.erase(0, 2 * sizeof(char));
+                    }
+                    break;
+                default:
+                    std::wcerr << L"Invalid format of GUID inserted!\n"
+                        <<"Expected format: " << GUID_FORMAT << "\n";
+                    exit(2);
                 }
-                break;
-            default:
-                std::wcerr << L"Invalid format of GUID inserted!\n";
-                exit(2);
+
+                guid_string.erase(0, position + delimeter.length());
+                counter++;
             }
 
-            guid_string.erase(0, position + delimeter.length());
-            counter++;
+            for (int i = 2; i < 8; i++) {
+                token = guid_string.substr(0, 2 * sizeof(char));
+                guid.Data4[i] = std::stoi(token, nullptr, 16);
+                guid_string.erase(0, 2 * sizeof(char));
+            }
         }
-
-        for (int i = 2; i < 8; i++) {
-            token = guid_string.substr(0, 2 * sizeof(char));
-            guid.Data4[i] = std::stoi(token, nullptr, 16);
-            guid_string.erase(0, 2 * sizeof(char));
-        }
-    } catch (std::runtime_error) {
-            std::wcerr << L"Invalid format of GUID inserted!\n";
+        catch (std::runtime_error) {
+            std::wcerr << L"Invalid format of GUID inserted!\n"
+                << L"Expected format: " << GUID_FORMAT << "\n";
             exit(2);
+        }
     }
-
     return guid;
 }
 
 /**
     Loads library of given filter and starts unit tests.
 */
-int execute_unit_testing(std::string guid_string){
+HRESULT execute_unit_testing(std::string guid_string){
     CDynamic_Library::Set_Library_Base(LIB_DIR);
     CDynamic_Library library;
-    GUID guid;
+    GUID guid = parse_guid(guid_string);
 
-    if (!guid_string.empty())
-    {
-        guid = parse_guid(guid_string);
-    }
-    // id log filtru {C0E942B9-3928-4B81-9B43-A347668200BA}
+    TestFilter testFilter = TestFilter();
+    UnitTester unitTester = UnitTester(&library, &testFilter, &guid);
 
     if (!library.Load(L"log.dll")) {
-        std::cout << "Couldn't load library!";
-        return 3;
+        std::cout << "Couldn't load library!\n";
+        return S_FALSE;
     }
 
     auto creator = library.Resolve<scgms::TCreate_Filter>("do_create_filter");
 
     scgms::IFilter *created_filter = nullptr;
-    TestFilter filter = TestFilter();
+    
 
-    auto result = creator(&guid, &filter, &created_filter);
+    auto result = creator(&guid, &testFilter, &created_filter);
     if (result == S_OK){
         std::cout << "Filter created succesfully.";
     } else {
         std::cout << result;
     }
-    return 0;
+    return S_OK;
 }
 
 /**
