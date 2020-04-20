@@ -11,11 +11,11 @@
 
 class UnitTester {
 private:
-    CDynamic_Library *library;
-    TestFilter *testFilter;
+    CDynamic_Library* library;
+    TestFilter* testFilter;
     GUID* tested_guid;
-
     void loadLibrary();
+    void loadFilter();
 public:
     UnitTester(CDynamic_Library* library, TestFilter* testFilter);
     UnitTester(CDynamic_Library* library, TestFilter* testFilter, GUID* guid);
