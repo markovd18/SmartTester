@@ -101,6 +101,8 @@ HRESULT execute_unit_testing(std::string guid_string) {
     TestFilter testFilter = TestFilter();
     UnitTester unitTester = UnitTester(&library, &testFilter, &guid);
 
+    unitTester.infoEventTest();
+
     return S_OK;
 }
 
