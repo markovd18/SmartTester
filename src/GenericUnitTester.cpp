@@ -1,37 +1,28 @@
-//
-// Created by David on 11.04.2020.
-//
-#include "UnitTester.h"
-#include "../../smartcgms/src/common/iface/DeviceIface.h"
-#include "../../smartcgms/src/common/rtl/DeviceLib.h"
-#include "../../smartcgms/src/common/rtl/referencedImpl.h"
-#include "../../smartcgms/src/common/rtl/hresult.h"
-#include "constants.h"
-#include <chrono>
 #include <iostream>
+#include <chrono>
+#include "../../smartcgms/src/common/rtl/hresult.h"
+#include "GuidFileMapper.h"
+#include "GenericUnitTester.h"
+#include "constants.h"
 
 /**
-    Creates an instance of UnitTester class. This constructor is intendet do be used, when you want to perform 
-    all sets of tests across all filters.
+    Creates an instance of GenericUnitTesterClass.
+    Pass initialized instance of CDynamic_Library, initialized instance of TestFilter
+    and GUID of filter that you want to be tested. If default invalid GUID is passed, 
+    all tests across all filters will be executed.
 */
-UnitTester::UnitTester(CDynamic_Library* library, TestFilter* testFilter) {
-    this->library = library;
-    this->testFilter = testFilter;
-    //TODO dopsat spuštìní všech testù, pokud nezadán guid
-}
-
-/**
-    Creates an instance of UnitTester class. This constructor is intended to use, when you want to test specific
-    filter, based on passed GUID.
-*/
-UnitTester::UnitTester(CDynamic_Library* library, TestFilter* testFilter, GUID* guid) {
+GenericUnitTester::GenericUnitTester(CDynamic_Library* library, TestFilter* testFilter, GUID* guid) {
     this->library = library;
     this->testFilter = testFilter;
     this->tested_guid = guid;
     this->loadFilter();
 }
 
-void UnitTester::loadFilter() {
+/**
+    Loads filter from dynamic library based on given GUID in constructor.
+    If loading fails, exits the program.
+*/
+void GenericUnitTester::loadFilter() {
     GuidFileMapper mapper = GuidFileMapper();
 
     library->Load(mapper.getFileName(*(this->tested_guid)));
@@ -53,11 +44,18 @@ void UnitTester::loadFilter() {
 }
 
 /**
-    If any filter is created, executes an info event upon it. Tested filter should send the info event to 
+    Checks if any filter was successfully loaded.
+*/
+bool GenericUnitTester::isFilterLoaded() {
+    return testedFilter != nullptr;
+}
+
+/**
+    If any filter is created, executes an info event upon it. Tested filter should send the info event to
     the output filter, which will be TestFilter. If the event is not recieved by TestFilter, test ends with an error.
 */
-void UnitTester::infoEventTest() {
-    if (!isFilterCreated())
+HRESULT GenericUnitTester::infoEventTest() {
+    if (!isFilterLoaded())
     {
         std::wcerr << L"No filter created! Cannot execute tests.\n";
         exit(E_FAIL);
@@ -66,13 +64,13 @@ void UnitTester::infoEventTest() {
     library->Unload();
     library->Load(L"../scgms");
 
-    scgms::IDevice_Event* event; 
+    scgms::IDevice_Event* event;
     auto creator = library->Resolve<scgms::TCreate_Device_Event>("create_device_event");
     auto result = creator(scgms::NDevice_Event_Code::Information, &event);
     if (FAILED(result))
     {
         std::wcerr << L"Error while creating \"Information\" IDevice_event!\n";
-        exit(E_FAIL);
+        return E_FAIL;
     }
 
     auto start = std::chrono::high_resolution_clock::now();
@@ -84,17 +82,17 @@ void UnitTester::infoEventTest() {
     if (duration > MAX_EXEC_TIME)
     {
         std::wcerr << L"ERROR! Test took longer than maximum allowed execution time! (" << MAX_EXEC_TIME << "ms)\n";
-        exit(E_ABORT);
+        return E_FAIL;
     }
     if (SUCCEEDED(result)) {
         std::wcerr << L"Info-event test passed.\n";
+        event->Release();
+        result = creator(scgms::NDevice_Event_Code::Shut_Down, &event);
+        testedFilter->Execute(event);
+        return S_OK;
     }
     else {
         std::wcerr << L"Info-event test didn't pass.\n";
+        return E_FAIL;
     }
-}
-
-
-bool UnitTester::isFilterCreated() {
-    return testedFilter != nullptr;
 }

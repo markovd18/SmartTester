@@ -7,7 +7,7 @@
 #include "../../smartcgms/src/common/rtl/guid.h"
 #include "../../smartcgms/src/common/rtl/hresult.h"
 #include "TestFilter.h"
-#include "UnitTester.h"
+#include "UnitTestExecutor.h"
 
 #ifdef _WIN32
 const wchar_t* LIB_DIR = L"../../smartcgms/windows_64/filters/";
@@ -93,17 +93,21 @@ GUID parse_guid(std::string guid_string) {
 /**
     Loads library of given filter and starts unit tests.
 */
-HRESULT execute_unit_testing(std::string guid_string) {
+void execute_unit_testing(std::string guid_string) {
     CDynamic_Library::Set_Library_Base(LIB_DIR);
     CDynamic_Library library;
     GUID guid = parse_guid(guid_string);
 
-    TestFilter testFilter = TestFilter();
-    UnitTester unitTester = UnitTester(&library, &testFilter, &guid);
+    UnitTestExecutor executor = UnitTestExecutor();
+    
+    if (Is_Invalid_GUID(guid))
+    {
+        executor.executeAllTests();
+    }
+    else {
+        executor.executeFilterTests(guid);
+    }
 
-    unitTester.infoEventTest();
-
-    return S_OK;
 }
 
 /**
@@ -131,7 +135,8 @@ int MainCalling main(int argc, char* argv[])
             if (argv[2] != NULL) {
                 parameter = argv[2];
             }
-            return execute_unit_testing(parameter);
+            execute_unit_testing(parameter);
+            break;
         case 'r':   // regression testing
             return execute_regression_testing(argv[2]);
         default:
