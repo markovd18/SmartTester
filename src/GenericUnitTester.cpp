@@ -1,5 +1,7 @@
 #include <iostream>
 #include <chrono>
+#include <thread>
+#include <condition_variable>
 #include "../../smartcgms/src/common/rtl/hresult.h"
 #include "GuidFileMapper.h"
 #include "GenericUnitTester.h"
@@ -18,6 +20,10 @@ GenericUnitTester::GenericUnitTester(CDynamic_Library* library, TestFilter* test
     this->loadFilter();
 }
 
+///     **************************************************
+///                     Helper methods
+///     **************************************************
+
 /**
     Loads filter from dynamic library based on given GUID in constructor.
     If loading fails, exits the program.
@@ -29,7 +35,7 @@ void GenericUnitTester::loadFilter() {
 
     if (!library->Is_Loaded()) {
         std::wcerr << L"Couldn't load library!\n";
-        exit(S_FALSE);
+        exit(E_FAIL);
     }
 
     auto creator = library->Resolve<scgms::TCreate_Filter>("do_create_filter");
@@ -38,9 +44,74 @@ void GenericUnitTester::loadFilter() {
     auto result = creator(tested_guid, testFilter, &created_filter);
     if (result != S_OK) {
         std::wcerr << L"Failed creating filter!\n";
-        exit(S_FALSE);
+        exit(E_FAIL);
     }
     this->testedFilter = created_filter;
+}
+
+/**
+    Executes all generic and specific tests for given filter.
+*/
+void GenericUnitTester::executeAllTests() {
+    executeGenericTests();
+    executeSpecificTests();
+}
+
+/**
+    Executes only tests which can be applied on every filter.
+*/
+void GenericUnitTester::executeGenericTests() {
+    executeTest(infoEventTest);
+    //FIXME!! nelze pøedávat ukazatel na èlenskou funkci jako ukazatel na klasickou funkci
+}
+
+/**
+    Executes test method passed as a parameter.
+*/
+void GenericUnitTester::executeTest(HRESULT(* test)()) {
+    
+    HRESULT result = runTestInThread(test);
+    printResult(result);
+}
+
+/**
+    Runs test method passed as a parameter in a separate thread.
+*/
+HRESULT GenericUnitTester::runTestInThread(HRESULT(*test)()) {
+
+    std::cv_status status;
+    HRESULT result = S_FALSE;
+
+    {
+        std::unique_lock<std::mutex> lock(testMutex);
+
+        std::thread thread(&runTest, test);
+
+        status = testCv.wait_for(lock, std::chrono::milliseconds(MAX_EXEC_TIME));
+        lock.unlock();
+
+        // poslat ShutDown
+
+        if (thread.joinable())
+        {
+            thread.join();
+        }
+    }
+
+    if (status == std::cv_status::timeout) {
+        result = E_TIMEOUT;
+    }
+    else {
+        result = lastTestResult ? S_OK : S_FALSE;
+    }
+
+    return result;
+}
+
+void GenericUnitTester::runTest(HRESULT(*test)()) {
+
+    lastTestResult = test();
+    testCv.notify_all();
 }
 
 /**
@@ -49,6 +120,11 @@ void GenericUnitTester::loadFilter() {
 bool GenericUnitTester::isFilterLoaded() {
     return testedFilter != nullptr;
 }
+
+
+//      **************************************************
+//                      Generic tests
+//      **************************************************
 
 /**
     If any filter is created, executes an info event upon it. Tested filter should send the info event to

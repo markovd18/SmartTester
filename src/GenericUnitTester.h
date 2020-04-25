@@ -16,16 +16,27 @@ private:
     GUID* tested_guid;
     scgms::IFilter* testedFilter;
 
+    std::mutex testMutex;
+    std::condition_variable testCv;
+    HRESULT lastTestResult;
+
     void loadFilter();
     HRESULT runTestInThread(HRESULT(*test)());
-    void printResult();
+    void runTest(HRESULT(* test)());
+    void executeTest(HRESULT(* test)());
+    void printResult(HRESULT result);
 public:
     GenericUnitTester(CDynamic_Library* library, TestFilter* testFilter, GUID* guid);
     HRESULT infoEventTest();
     bool isFilterLoaded();
-    virtual void executeAllTests();
+    void executeAllTests();
+    void executeGenericTests();
+    // Executes all tests for a specific filter. Needs to be implemented by derived class.
+    virtual void executeSpecificTests() = 0;
     //...
 
 };
+
+
 #endif // !_GENERIC_UNIT_TESTER_H_
 
