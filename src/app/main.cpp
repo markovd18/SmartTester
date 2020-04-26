@@ -110,8 +110,13 @@ void execute_unit_testing(std::string guid_string) {
 /**
     Loads filter configuration and executes regression tests.
 */
-int execute_regression_testing(const char* config_path) {
-    return 0;
+int execute_regression_testing(std::wstring config_filepath) {
+    CDynamic_Library::Set_Library_Base(LIB_DIR);
+    CDynamic_Library library;
+
+    ReggressionTester regTester = ReggressionTester(&library, config_filepath);
+    
+    return S_OK;
 }
 
 /**
@@ -126,9 +131,10 @@ int main(int argc, char* argv[]) {
         print_help();
         return 1;
     }
-
+   
     if (argv[1][0] == '-') {
         std::string parameter = "";
+        std::wstring config_filepath;
         switch (argv[1][1]) {
         case 'u':   // unit testing
             if (argv[2] != NULL) {
@@ -138,7 +144,8 @@ int main(int argc, char* argv[]) {
             execute_unit_testing(parameter);
             break;
         case 'r':   // regression testing
-            return execute_regression_testing(argv[2]);
+            config_filepath = argc > 1 ? std::wstring{ argv[1], argv[1] + strlen(argv[1]) } : std::wstring{};
+            return execute_regression_testing(config_filepath);
         default:
             std::wcerr << L"Unknown type of testing requested!\n";
             logger.error(L"Unknown type of testing requested!");
