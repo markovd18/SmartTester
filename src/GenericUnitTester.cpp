@@ -2,6 +2,7 @@
 #include <chrono>
 #include <thread>
 #include <condition_variable>
+#include <functional>
 #include "../../smartcgms/src/common/rtl/hresult.h"
 #include "GuidFileMapper.h"
 #include "GenericUnitTester.h"
@@ -17,6 +18,7 @@ GenericUnitTester::GenericUnitTester(CDynamic_Library* library, TestFilter* test
     this->library = library;
     this->testFilter = testFilter;
     this->tested_guid = guid;
+    this->loadScgmsLibrary();
     this->loadFilter();
 }
 
@@ -24,6 +26,20 @@ GenericUnitTester::GenericUnitTester(CDynamic_Library* library, TestFilter* test
 ///                     Helper methods
 ///     **************************************************
 
+/**
+    Loads scgms dynamic library required for sending events into filters.
+*/
+void GenericUnitTester::loadScgmsLibrary() {
+    CDynamic_Library::Set_Library_Base(LIB_DIR);
+    this->scgmsLib = &CDynamic_Library();
+
+    this->scgmsLib->Load(L"../scgms");    //TODO pokud nebude fungovat, dodìlat platformní pøípony
+    if (!scgmsLib->Is_Loaded())
+    {
+        std::wcerr << L"Error while loading SCGMS dynamic library!\n";
+        exit(E_FAIL);
+    }
+}
 /**
     Loads filter from dynamic library based on given GUID in constructor.
     If loading fails, exits the program.
@@ -61,14 +77,14 @@ void GenericUnitTester::executeAllTests() {
     Executes only tests which can be applied on every filter.
 */
 void GenericUnitTester::executeGenericTests() {
-    executeTest(infoEventTest);
-    //FIXME!! nelze pøedávat ukazatel na èlenskou funkci jako ukazatel na klasickou funkci
+    executeTest(std::bind(&GenericUnitTester::infoEventTest, this));
+
 }
 
 /**
     Executes test method passed as a parameter.
 */
-void GenericUnitTester::executeTest(HRESULT(* test)()) {
+void GenericUnitTester::executeTest(std::function<HRESULT(void)> test) {
     
     HRESULT result = runTestInThread(test);
     printResult(result);
@@ -77,7 +93,7 @@ void GenericUnitTester::executeTest(HRESULT(* test)()) {
 /**
     Runs test method passed as a parameter in a separate thread.
 */
-HRESULT GenericUnitTester::runTestInThread(HRESULT(*test)()) {
+HRESULT GenericUnitTester::runTestInThread(std::function<HRESULT(void)> test) {
 
     std::cv_status status;
     HRESULT result = S_FALSE;
@@ -85,12 +101,16 @@ HRESULT GenericUnitTester::runTestInThread(HRESULT(*test)()) {
     {
         std::unique_lock<std::mutex> lock(testMutex);
 
-        std::thread thread(&runTest, test);
+        std::thread thread(&GenericUnitTester::runTest, this, test);
 
         status = testCv.wait_for(lock, std::chrono::milliseconds(MAX_EXEC_TIME));
         lock.unlock();
 
         // poslat ShutDown
+        scgms::IDevice_Event* shutDown;
+        auto creator = scgmsLib->Resolve<scgms::TCreate_Device_Event>("create_device_event");
+        auto result = creator(scgms::NDevice_Event_Code::Shut_Down, &shutDown);
+        testedFilter->Execute(shutDown);
 
         if (thread.joinable())
         {
@@ -108,7 +128,10 @@ HRESULT GenericUnitTester::runTestInThread(HRESULT(*test)()) {
     return result;
 }
 
-void GenericUnitTester::runTest(HRESULT(*test)()) {
+/**
+    Runs passed test and notifies all other threads.
+*/
+void GenericUnitTester::runTest(std::function<HRESULT(void)> test) {
 
     lastTestResult = test();
     testCv.notify_all();
@@ -119,6 +142,30 @@ void GenericUnitTester::runTest(HRESULT(*test)()) {
 */
 bool GenericUnitTester::isFilterLoaded() {
     return testedFilter != nullptr;
+}
+
+/**
+    Prints information based on given HRESULT.
+*/
+void GenericUnitTester::printResult(HRESULT result) {
+    switch (result)
+    {
+    case S_OK:
+        std::wcout << "OK!\n";
+        break;
+    case S_FALSE:
+        std::wcout << "FAIL!\n";
+        break;
+    case E_FAIL:
+        std::wcout << "ERROR!\n";
+        break;
+    case E_TIMEOUT:
+        std::wcout << "TIMEOUT!\n";
+        break;
+    default:
+        std::wcerr << "UNKNOWN!\n";
+        break;
+    }
 }
 
 
@@ -137,11 +184,8 @@ HRESULT GenericUnitTester::infoEventTest() {
         exit(E_FAIL);
     }
 
-    library->Unload();
-    library->Load(L"../scgms");
-
     scgms::IDevice_Event* event;
-    auto creator = library->Resolve<scgms::TCreate_Device_Event>("create_device_event");
+    auto creator = this->scgmsLib->Resolve<scgms::TCreate_Device_Event>("create_device_event");
     auto result = creator(scgms::NDevice_Event_Code::Information, &event);
     if (FAILED(result))
     {
@@ -149,17 +193,8 @@ HRESULT GenericUnitTester::infoEventTest() {
         return E_FAIL;
     }
 
-    auto start = std::chrono::high_resolution_clock::now();
-
     result = testedFilter->Execute(event);
 
-    auto end = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-    if (duration > MAX_EXEC_TIME)
-    {
-        std::wcerr << L"ERROR! Test took longer than maximum allowed execution time! (" << MAX_EXEC_TIME << "ms)\n";
-        return E_FAIL;
-    }
     if (SUCCEEDED(result)) {
         std::wcerr << L"Info-event test passed.\n";
         event->Release();

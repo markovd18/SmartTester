@@ -3,6 +3,8 @@
 #ifndef _GENERIC_UNIT_TESTER_H_
 #define _GENERIC_UNIT_TESTER_H_
 
+#include <mutex>
+#include <functional>
 #include "../../smartcgms/src/common/rtl/Dynamic_Library.h"
 #include "TestFilter.h"
 
@@ -12,6 +14,7 @@
 class GenericUnitTester {
 private:
     CDynamic_Library* library;
+    CDynamic_Library* scgmsLib;
     TestFilter* testFilter;
     GUID* tested_guid;
     scgms::IFilter* testedFilter;
@@ -21,9 +24,10 @@ private:
     HRESULT lastTestResult;
 
     void loadFilter();
-    HRESULT runTestInThread(HRESULT(*test)());
-    void runTest(HRESULT(* test)());
-    void executeTest(HRESULT(* test)());
+    void loadScgmsLibrary();
+    HRESULT runTestInThread(std::function<HRESULT(void)> test);
+    void runTest(std::function<HRESULT(void)> test);
+    void executeTest(std::function<HRESULT(void)> test);
     void printResult(HRESULT result);
 public:
     GenericUnitTester(CDynamic_Library* library, TestFilter* testFilter, GUID* guid);
@@ -32,7 +36,7 @@ public:
     void executeAllTests();
     void executeGenericTests();
     // Executes all tests for a specific filter. Needs to be implemented by derived class.
-    virtual void executeSpecificTests() = 0;
+    virtual void executeSpecificTests();
     //...
 
 };

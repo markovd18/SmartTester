@@ -6,7 +6,7 @@
 
 class LogFilterUnitTester : public GenericUnitTester{
 public:
-	LogFilterUnitTester();
-	virtual void executeAllTests();
+	LogFilterUnitTester(CDynamic_Library* library, TestFilter* testFilter, GUID* guid);
+	virtual void executeSpecificTests();
 };
 #endif // !_LOG_FILTER_UNIT_TESTER_H_

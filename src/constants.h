@@ -3,6 +3,7 @@
 #ifndef _CONSTANTS_H_
 #define _CONSTANTS_H_
 #include "../../smartcgms/src/common/rtl/guid.h"
+#include "../../smartcgms/src/common/rtl/hresult.h"
 
 constexpr long MAX_EXEC_TIME = 1000; //ms
 constexpr HRESULT E_TIMEOUT = -2;

@@ -1,12 +1,13 @@
 #include <iostream>
 #include "UnitTestExecutor.h"
+#include "LogFilterUnitTester.h"
 #include "../../smartcgms/src/common/rtl/Dynamic_Library.h"
 #include "../../smartcgms/src/common/rtl/guid.h"
 #include "../../smartcgms/src/common/rtl/hresult.h"
 #include "constants.h"
 
 UnitTestExecutor::UnitTestExecutor() {
-	CDynamic_Library::Set_Library_Base(LIB_DIR);
+	//
 }
 
 /**
@@ -19,8 +20,10 @@ void UnitTestExecutor::executeFilterTests(GUID& guid) {
 		exit(E_INVALIDARG);
 	}
 	//TODO GenericFilterExecutor.executeAllTests() podle zadaného guid
-	CDynamic_Library library;
-	
+	CDynamic_Library library = CDynamic_Library();
+	TestFilter testFilter = TestFilter();
+	LogFilterUnitTester unitTester = LogFilterUnitTester(&library, &testFilter, &guid);
+	unitTester.executeGenericTests();
 }
 
 /**
