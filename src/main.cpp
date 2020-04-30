@@ -2,25 +2,14 @@
 //
 
 #include <iostream>
-#include "../../smartcgms/src/common/rtl/Dynamic_Library.h"
-#include "../../smartcgms/src/common/iface/FilterIface.h"
+#include <string>
 #include "../../smartcgms/src/common/rtl/guid.h"
 #include "../../smartcgms/src/common/rtl/hresult.h"
-#include "TestFilter.h"
-#include "UnitTester.h"
-
-#ifdef _WIN32
-const wchar_t* LIB_DIR = L"../../smartcgms/windows_64/filters/";
-#elif __APPLE__
-const wchar_t* LIB_DIR = L"../../smartcgms/macos_64/filters/";
-#else
-const wchar_t* LIB_DIR = L"../../smartcgms/debian_64/filters/";
-#endif
-
-const wchar_t* GUID_FORMAT = L"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
+#include "UnitTestExecutor.h"
+#include "constants.h"
 
 /**
-    Prints few types how to use the application and which parameters to specify.
+    Prints few tips on how to use the application and which parameters to specify.
 */
 void print_help() {
     std::wcerr << "Execute with two parameters <test_type> <tested_subject>\n"
@@ -91,17 +80,22 @@ GUID parse_guid(std::string guid_string) {
 }
 
 /**
-    Loads library of given filter and starts unit tests.
+    Executes unit testing on all filters or on specific filter with given GUID.
 */
-HRESULT execute_unit_testing(std::string guid_string) {
-    CDynamic_Library::Set_Library_Base(LIB_DIR);
-    CDynamic_Library library;
+void execute_unit_testing(std::string guid_string) {
+
     GUID guid = parse_guid(guid_string);
 
-    TestFilter testFilter = TestFilter();
-    UnitTester unitTester = UnitTester(&library, &testFilter, &guid);
+    UnitTestExecutor executor = UnitTestExecutor();
+    
+    if (Is_Invalid_GUID(guid))
+    {
+        executor.executeAllTests();
+    }
+    else {
+        executor.executeFilterTests(guid);
+    }
 
-    return S_OK;
 }
 
 /**
@@ -114,7 +108,7 @@ int execute_regression_testing(const char* config_path) {
 /**
     Entry point of application.
 */
-int MainCalling main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
     if (argc < 2) {
         std::wcerr << L"Wrong parameter count!\n";
@@ -129,7 +123,8 @@ int MainCalling main(int argc, char* argv[])
             if (argv[2] != NULL) {
                 parameter = argv[2];
             }
-            return execute_unit_testing(parameter);
+            execute_unit_testing(parameter);
+            break;
         case 'r':   // regression testing
             return execute_regression_testing(argv[2]);
         default:
