@@ -31,9 +31,8 @@ GenericUnitTester::GenericUnitTester(CDynamic_Library* library, TestFilter* test
     If loading fails, exits the program.
 */
 void GenericUnitTester::loadFilter() {
-    GuidFileMapper mapper = GuidFileMapper();
-
-    library->Load(mapper.getFileName(*(this->tested_guid)));
+  
+    library->Load(GuidFileMapper::GetInstance().getFileName(*(this->tested_guid)));
 
     if (!library->Is_Loaded()) {
         std::wcerr << L"Couldn't load library!\n";
