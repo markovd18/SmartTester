@@ -14,7 +14,6 @@
 class GenericUnitTester {
 private:
     CDynamic_Library* library;
-    CDynamic_Library* scgmsLib;
     TestFilter* testFilter;
     GUID* tested_guid;
     scgms::IFilter* testedFilter;
@@ -24,11 +23,11 @@ private:
     HRESULT lastTestResult;
 
     void loadFilter();
-    void loadScgmsLibrary();
     HRESULT runTestInThread(std::function<HRESULT(void)> test);
     void runTest(std::function<HRESULT(void)> test);
-    void executeTest(std::function<HRESULT(void)> test);
+    void executeTest(std::wstring testName, std::function<HRESULT(void)> test);
     void printResult(HRESULT result);
+
 public:
     GenericUnitTester(CDynamic_Library* library, TestFilter* testFilter, GUID* guid);
     HRESULT infoEventTest();
@@ -36,7 +35,7 @@ public:
     void executeAllTests();
     void executeGenericTests();
     // Executes all tests for a specific filter. Needs to be implemented by derived class.
-    virtual void executeSpecificTests();
+    virtual void executeSpecificTests() = 0;
     //...
 
 };

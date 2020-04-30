@@ -22,8 +22,9 @@ void UnitTestExecutor::executeFilterTests(GUID& guid) {
 	//TODO GenericFilterExecutor.executeAllTests() podle zadaného guid
 	CDynamic_Library library = CDynamic_Library();
 	TestFilter testFilter = TestFilter();
-	LogFilterUnitTester unitTester = LogFilterUnitTester(&library, &testFilter, &guid);
-	unitTester.executeGenericTests();
+	GenericUnitTester* unitTester = new LogFilterUnitTester(&library, &testFilter, &guid);
+	unitTester->executeAllTests();
+	delete unitTester;
 }
 
 /**

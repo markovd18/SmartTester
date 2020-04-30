@@ -18,7 +18,7 @@ GenericUnitTester::GenericUnitTester(CDynamic_Library* library, TestFilter* test
     this->library = library;
     this->testFilter = testFilter;
     this->tested_guid = guid;
-    this->loadScgmsLibrary();
+    CDynamic_Library::Set_Library_Base(LIB_DIR);
     this->loadFilter();
 }
 
@@ -26,20 +26,6 @@ GenericUnitTester::GenericUnitTester(CDynamic_Library* library, TestFilter* test
 ///                     Helper methods
 ///     **************************************************
 
-/**
-    Loads scgms dynamic library required for sending events into filters.
-*/
-void GenericUnitTester::loadScgmsLibrary() {
-    CDynamic_Library::Set_Library_Base(LIB_DIR);
-    this->scgmsLib = &CDynamic_Library();
-
-    this->scgmsLib->Load(L"../scgms");    //TODO pokud nebude fungovat, dodìlat platformní pøípony
-    if (!scgmsLib->Is_Loaded())
-    {
-        std::wcerr << L"Error while loading SCGMS dynamic library!\n";
-        exit(E_FAIL);
-    }
-}
 /**
     Loads filter from dynamic library based on given GUID in constructor.
     If loading fails, exits the program.
@@ -62,6 +48,8 @@ void GenericUnitTester::loadFilter() {
         std::wcerr << L"Failed creating filter!\n";
         exit(E_FAIL);
     }
+
+
     this->testedFilter = created_filter;
 }
 
@@ -77,15 +65,16 @@ void GenericUnitTester::executeAllTests() {
     Executes only tests which can be applied on every filter.
 */
 void GenericUnitTester::executeGenericTests() {
-    executeTest(std::bind(&GenericUnitTester::infoEventTest, this));
+    executeTest(L"info event test", std::bind(&GenericUnitTester::infoEventTest, this));
 
 }
 
 /**
     Executes test method passed as a parameter.
 */
-void GenericUnitTester::executeTest(std::function<HRESULT(void)> test) {
-    
+void GenericUnitTester::executeTest(std::wstring testName, std::function<HRESULT(void)> test) {
+
+    std::wcout << "Executing " << testName << "... ";
     HRESULT result = runTestInThread(test);
     printResult(result);
 }
@@ -108,9 +97,20 @@ HRESULT GenericUnitTester::runTestInThread(std::function<HRESULT(void)> test) {
 
         // poslat ShutDown
         scgms::IDevice_Event* shutDown;
-        auto creator = scgmsLib->Resolve<scgms::TCreate_Device_Event>("create_device_event");
+
+        CDynamic_Library* library = new CDynamic_Library;
+        library->Load(L"../scgms");
+
+        if (!library->Is_Loaded()) {
+            delete library;
+            std::wcerr << L"Couldn't load library!\n";
+            exit(E_FAIL);
+        }
+
+        auto creator = library->Resolve<scgms::TCreate_Device_Event>("create_device_event");
         auto result = creator(scgms::NDevice_Event_Code::Shut_Down, &shutDown);
         testedFilter->Execute(shutDown);
+        delete library;
 
         if (thread.joinable())
         {
@@ -122,7 +122,7 @@ HRESULT GenericUnitTester::runTestInThread(std::function<HRESULT(void)> test) {
         result = E_TIMEOUT;
     }
     else {
-        result = lastTestResult ? S_OK : S_FALSE;
+        result = lastTestResult;
     }
 
     return result;
@@ -132,7 +132,7 @@ HRESULT GenericUnitTester::runTestInThread(std::function<HRESULT(void)> test) {
     Runs passed test and notifies all other threads.
 */
 void GenericUnitTester::runTest(std::function<HRESULT(void)> test) {
-
+   
     lastTestResult = test();
     testCv.notify_all();
 }
@@ -180,30 +180,40 @@ void GenericUnitTester::printResult(HRESULT result) {
 HRESULT GenericUnitTester::infoEventTest() {
     if (!isFilterLoaded())
     {
-        std::wcerr << L"No filter created! Cannot execute tests.\n";
+        std::wcerr << L"No filter created! Cannot execute test.\n";
         exit(E_FAIL);
     }
 
     scgms::IDevice_Event* event;
-    auto creator = this->scgmsLib->Resolve<scgms::TCreate_Device_Event>("create_device_event");
+
+    CDynamic_Library* library = new CDynamic_Library;
+    library->Load(L"../scgms");
+    if (!library->Is_Loaded())
+    {
+        delete library;
+        std::wcerr << L"Couldn't load library!\n";
+        exit(E_FAIL);
+    }
+
+    auto creator = library->Resolve<scgms::TCreate_Device_Event>("create_device_event");
     auto result = creator(scgms::NDevice_Event_Code::Information, &event);
     if (FAILED(result))
     {
+        delete library;
         std::wcerr << L"Error while creating \"Information\" IDevice_event!\n";
         return E_FAIL;
     }
+    delete library;
 
     result = testedFilter->Execute(event);
 
     if (SUCCEEDED(result)) {
-        std::wcerr << L"Info-event test passed.\n";
         event->Release();
         result = creator(scgms::NDevice_Event_Code::Shut_Down, &event);
         testedFilter->Execute(event);
         return S_OK;
     }
     else {
-        std::wcerr << L"Info-event test didn't pass.\n";
         return E_FAIL;
     }
 }
