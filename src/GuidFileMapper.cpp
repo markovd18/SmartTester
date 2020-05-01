@@ -10,7 +10,7 @@ GuidFileMapper::GuidFileMapper() {
 }
 
 /**
-	Returns instence of GuidFileMapper.
+	Returns instance of GuidFileMapper.
 */
 GuidFileMapper& GuidFileMapper::GetInstance() {
 	static GuidFileMapper instance;
@@ -20,6 +20,11 @@ GuidFileMapper& GuidFileMapper::GetInstance() {
 /**
 	Returns file name of dynamic library asociated with given GUID.
 */
-const wchar_t* GuidFileMapper::getFileName(GUID& guid) {
+const wchar_t* GuidFileMapper::getFileName(const GUID& guid) {
 	return guidFileMap[guid];
+}
+
+const std::map<GUID, const wchar_t*> GuidFileMapper::getMap()
+{
+	return guidFileMap;
 }

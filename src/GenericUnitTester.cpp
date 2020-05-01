@@ -56,6 +56,7 @@ void GenericUnitTester::loadFilter() {
     Executes all generic and specific tests for given filter.
 */
 void GenericUnitTester::executeAllTests() {
+
     executeGenericTests();
     executeSpecificTests();
 }
@@ -64,6 +65,7 @@ void GenericUnitTester::executeAllTests() {
     Executes only tests which can be applied on every filter.
 */
 void GenericUnitTester::executeGenericTests() {
+    std::wcout << "Testing " << GuidFileMapper::GetInstance().getFileName(*tested_guid) << " filter:\n";
     executeTest(L"info event test", std::bind(&GenericUnitTester::infoEventTest, this));
 
 }
@@ -202,7 +204,6 @@ HRESULT GenericUnitTester::infoEventTest() {
         std::wcerr << L"Error while creating \"Information\" IDevice_event!\n";
         return E_FAIL;
     }
-    delete library;
 
     result = testedFilter->Execute(event);
 
@@ -210,9 +211,11 @@ HRESULT GenericUnitTester::infoEventTest() {
         event->Release();
         result = creator(scgms::NDevice_Event_Code::Shut_Down, &event);
         testedFilter->Execute(event);
+        delete library;
         return S_OK;
     }
     else {
+        delete library;
         return E_FAIL;
     }
 }
