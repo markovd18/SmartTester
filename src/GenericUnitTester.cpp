@@ -14,7 +14,7 @@
     and GUID of filter that you want to be tested. If default invalid GUID is passed, 
     all tests across all filters will be executed.
 */
-GenericUnitTester::GenericUnitTester(CDynamic_Library* library, TestFilter* testFilter, GUID* guid) {
+GenericUnitTester::GenericUnitTester(CDynamic_Library* library, TestFilter* testFilter,const GUID* guid) {
     this->library = library;
     this->testFilter = testFilter;
     this->tested_guid = guid;

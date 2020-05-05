@@ -1,7 +1,7 @@
 #include <iostream>
 #include "UnitTestExecutor.h"
 #include "LogFilterUnitTester.h"
-#include "FileTesterMapper.h"
+#include "GuidTesterMapper.h"
 #include "GuidFileMapper.h"
 #include "../../smartcgms/src/common/rtl/Dynamic_Library.h"
 #include "../../smartcgms/src/common/rtl/guid.h"
@@ -48,6 +48,6 @@ GenericUnitTester* UnitTestExecutor::getUnitTester(const GUID& guid) {
 	TestFilter testFilter = TestFilter();
 	const wchar_t* fileName = GuidFileMapper::GetInstance().getFileName(guid);
 
-	GenericUnitTester* unitTester = FileTesterMapper::GetInstance().getTesterInstance(fileName, &library, &testFilter, &guid);
+	GenericUnitTester* unitTester = GuidTesterMapper::GetInstance().getTesterInstance(&library, &testFilter, &guid);
 	return unitTester;
 }

@@ -15,7 +15,7 @@ class GenericUnitTester {
 private:
     CDynamic_Library* library;
     TestFilter* testFilter;
-    GUID* tested_guid;
+    const GUID* tested_guid;
     scgms::IFilter* testedFilter;
 
     std::mutex testMutex;
@@ -29,7 +29,7 @@ private:
     void printResult(HRESULT result);
 
 public:
-    GenericUnitTester(CDynamic_Library* library, TestFilter* testFilter, GUID* guid);
+    GenericUnitTester(CDynamic_Library* library, TestFilter* testFilter,const GUID* guid);
     HRESULT infoEventTest();
     bool isFilterLoaded();
     void executeAllTests();
