@@ -21,7 +21,6 @@ void UnitTestExecutor::executeFilterTests(const GUID& guid) {
 		std::wcerr << L"Invalid GUID passed!\n";
 		exit(E_INVALIDARG);
 	}
-	//TODO GenericFilterExecutor.executeAllTests() podle zadaného guid
 	
 	GenericUnitTester* unitTester = getUnitTester(guid);
 	unitTester->executeAllTests();
@@ -44,10 +43,9 @@ void UnitTestExecutor::executeAllTests() {
 	Returns instance of derived unit tester class based on given guid.
 */
 GenericUnitTester* UnitTestExecutor::getUnitTester(const GUID& guid) {
-	CDynamic_Library library = CDynamic_Library();
-	TestFilter testFilter = TestFilter();
-	const wchar_t* fileName = GuidFileMapper::GetInstance().getFileName(guid);
+	CDynamic_Library *library = new CDynamic_Library;
+	TestFilter *testFilter = new TestFilter;
 
-	GenericUnitTester* unitTester = GuidTesterMapper::GetInstance().getTesterInstance(&library, &testFilter, &guid);
+	GenericUnitTester* unitTester = GuidTesterMapper::GetInstance().getTesterInstance(library, testFilter, &guid);
 	return unitTester;
 }

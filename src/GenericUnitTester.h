@@ -13,7 +13,8 @@
 */
 class GenericUnitTester {
 private:
-    CDynamic_Library* library;
+    CDynamic_Library* filterLibrary;
+    CDynamic_Library* scgmsLibrary;
     TestFilter* testFilter;
     const GUID* tested_guid;
     scgms::IFilter* testedFilter;
@@ -23,6 +24,7 @@ private:
     HRESULT lastTestResult;
 
     void loadFilter();
+    void loadScgmsLibrary();
     HRESULT runTestInThread(std::function<HRESULT(void)> test);
     void runTest(std::function<HRESULT(void)> test);
     void executeTest(std::wstring testName, std::function<HRESULT(void)> test);
@@ -30,6 +32,7 @@ private:
 
 public:
     GenericUnitTester(CDynamic_Library* library, TestFilter* testFilter,const GUID* guid);
+    ~GenericUnitTester();
     HRESULT infoEventTest();
     bool isFilterLoaded();
     void executeAllTests();
