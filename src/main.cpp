@@ -88,8 +88,8 @@ void execute_unit_testing(std::string guid_string) {
 
     UnitTestExecutor executor = UnitTestExecutor();
     
-    if (Is_Invalid_GUID(guid))
-    {
+    if (Is_Invalid_GUID(guid))  //invalid means 00000000-0000-0000-0000-000000000000, which will only be, if no guid is given
+    {                           //if guid was invalid in a sense that given guid doesn't belong to any filter, the app will end later on
         executor.executeAllTests();
     }
     else {

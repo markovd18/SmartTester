@@ -14,12 +14,21 @@
     and GUID of filter that you want to be tested. If default invalid GUID is passed, 
     all tests across all filters will be executed.
 */
-GenericUnitTester::GenericUnitTester(CDynamic_Library* library, TestFilter* testFilter, GUID* guid) {
-    this->library = library;
+GenericUnitTester::GenericUnitTester(CDynamic_Library* library, TestFilter* testFilter,const GUID* guid) {
+    this->filterLibrary = library;
     this->testFilter = testFilter;
     this->tested_guid = guid;
     CDynamic_Library::Set_Library_Base(LIB_DIR);
-    this->loadFilter();
+    loadFilter();
+    loadScgmsLibrary();
+}
+
+GenericUnitTester::~GenericUnitTester() {
+    filterLibrary->Unload();
+    delete filterLibrary;
+    scgmsLibrary->Unload();
+    delete scgmsLibrary;
+    delete testFilter;
 }
 
 ///     **************************************************
@@ -32,14 +41,14 @@ GenericUnitTester::GenericUnitTester(CDynamic_Library* library, TestFilter* test
 */
 void GenericUnitTester::loadFilter() {
   
-    library->Load(GuidFileMapper::GetInstance().getFileName(*(this->tested_guid)));
+    filterLibrary->Load(GuidFileMapper::GetInstance().getFileName(*(this->tested_guid)));
 
-    if (!library->Is_Loaded()) {
-        std::wcerr << L"Couldn't load library!\n";
+    if (!filterLibrary->Is_Loaded()) {
+        std::wcerr << L"Couldn't load filter library!\n";
         exit(E_FAIL);
     }
 
-    auto creator = library->Resolve<scgms::TCreate_Filter>("do_create_filter");
+    auto creator = filterLibrary->Resolve<scgms::TCreate_Filter>("do_create_filter");
 
     scgms::IFilter* created_filter = nullptr;
     auto result = creator(tested_guid, testFilter, &created_filter);
@@ -53,9 +62,27 @@ void GenericUnitTester::loadFilter() {
 }
 
 /**
+    Loads dynamic library "scgms" which will be needed for testing.
+    If loading fails, exits the program.
+*/
+void GenericUnitTester::loadScgmsLibrary() {
+    CDynamic_Library *scgms = new CDynamic_Library;
+
+    scgms->Load(L"../scgms");
+    if (!scgms->Is_Loaded())
+    {
+        std::wcerr << L"Couldn't load scgms library!\n";
+        exit(E_FAIL);
+    }
+
+    scgmsLibrary = scgms;
+}
+
+/**
     Executes all generic and specific tests for given filter.
 */
 void GenericUnitTester::executeAllTests() {
+
     executeGenericTests();
     executeSpecificTests();
 }
@@ -64,6 +91,7 @@ void GenericUnitTester::executeAllTests() {
     Executes only tests which can be applied on every filter.
 */
 void GenericUnitTester::executeGenericTests() {
+    std::wcout << "Testing " << GuidFileMapper::GetInstance().getFileName(*tested_guid) << " filter:\n";
     executeTest(L"info event test", std::bind(&GenericUnitTester::infoEventTest, this));
 
 }
@@ -97,19 +125,9 @@ HRESULT GenericUnitTester::runTestInThread(std::function<HRESULT(void)> test) {
         // poslat ShutDown
         scgms::IDevice_Event* shutDown;
 
-        CDynamic_Library* library = new CDynamic_Library;
-        library->Load(L"../scgms");
-
-        if (!library->Is_Loaded()) {
-            delete library;
-            std::wcerr << L"Couldn't load library!\n";
-            exit(E_FAIL);
-        }
-
-        auto creator = library->Resolve<scgms::TCreate_Device_Event>("create_device_event");
+        auto creator = scgmsLibrary->Resolve<scgms::TCreate_Device_Event>("create_device_event");
         auto result = creator(scgms::NDevice_Event_Code::Shut_Down, &shutDown);
         testedFilter->Execute(shutDown);
-        delete library;
 
         if (thread.joinable())
         {
@@ -185,24 +203,13 @@ HRESULT GenericUnitTester::infoEventTest() {
 
     scgms::IDevice_Event* event;
 
-    CDynamic_Library* library = new CDynamic_Library;
-    library->Load(L"../scgms");
-    if (!library->Is_Loaded())
-    {
-        delete library;
-        std::wcerr << L"Couldn't load library!\n";
-        exit(E_FAIL);
-    }
-
-    auto creator = library->Resolve<scgms::TCreate_Device_Event>("create_device_event");
+    auto creator = scgmsLibrary->Resolve<scgms::TCreate_Device_Event>("create_device_event");
     auto result = creator(scgms::NDevice_Event_Code::Information, &event);
     if (FAILED(result))
     {
-        delete library;
         std::wcerr << L"Error while creating \"Information\" IDevice_event!\n";
         return E_FAIL;
     }
-    delete library;
 
     result = testedFilter->Execute(event);
 

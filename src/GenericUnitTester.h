@@ -13,9 +13,10 @@
 */
 class GenericUnitTester {
 private:
-    CDynamic_Library* library;
+    CDynamic_Library* filterLibrary;
+    CDynamic_Library* scgmsLibrary;
     TestFilter* testFilter;
-    GUID* tested_guid;
+    const GUID* tested_guid;
     scgms::IFilter* testedFilter;
 
     std::mutex testMutex;
@@ -23,13 +24,15 @@ private:
     HRESULT lastTestResult;
 
     void loadFilter();
+    void loadScgmsLibrary();
     HRESULT runTestInThread(std::function<HRESULT(void)> test);
     void runTest(std::function<HRESULT(void)> test);
     void executeTest(std::wstring testName, std::function<HRESULT(void)> test);
     void printResult(HRESULT result);
 
 public:
-    GenericUnitTester(CDynamic_Library* library, TestFilter* testFilter, GUID* guid);
+    GenericUnitTester(CDynamic_Library* library, TestFilter* testFilter,const GUID* guid);
+    ~GenericUnitTester();
     HRESULT infoEventTest();
     bool isFilterLoaded();
     void executeAllTests();

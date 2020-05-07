@@ -3,7 +3,6 @@
 #define _GUID_FILE_MAPPER_H_
 
 #include <map>
-#include <string>
 #include "../../smartcgms/src/common/rtl/guid.h"
 
 /**
@@ -17,8 +16,8 @@ private:
 
 public:
 	static GuidFileMapper& GetInstance();
-	const wchar_t* getFileName(GUID& guid);
-
+	const wchar_t* getFileName(const GUID& guid);
+	const std::map<GUID, const wchar_t*> getMap();
 	GuidFileMapper(GuidFileMapper const&) = delete;
 	void operator=(GuidFileMapper const&) = delete;
 

@@ -1,6 +1,6 @@
 #include "LogFilterUnitTester.h"
 
-LogFilterUnitTester::LogFilterUnitTester(CDynamic_Library* library, TestFilter* testFilter, GUID* guid) : GenericUnitTester(library, testFilter, guid){
+LogFilterUnitTester::LogFilterUnitTester(CDynamic_Library* library, TestFilter* testFilter,const GUID* guid) : GenericUnitTester(library, testFilter, guid){
 	//
 }
 

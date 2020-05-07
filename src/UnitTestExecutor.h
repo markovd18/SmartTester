@@ -6,6 +6,7 @@
 #define SMARTTESTER_UNITTESTER_H
 
 #include "../../smartcgms/src/common/rtl/guid.h"
+#include "GenericUnitTester.h"
 
 /**
 	Executes all implemented tests for a filter, when passing valid GUID, 
@@ -15,7 +16,10 @@ class UnitTestExecutor {
 
 public:
 	UnitTestExecutor();
-	void executeFilterTests(GUID &guid);
+	void executeFilterTests(const GUID &guid);
 	void executeAllTests();
+
+private:
+	GenericUnitTester* getUnitTester(const GUID& guid);
 };
 #endif //SMARTTESTER_UNITTESTER_H
