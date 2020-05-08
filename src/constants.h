@@ -6,7 +6,13 @@
 #include "../../smartcgms/src/common/rtl/hresult.h"
 
 constexpr long MAX_EXEC_TIME = 1000; //ms
-constexpr HRESULT E_TIMEOUT = -2;
+
+constexpr HRESULT E_TIMEOUT = -2L;
+constexpr HRESULT S_INFO = 10L;
+constexpr HRESULT S_WARNING = 11L;
+constexpr HRESULT S_ERROR = 12L;
+constexpr HRESULT S_SHUTDOWN = 13L;
+
 constexpr GUID LOG_GUID = { 0xc0e942b9, 0x3928, 0x4b81, {0x9b, 0x43, 0xa3, 0x47, 0x66, 0x82, 0x00, 0xba} };
 constexpr wchar_t* GUID_FORMAT = L"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
 

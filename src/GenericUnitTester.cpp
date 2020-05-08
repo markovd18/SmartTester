@@ -202,7 +202,7 @@ HRESULT GenericUnitTester::infoEventTest() {
     }
 
     scgms::IDevice_Event* event;
-
+    
     auto creator = scgmsLibrary->Resolve<scgms::TCreate_Device_Event>("create_device_event");
     auto result = creator(scgms::NDevice_Event_Code::Information, &event);
     if (FAILED(result))
@@ -212,10 +212,14 @@ HRESULT GenericUnitTester::infoEventTest() {
     }
 
     result = testedFilter->Execute(event);
-
-    if (SUCCEEDED(result)) {
-        event->Release();
+    if (result == S_INFO) {
         result = creator(scgms::NDevice_Event_Code::Shut_Down, &event);
+        
+        if (FAILED(result))
+        {
+            std::wcerr << L"Error while creating \"Shut_Down\" IDevice_event!\n";
+            return E_FAIL;
+        }
         testedFilter->Execute(event);
         return S_OK;
     }
