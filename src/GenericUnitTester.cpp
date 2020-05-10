@@ -18,7 +18,7 @@ GenericUnitTester::GenericUnitTester(CDynamic_Library* library, TestFilter* test
     this->filterLibrary = library;
     this->testFilter = testFilter;
     this->tested_guid = guid;
-    CDynamic_Library::Set_Library_Base(LIB_DIR);
+    //CDynamic_Library::Set_Library_Base(LIB_DIR);
     loadFilter();
     loadScgmsLibrary();
 }
@@ -68,7 +68,7 @@ void GenericUnitTester::loadFilter() {
 void GenericUnitTester::loadScgmsLibrary() {
     CDynamic_Library *scgms = new CDynamic_Library;
 
-    scgms->Load(L"../scgms");
+    scgms->Load(L"scgms");
     if (!scgms->Is_Loaded())
     {
         std::wcerr << L"Couldn't load scgms library!\n";
@@ -136,7 +136,8 @@ HRESULT GenericUnitTester::runTestInThread(std::function<HRESULT(void)> test) {
     }
 
     if (status == std::cv_status::timeout) {
-        result = E_TIMEOUT;
+        std::wcerr << L"TIMEOUT ";
+        result = E_FAIL;
     }
     else {
         result = lastTestResult;
@@ -176,9 +177,6 @@ void GenericUnitTester::printResult(HRESULT result) {
     case E_FAIL:
         std::wcout << "ERROR!\n";
         break;
-    case E_TIMEOUT:
-        std::wcout << "TIMEOUT!\n";
-        break;
     default:
         std::wcerr << "UNKNOWN!\n";
         break;
@@ -212,16 +210,23 @@ HRESULT GenericUnitTester::infoEventTest() {
     }
 
     result = testedFilter->Execute(event);
-    if (result == S_INFO) {
-        result = creator(scgms::NDevice_Event_Code::Shut_Down, &event);
-        
-        if (FAILED(result))
+
+    if (SUCCEEDED(result)) {
+        scgms::TDevice_Event* recievedEvent = testFilter->getRecievedEvent();
+        if (recievedEvent->event_code == scgms::NDevice_Event_Code::Information)
         {
-            std::wcerr << L"Error while creating \"Shut_Down\" IDevice_event!\n";
+            result = creator(scgms::NDevice_Event_Code::Shut_Down, &event);
+            if (FAILED(result))
+            {
+                std::wcerr << L"Error while creating \"Shut_Down\" IDevice_event!\n";
+                return E_FAIL;
+            }
+            testedFilter->Execute(event);
+            return S_OK;
+        }
+        else {
             return E_FAIL;
         }
-        testedFilter->Execute(event);
-        return S_OK;
     }
     else {
         return E_FAIL;
