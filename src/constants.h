@@ -11,13 +11,13 @@ constexpr GUID LOG_GUID = { 0xc0e942b9, 0x3928, 0x4b81, {0x9b, 0x43, 0xa3, 0x47,
 constexpr wchar_t* GUID_FORMAT = L"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
 
 #ifdef _WIN32
-
+constexpr wchar_t* SCGMS_LIB = L"scgms";
 constexpr wchar_t* LOG_LIBRARY = L"filters/log";
-constexpr wchar_t* DRAWING_LIBRARY = L"drawing";
+constexpr wchar_t* DRAWING_LIBRARY = L"filters/drawing";
 
 #else
 
-
+constexpr wchar_t* SCGMS_LIB = L"libscgms";
 constexpr wchar_t* LOG_LIBRARY = L"filters/liblog";
 constexpr wchar_t* DRAWING_LIBRARY = L"filters/libdrawing";
 

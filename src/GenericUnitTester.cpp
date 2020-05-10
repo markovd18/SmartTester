@@ -68,7 +68,7 @@ void GenericUnitTester::loadFilter() {
 void GenericUnitTester::loadScgmsLibrary() {
     CDynamic_Library *scgms = new CDynamic_Library;
 
-    scgms->Load(L"scgms");
+    scgms->Load(SCGMS_LIB);
     if (!scgms->Is_Loaded())
     {
         std::wcerr << L"Couldn't load scgms library!\n";
