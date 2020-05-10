@@ -3,6 +3,7 @@
 //
 #include <iostream>
 #include "TestFilter.h"
+#include "constants.h"
 
 TestFilter::TestFilter(){
     //
@@ -18,6 +19,16 @@ HRESULT IfaceCalling TestFilter::Configure(IFilter_Configuration* configuration,
 }
 
 HRESULT IfaceCalling TestFilter::Execute(scgms::IDevice_Event *event){
-    
-    return 0;
+    if (event == nullptr)
+    {
+        return E_FAIL;
+    }
+    event->Raw(&recievedEvent);
+    event->Release();
+    return S_OK;
+}
+
+scgms::TDevice_Event* TestFilter::getRecievedEvent()
+{
+    return recievedEvent;
 }
