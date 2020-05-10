@@ -233,6 +233,7 @@ HRESULT GenericUnitTester::infoEventTest() {
             if (FAILED(result))
             {
                 std::wcerr << L"Error while creating \"Shut_Down\" IDevice_event!\n";
+                logger.error(L"Error while creating \"Shut_Down\" IDevice_event!");
                 return E_FAIL;
             }
             testedFilter->Execute(event);
