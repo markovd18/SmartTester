@@ -4,6 +4,7 @@
 
 #include <map>
 #include "../../smartcgms/src/common/rtl/guid.h"
+#include "Logger.h"
 
 /**
 	Singleton class used for mapping GUID to propper dynamic library file name.
@@ -15,6 +16,7 @@ private:
 	GuidFileMapper();
 
 public:
+	Logger logger;
 	static GuidFileMapper& GetInstance();
 	const wchar_t* getFileName(const GUID& guid);
 	const std::map<GUID, const wchar_t*> getMap();

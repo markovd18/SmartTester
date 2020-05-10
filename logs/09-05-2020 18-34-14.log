@@ -1,0 +1,20 @@
+[INFO - 09.05.2020 18:34:14] Parsing GUID.
+[INFO - 09.05.2020 18:34:14] Loading log filter
+[INFO - 09.05.2020 18:34:14] Filter loaded from dynamic library.
+[INFO - 09.05.2020 18:34:14] Loading dynamic library scgms.
+[INFO - 09.05.2020 18:34:14] Dynamic library scgms loaded.
+[INFO - 09.05.2020 18:34:14] Executing all tests.
+[INFO - 09.05.2020 18:34:14] Executing generic tests.
+[INFO - 09.05.2020 18:34:14] Testing filter.
+[INFO - 09.05.2020 18:34:14] Executing test.
+[INFO - 09.05.2020 18:34:14] Running test in thread.
+[INFO - 09.05.2020 18:34:14] Running passed test.
+[INFO - 09.05.2020 18:34:14] Filter created.
+[INFO - 09.05.2020 18:34:14] Joining thread.
+[INFO - 09.05.2020 18:34:14] Printing result.
+[INFO - 09.05.2020 18:34:14] Executing all tests.
+[INFO - 09.05.2020 18:34:14] Creating dynamic library.
+[INFO - 09.05.2020 18:34:14] Creating test filter.
+[INFO - 09.05.2020 18:34:14] Getting unit tester.
+[INFO - 09.05.2020 18:34:14] Getting instance of class derived from GenericUnitTester based on given file name and guid.
+[INFO - 09.05.2020 18:34:14] Creating an instance of class derived from GenericUnitTester based on given guid.

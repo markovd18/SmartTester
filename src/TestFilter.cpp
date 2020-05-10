@@ -4,6 +4,7 @@
 #include <iostream>
 #include "TestFilter.h"
 #include "constants.h"
+#include "Logger.h"
 
 TestFilter::TestFilter(){
     //
@@ -18,8 +19,12 @@ HRESULT IfaceCalling TestFilter::Configure(IFilter_Configuration* configuration,
     return 0;
 }
 
-HRESULT IfaceCalling TestFilter::Execute(scgms::IDevice_Event *event){
-    if (event == nullptr)
+HRESULT IfaceCalling TestFilter::Execute(scgms::IDevice_Event *event) {
+    HRESULT result = S_OK;
+    scgms::TDevice_Event* raw_event;
+
+    event->Raw(&raw_event);
+    switch (raw_event->event_code)
     {
         return E_FAIL;
     }

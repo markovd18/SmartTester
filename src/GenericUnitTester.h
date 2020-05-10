@@ -31,6 +31,7 @@ private:
     void printResult(HRESULT result);
 
 public:
+    Logger logger;
     GenericUnitTester(CDynamic_Library* library, TestFilter* testFilter,const GUID* guid);
     ~GenericUnitTester();
     HRESULT infoEventTest();

@@ -4,9 +4,7 @@
 #include "constants.h"
 
 GuidFileMapper::GuidFileMapper() {
-
 	guidFileMap.insert(std::pair<GUID, const wchar_t*>(LOG_GUID, LOG_LIBRARY));
-	
 }
 
 /**
@@ -24,7 +22,6 @@ const wchar_t* GuidFileMapper::getFileName(const GUID& guid) {
 	return guidFileMap[guid];
 }
 
-const std::map<GUID, const wchar_t*> GuidFileMapper::getMap()
-{
+const std::map<GUID, const wchar_t*> GuidFileMapper::getMap() {
 	return guidFileMap;
 }
