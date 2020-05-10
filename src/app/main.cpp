@@ -114,7 +114,7 @@ int execute_regression_testing(std::wstring config_filepath) {
     CDynamic_Library::Set_Library_Base(LIB_DIR);
     CDynamic_Library library;
 
-    ReggressionTester regTester = ReggressionTester(&library, config_filepath);
+    RegressionTester regTester = RegressionTester(&library, config_filepath);
     
     return S_OK;
 }
@@ -144,7 +144,7 @@ int main(int argc, char* argv[]) {
             execute_unit_testing(parameter);
             break;
         case 'r':   // regression testing
-            config_filepath = argc > 1 ? std::wstring{ argv[1], argv[1] + strlen(argv[1]) } : std::wstring{};
+            config_filepath = argc > 2 ? std::wstring{ argv[2], argv[2] + strlen(argv[2]) } : std::wstring{};
             return execute_regression_testing(config_filepath);
         default:
             std::wcerr << L"Unknown type of testing requested!\n";

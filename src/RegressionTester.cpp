@@ -4,6 +4,8 @@
 #include "RegressionTester.h"
 #include "../../smartcgms/src/common/iface/DeviceIface.h"
 #include "../../smartcgms/src/common/rtl/FilterLib.h""
+#include "../../smartcgms/src/common/rtl/scgmsLib.h"
+#include "../../smartcgms/src/common/rtl/referencedImpl.h"
 #include <iostream>
 
 RegressionTester::RegressionTester(CDynamic_Library* library, std::wstring config_filepath) {
@@ -30,6 +32,11 @@ void print_and_empty_errors(refcnt::Swstr_list errors) {
 }
 
 void RegressionTester::loadLibrary() {
+	library->Load(L"../scgms");
+	if (!library->Is_Loaded()) {
+		std::wcerr << L"Couldn't load library!\n";
+		exit(S_FALSE);
+	}
 	scgms::SPersistent_Filter_Chain_Configuration configuration;
 
 	refcnt::Swstr_list errors;
@@ -57,8 +64,9 @@ void RegressionTester::loadLibrary() {
 		//return 1;
 	}
 
-	/*
+	
 	// wait for filters to finish, or user to close the app
-	gFilter_Executor->Wait_For_Shutdown_and_Terminate();*/
+	gFilter_Executor->Wait_For_Shutdown_and_Terminate();
+	//std::wcerr << L"Everything went well" << std::endl;
 }
 
