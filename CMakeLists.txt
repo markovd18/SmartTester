@@ -17,7 +17,7 @@ add_library(string_utils "../smartcgms/src/common/utils/string_utils.cpp")
 # Add source to this project's executable.
 add_executable (SmartTester "src/main.cpp" src/TestFilter.cpp src/TestFilter.h src/UnitTestExecutor.cpp src/UnitTestExecutor.h 
         src/GuidFileMapper.cpp src/GuidFileMapper.h src/constants.h src/GenericUnitTester.h src/GenericUnitTester.cpp src/LogFilterUnitTester.h 
-        src/LogFilterUnitTester.cpp src/FileTesterMapper.h src/FileTesterMapper.cpp)
+        src/LogFilterUnitTester.cpp src/GuidTesterMapper.h src/GuidTesterMapper.cpp src/Logger.h src/Logger.cpp)
 
 # set output directory to
 SET(output_dir "${PROJECT_SOURCE_DIR}/compiled")
@@ -38,5 +38,4 @@ ENDFOREACH(OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES)
 
 target_link_libraries(SmartTester PUBLIC Dynamic_Library referencedImpl FilterLib scgmsLib DeviceLib string_utils)
 set_target_properties( SmartTester PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR} )
-
 

@@ -7,11 +7,13 @@
 
 #include "../../smartcgms/src/common/iface/FilterIface.h"
 #include "../../smartcgms/src/common/rtl/referencedImpl.h"
+#include "Logger.h"
 
 class TestFilter : public virtual scgms::IFilter, public virtual refcnt::CNotReferenced {
 
     using IFilter_Configuration = refcnt::IVector_Container<scgms::IFilter_Parameter*>;
 public:
+    Logger logger;
     explicit TestFilter();
     virtual ~TestFilter();
 
