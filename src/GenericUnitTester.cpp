@@ -97,8 +97,9 @@ void GenericUnitTester::executeAllTests() {
 */
 void GenericUnitTester::executeGenericTests() {
     logger.info(L"Executing generic tests...");
-    std::wcout << "Testing " << GuidFileMapper::GetInstance().getFileName(*tested_guid) << " filter:\n";
-    logger.info(L"Testing " + std::wstring(GuidFileMapper::GetInstance().getFileName(*tested_guid)) + L" filter...");
+    std::wcout << "****************************************\n"
+        << "Testing " << GuidFileMapper::GetInstance().getFileName(*tested_guid) << " filter:\n"
+        << "****************************************\n";
     executeTest(L"info event test", std::bind(&GenericUnitTester::infoEventTest, this));
 
 }

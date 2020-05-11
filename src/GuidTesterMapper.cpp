@@ -2,10 +2,16 @@
 #include "GuidTesterMapper.h"
 #include "constants.h"
 #include "LogFilterUnitTester.h"
+#include "DrawingFilterUnitTester.h"
 #include "../../smartcgms/src/common/rtl/guid.h"
 
 GuidTesterMapper::GuidTesterMapper() {
+	//inserting LogFilterUnitTester factory
 	guidTesterMap[LOG_GUID] = std::bind<GenericUnitTester*>(&GuidTesterMapper::createInstance<LogFilterUnitTester>, this,
+		std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+
+	//inserting DrawingFilterUnitTester factory
+	guidTesterMap[DRAWING_GUID] = std::bind<GenericUnitTester*>(&GuidTesterMapper::createInstance<DrawingFilterUnitTester>, this,
 		std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
 }
 

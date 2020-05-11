@@ -6,6 +6,7 @@
 #include <mutex>
 #include <functional>
 #include "../../smartcgms/src/common/rtl/Dynamic_Library.h"
+#include "../../smartcgms/src/common/rtl/hresult.h"
 #include "TestFilter.h"
 #include "Logger.h"
 
@@ -14,12 +15,6 @@
 */
 class GenericUnitTester {
 private:
-    CDynamic_Library* filterLibrary;
-    CDynamic_Library* scgmsLibrary;
-    TestFilter* testFilter;
-    const GUID* tested_guid;
-    scgms::IFilter* testedFilter;
-
     std::mutex testMutex;
     std::condition_variable testCv;
     HRESULT lastTestResult;
@@ -28,8 +23,16 @@ private:
     void loadScgmsLibrary();
     HRESULT runTestInThread(std::function<HRESULT(void)> test);
     void runTest(std::function<HRESULT(void)> test);
-    void executeTest(std::wstring testName, std::function<HRESULT(void)> test);
     void printResult(HRESULT result);
+
+protected:
+    CDynamic_Library* filterLibrary;
+    CDynamic_Library* scgmsLibrary;
+    TestFilter* testFilter;
+    const GUID* tested_guid;
+    scgms::IFilter* testedFilter;
+
+    void executeTest(std::wstring testName, std::function<HRESULT(void)> test);
 
 public:
     Logger& logger = Logger::GetInstance();
