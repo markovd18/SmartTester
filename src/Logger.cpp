@@ -5,9 +5,18 @@
 #include "Logger.h"
 #include <fstream>
 #include <ctime>
-#include <chrono>
+#include <filesystem>
+
+#if __has_include(<filesystem>)
+	#include <filesystem>
+	namespace fs = std::filesystem;
+#else
+	#include <experimental/filesystem>
+	namespace fs = std::experimental::filesystem;
+#endif
 
 Logger::Logger() {
+	fs::create_directory("../../SmartTester/logs");
 	stream.open(L"../logs/" + fileNameByDate() + L".log", std::ios::app);
 
 	if (stream.fail()) {
@@ -61,4 +70,9 @@ void Logger::debug(std::wstring text) {
 
 void Logger::trace(std::wstring text) {
 	stream << "[TRACE - " << timeFormat() << "] " << text << "\n";
+}
+
+Logger& Logger::GetInstance() {
+	static Logger instance;
+	return instance;
 }

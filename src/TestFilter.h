@@ -7,7 +7,6 @@
 
 #include "../../smartcgms/src/common/iface/FilterIface.h"
 #include "../../smartcgms/src/common/rtl/referencedImpl.h"
-#include "Logger.h"
 
 class TestFilter : public virtual scgms::IFilter, public virtual refcnt::CNotReferenced {
 
@@ -15,7 +14,6 @@ class TestFilter : public virtual scgms::IFilter, public virtual refcnt::CNotRef
 private:
     scgms::TDevice_Event* recievedEvent;
 public:
-    Logger logger;
     explicit TestFilter();
     virtual ~TestFilter();
 

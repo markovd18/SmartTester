@@ -25,6 +25,7 @@ public:
 	void info(std::wstring text);
 	void debug(std::wstring text);
 	void trace(std::wstring text);
+	static Logger& GetInstance();
 private:
 	std::wofstream stream;
 	std::wstring fileNameByDate();

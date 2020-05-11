@@ -16,7 +16,7 @@
 class UnitTestExecutor {
 
 public:
-	Logger logger;
+	Logger& logger = Logger::GetInstance();
 	UnitTestExecutor();
 	void executeFilterTests(const GUID &guid);
 	void executeAllTests();

@@ -16,7 +16,7 @@ private:
 	template<typename T>
 	GenericUnitTester* createInstance(CDynamic_Library* library, TestFilter* testFilter, const GUID* testedGuid);
 public:
-	Logger logger;
+	Logger& logger = Logger::GetInstance();
 	static GuidTesterMapper& GetInstance();
 	GenericUnitTester* getTesterInstance(CDynamic_Library* library, TestFilter* testFilter,const GUID* guid);
 	GuidTesterMapper(GuidTesterMapper const&) = delete;

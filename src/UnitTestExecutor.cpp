@@ -20,7 +20,7 @@ void UnitTestExecutor::executeFilterTests(const GUID& guid) {
 	if (Is_Invalid_GUID(guid))
 	{
 		std::wcerr << L"Invalid GUID passed!\n";
-		logger.warn(L"Invalid GUID passed!");
+		logger.error(L"Invalid GUID passed as parameter!");
 		exit(E_INVALIDARG);
 	}
 	
@@ -33,7 +33,7 @@ void UnitTestExecutor::executeFilterTests(const GUID& guid) {
 	Executes all tests across all filters.
 */
 void UnitTestExecutor::executeAllTests() {
-	logger.info(L"Executing all tests.");
+	logger.info(L"Executing all tests...");
 	std::map<GUID, const wchar_t*>::iterator iterator;
 	std::map<GUID, const wchar_t*> map = GuidFileMapper::GetInstance().getMap();
 
@@ -47,11 +47,7 @@ void UnitTestExecutor::executeAllTests() {
 */
 GenericUnitTester* UnitTestExecutor::getUnitTester(const GUID& guid) {
 	CDynamic_Library *library = new CDynamic_Library;
-	logger.info(L"Creating dynamic library.");
 	TestFilter *testFilter = new TestFilter;
-	logger.info(L"Creating test filter.");
-
 	GenericUnitTester* unitTester = GuidTesterMapper::GetInstance().getTesterInstance(library, testFilter, &guid);
-	logger.info(L"Getting unit tester.");
 	return unitTester;
 }
