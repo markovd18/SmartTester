@@ -1,6 +1,7 @@
 #IDE folders and build folders
 .git
 .vs
+.log
 cmake-build-debug
 out
 
@@ -10,6 +11,7 @@ SmartTester.ilk
 SmartTester.pdb
 bin
 Debug
+logs
 
 #.idea files
 /.idea/vcs.xml

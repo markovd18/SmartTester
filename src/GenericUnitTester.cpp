@@ -40,11 +40,13 @@ GenericUnitTester::~GenericUnitTester() {
     If loading fails, exits the program.
 */
 void GenericUnitTester::loadFilter() {
-  
     filterLibrary->Load(GuidFileMapper::GetInstance().getFileName(*(this->tested_guid)));
+    logger.info(L"Loading " + std::wstring(GuidFileMapper::GetInstance().getFileName(*(this->tested_guid))) + L" filter...");
+
 
     if (!filterLibrary->Is_Loaded()) {
         std::wcerr << L"Couldn't load filter library!\n";
+        logger.error(L"Couldn't load filter library!");
         exit(E_FAIL);
     }
 
@@ -54,10 +56,11 @@ void GenericUnitTester::loadFilter() {
     auto result = creator(tested_guid, testFilter, &created_filter);
     if (result != S_OK) {
         std::wcerr << L"Failed creating filter!\n";
+        logger.error(L"Failed creating filter!");
         exit(E_FAIL);
     }
 
-
+    logger.info(L"Filter loaded from dynamic library...");
     this->testedFilter = created_filter;
 }
 
@@ -66,15 +69,18 @@ void GenericUnitTester::loadFilter() {
     If loading fails, exits the program.
 */
 void GenericUnitTester::loadScgmsLibrary() {
+    logger.info(L"Loading dynamic library scgms...");
     CDynamic_Library *scgms = new CDynamic_Library;
 
     scgms->Load(SCGMS_LIB);
     if (!scgms->Is_Loaded())
     {
         std::wcerr << L"Couldn't load scgms library!\n";
+        logger.error(L"Couldn't load scgms library!");
         exit(E_FAIL);
     }
 
+    logger.info(L"Dynamic library scgms loaded...");
     scgmsLibrary = scgms;
 }
 
@@ -82,7 +88,6 @@ void GenericUnitTester::loadScgmsLibrary() {
     Executes all generic and specific tests for given filter.
 */
 void GenericUnitTester::executeAllTests() {
-
     executeGenericTests();
     executeSpecificTests();
 }
@@ -91,7 +96,9 @@ void GenericUnitTester::executeAllTests() {
     Executes only tests which can be applied on every filter.
 */
 void GenericUnitTester::executeGenericTests() {
+    logger.info(L"Executing generic tests...");
     std::wcout << "Testing " << GuidFileMapper::GetInstance().getFileName(*tested_guid) << " filter:\n";
+    logger.info(L"Testing " + std::wstring(GuidFileMapper::GetInstance().getFileName(*tested_guid)) + L" filter...");
     executeTest(L"info event test", std::bind(&GenericUnitTester::infoEventTest, this));
 
 }
@@ -100,7 +107,7 @@ void GenericUnitTester::executeGenericTests() {
     Executes test method passed as a parameter.
 */
 void GenericUnitTester::executeTest(std::wstring testName, std::function<HRESULT(void)> test) {
-
+    logger.info(L"Executing " + testName + L"...");
     std::wcout << "Executing " << testName << "... ";
     HRESULT result = runTestInThread(test);
     printResult(result);
@@ -110,7 +117,7 @@ void GenericUnitTester::executeTest(std::wstring testName, std::function<HRESULT
     Runs test method passed as a parameter in a separate thread.
 */
 HRESULT GenericUnitTester::runTestInThread(std::function<HRESULT(void)> test) {
-
+    logger.info(L"Running test in thread...");
     std::cv_status status;
     HRESULT result = S_FALSE;
 
@@ -137,6 +144,7 @@ HRESULT GenericUnitTester::runTestInThread(std::function<HRESULT(void)> test) {
 
     if (status == std::cv_status::timeout) {
         std::wcerr << L"TIMEOUT ";
+        logger.error(L"Test in thread timed out!");
         result = E_FAIL;
     }
     else {
@@ -150,7 +158,7 @@ HRESULT GenericUnitTester::runTestInThread(std::function<HRESULT(void)> test) {
     Runs passed test and notifies all other threads.
 */
 void GenericUnitTester::runTest(std::function<HRESULT(void)> test) {
-   
+    logger.info(L"Running passed test from parameter and notifying all other threads...");
     lastTestResult = test();
     testCv.notify_all();
 }
@@ -170,15 +178,19 @@ void GenericUnitTester::printResult(HRESULT result) {
     {
     case S_OK:
         std::wcout << "OK!\n";
+        logger.info(L"Test result: OK!");
         break;
     case S_FALSE:
         std::wcout << "FAIL!\n";
+        logger.error(L"Test result: FAIL!");
         break;
     case E_FAIL:
         std::wcout << "ERROR!\n";
+        logger.error(L"Test result: ERROR!");
         break;
     default:
         std::wcerr << "UNKNOWN!\n";
+        logger.info(L"Test result: UNKNOWN!");
         break;
     }
 }
@@ -196,9 +208,9 @@ HRESULT GenericUnitTester::infoEventTest() {
     if (!isFilterLoaded())
     {
         std::wcerr << L"No filter created! Cannot execute test.\n";
+        logger.error(L"No filter created! Cannot execute test...");
         exit(E_FAIL);
     }
-
     scgms::IDevice_Event* event;
     
     auto creator = scgmsLibrary->Resolve<scgms::TCreate_Device_Event>("create_device_event");
@@ -206,6 +218,7 @@ HRESULT GenericUnitTester::infoEventTest() {
     if (FAILED(result))
     {
         std::wcerr << L"Error while creating \"Information\" IDevice_event!\n";
+        logger.error(L"Error while creating \"Information\" IDevice_event!");
         return E_FAIL;
     }
 
@@ -219,6 +232,7 @@ HRESULT GenericUnitTester::infoEventTest() {
             if (FAILED(result))
             {
                 std::wcerr << L"Error while creating \"Shut_Down\" IDevice_event!\n";
+                logger.error(L"Error while creating \"Shut_Down\" IDevice_event!");
                 return E_FAIL;
             }
             testedFilter->Execute(event);

@@ -24,9 +24,10 @@ void print_help() {
     Parses guid in string from command-line into hexadecimal numbers and creates GUID structure.
 */
 GUID parse_guid(std::string guid_string) {
+    Logger& logger = Logger::GetInstance();
     GUID guid{};
-
     if (!guid_string.empty()) {
+        logger.info(L"Parsing GUID: " + std::wstring(guid_string.begin(), guid_string.end()) + L"...");
         std::string delimeter = "-";
         std::string token;
         std::string sub_token;
@@ -57,6 +58,7 @@ GUID parse_guid(std::string guid_string) {
                 default:
                     std::wcerr << L"Invalid format of GUID inserted!\n"
                         << "Expected format: " << GUID_FORMAT << "\n";
+                    logger.error(L"Invalid format of GUID inserted from parameter!");
                     exit(2);
                 }
 
@@ -73,8 +75,12 @@ GUID parse_guid(std::string guid_string) {
         catch (std::runtime_error) {
             std::wcerr << L"Invalid format of GUID inserted!\n"
                 << L"Expected format: " << GUID_FORMAT << "\n";
+            logger.error(L"Invalid format of GUID inserted from parameter!");
             exit(2);
         }
+    }
+    else {
+        logger.info(L"No GUID was passed from parameter...");
     }
     return guid;
 }
@@ -108,10 +114,11 @@ int execute_regression_testing(const char* config_path) {
 /**
     Entry point of application.
 */
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
+    Logger& logger = Logger::GetInstance();
     if (argc < 2) {
         std::wcerr << L"Wrong parameter count!\n";
+        logger.error(L"Wrong parameter count in parameter!");
         print_help();
         return 1;
     }
@@ -129,12 +136,14 @@ int main(int argc, char* argv[])
             return execute_regression_testing(argv[2]);
         default:
             std::wcerr << L"Unknown type of testing requested!\n";
+            logger.error(L"Unknown type of testing requested!");
             print_help();
             return 2;
         }
     }
     else {
         std::wcerr << L"Unsupported command: " << argv[1] << "\n";
+        logger.error(L"Unsupported command!");
         print_help();
         return 2;
     }

@@ -7,6 +7,7 @@
 #include <functional>
 #include "../../smartcgms/src/common/rtl/Dynamic_Library.h"
 #include "TestFilter.h"
+#include "Logger.h"
 
 /**
     Contains generic tests and methods, which can be applied on any filter.
@@ -31,6 +32,7 @@ private:
     void printResult(HRESULT result);
 
 public:
+    Logger& logger = Logger::GetInstance();
     GenericUnitTester(CDynamic_Library* library, TestFilter* testFilter,const GUID* guid);
     ~GenericUnitTester();
     HRESULT infoEventTest();
