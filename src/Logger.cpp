@@ -5,7 +5,6 @@
 #include "Logger.h"
 #include <fstream>
 #include <ctime>
-#include <filesystem>
 
 #if __has_include(<filesystem>)
 	#include <filesystem>
@@ -18,10 +17,6 @@
 Logger::Logger() {
 	fs::create_directory("../../SmartTester/logs");
 	stream.open(L"../logs/" + fileNameByDate() + L".log", std::ios::app);
-
-	if (stream.fail()) {
-		throw std::iostream::failure("Cannot open file: pokus.log");
-	}
 }
 
 std::wstring Logger::fileNameByDate() {
