@@ -25,7 +25,11 @@ void UnitTestExecutor::executeFilterTests(const GUID& guid) {
 	}
 	
 	GenericUnitTester* unitTester = getUnitTester(guid);
-	unitTester->executeAllTests();
+	if (unitTester->isFilterLoaded())
+	{
+		unitTester->executeAllTests();
+	}
+	
 	delete unitTester;
 }
 

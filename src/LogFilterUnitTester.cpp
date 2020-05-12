@@ -114,7 +114,7 @@ HRESULT LogFilterUnitTester::logFileGenerationTest()
 		scgms::SFilter_Executor filterExecutor = { configuration.get(), nullptr, nullptr, errors };
 		if (!filterExecutor)
 		{
-			std::wcerr << L"Could not execute configuration!\n";
+			std::wcerr << L"Could not execute configuration! ";
 			return E_FAIL;
 		}
 		else {

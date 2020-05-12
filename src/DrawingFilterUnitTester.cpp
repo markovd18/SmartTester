@@ -14,17 +14,6 @@ void DrawingFilterUnitTester::executeSpecificTests() {
 	executeTest(L"correct canvas size test", std::bind(&DrawingFilterUnitTester::correctCanvasSizeTest, this));
 }
 
-void print_and_empty_errors(refcnt::Swstr_list errors) {
-	refcnt::wstr_container* wstr;
-	if (errors->empty() != S_OK) {
-		std::wcerr << "Error description: " << std::endl;
-		while (errors->pop(&wstr) == S_OK) {
-			std::wcerr << refcnt::WChar_Container_To_WString(wstr) << std::endl;
-			wstr->Release();
-		}
-	}
-}
-
 /**
 	Tests if filter can be configured with empty canvas size.
 */

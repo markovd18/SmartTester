@@ -4,6 +4,7 @@
 #include <condition_variable>
 #include <functional>
 #include "../../smartcgms/src/common/rtl/hresult.h"
+#include "../../smartcgms/src/common/rtl/FilterLib.h"
 #include "GuidFileMapper.h"
 #include "GenericUnitTester.h"
 #include "constants.h"
@@ -15,19 +16,29 @@
     all tests across all filters will be executed.
 */
 GenericUnitTester::GenericUnitTester(CDynamic_Library* library, TestFilter* testFilter,const GUID* guid) {
+    this->testedFilter = nullptr;
+    this->scgmsLibrary = nullptr;
     this->filterLibrary = library;
     this->testFilter = testFilter;
     this->tested_guid = guid;
     //CDynamic_Library::Set_Library_Base(LIB_DIR);
     loadFilter();
-    loadScgmsLibrary();
+    if (isFilterLoaded())
+    {
+        loadScgmsLibrary();
+    }
+    
 }
 
 GenericUnitTester::~GenericUnitTester() {
-    filterLibrary->Unload();
-    delete filterLibrary;
-    scgmsLibrary->Unload();
-    delete scgmsLibrary;
+    if (isFilterLoaded())
+    {
+        filterLibrary->Unload();
+        delete filterLibrary;
+        scgmsLibrary->Unload();
+        delete scgmsLibrary;
+    }
+    
     delete testFilter;
 }
 
@@ -40,14 +51,14 @@ GenericUnitTester::~GenericUnitTester() {
     If loading fails, exits the program.
 */
 void GenericUnitTester::loadFilter() {
-    filterLibrary->Load(GuidFileMapper::GetInstance().getFileName(*(this->tested_guid)));
-    logger.info(L"Loading " + std::wstring(GuidFileMapper::GetInstance().getFileName(*(this->tested_guid))) + L" filter...");
+
+    const wchar_t* file_name = GuidFileMapper::GetInstance().getFileName(*(this->tested_guid));
+    filterLibrary->Load(file_name);
 
 
     if (!filterLibrary->Is_Loaded()) {
-        std::wcerr << L"Couldn't load filter library!\n";
-        logger.error(L"Couldn't load filter library!");
-        exit(E_FAIL);
+        std::wcerr << L"Couldn't load " << file_name << " library!\n";
+        return;
     }
 
     auto creator = filterLibrary->Resolve<scgms::TCreate_Filter>("do_create_filter");
@@ -56,8 +67,7 @@ void GenericUnitTester::loadFilter() {
     auto result = creator(tested_guid, testFilter, &created_filter);
     if (result != S_OK) {
         std::wcerr << L"Failed creating filter!\n";
-        logger.error(L"Failed creating filter!");
-        exit(E_FAIL);
+        return;
     }
 
     logger.info(L"Filter loaded from dynamic library...");
@@ -96,6 +106,10 @@ void GenericUnitTester::executeAllTests() {
     Executes only tests which can be applied on every filter.
 */
 void GenericUnitTester::executeGenericTests() {
+    //auto creator = filterLibrary->Resolve<scgms::TGet_Filter_Descriptors>("do_get_filter_descriptors");
+    //scgms::TFilter_Descriptor* begin, * end;
+    //auto result = creator(&begin, &end);
+    //std::wcout << begin->description;
     logger.info(L"Executing generic tests...");
     std::wcout << "****************************************\n"
         << "Testing " << GuidFileMapper::GetInstance().getFileName(*tested_guid) << " filter:\n"
