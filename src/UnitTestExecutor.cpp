@@ -37,7 +37,7 @@ void UnitTestExecutor::executeFilterTests(const GUID& guid) {
 	Executes all tests across all filters.
 */
 void UnitTestExecutor::executeAllTests() {
-	logger.info(L"Executing all tests...");
+	logger.info(L"Executing all tests across all filters.");
 	std::map<GUID, const wchar_t*>::iterator iterator;
 	std::map<GUID, const wchar_t*> map = GuidFileMapper::GetInstance().getMap();
 

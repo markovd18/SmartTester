@@ -17,7 +17,8 @@ void print_help() {
         "<tested_subject> ... <filter_guid> - GUID of filter to test with unit tests / "
         "<config_path> - path to filter chain config file\n"
         "a) -u <filter_guid>\n"
-        "b) -r <config_path>\n";
+        "b) -r <config_path>\n"
+        "If no <filter_guid> is passed, all tests across all filters will be executed.\n";
 }
 
 /**
@@ -27,7 +28,7 @@ GUID parse_guid(std::string guid_string) {
     Logger& logger = Logger::GetInstance();
     GUID guid{};
     if (!guid_string.empty()) {
-        logger.info(L"Parsing GUID: " + std::wstring(guid_string.begin(), guid_string.end()) + L"...");
+        logger.debug(L"Parsing GUID: " + std::wstring(guid_string.begin(), guid_string.end()) + L"...");
         std::string delimeter = "-";
         std::string token;
         std::string sub_token;
@@ -56,9 +57,9 @@ GUID parse_guid(std::string guid_string) {
                     }
                     break;
                 default:
-                    std::wcerr << L"Invalid format of GUID inserted!\n"
+                    std::wcerr << L"Invalid format of GUID passed!\n"
                         << "Expected format: " << GUID_FORMAT << "\n";
-                    logger.error(L"Invalid format of GUID inserted from parameter!");
+                    logger.error(L"Invalid format of GUID passed!");
                     exit(2);
                 }
 
@@ -73,14 +74,14 @@ GUID parse_guid(std::string guid_string) {
             }
         }
         catch (std::runtime_error) {
-            std::wcerr << L"Invalid format of GUID inserted!\n"
+            std::wcerr << L"Invalid format of GUID passed!\n"
                 << L"Expected format: " << GUID_FORMAT << "\n";
-            logger.error(L"Invalid format of GUID inserted from parameter!");
+            logger.error(L"Invalid format of GUID passed!");
             exit(2);
         }
     }
     else {
-        logger.info(L"No GUID was passed from parameter...");
+        logger.info(L"No GUID passed...");
     }
     return guid;
 }
@@ -118,7 +119,7 @@ int main(int argc, char* argv[]) {
     Logger& logger = Logger::GetInstance();
     if (argc < 2) {
         std::wcerr << L"Wrong parameter count!\n";
-        logger.error(L"Wrong parameter count in parameter!");
+        logger.error(L"Wrong parameter count passed!");
         print_help();
         return 1;
     }
@@ -143,10 +144,11 @@ int main(int argc, char* argv[]) {
     }
     else {
         std::wcerr << L"Unsupported command: " << argv[1] << "\n";
-        logger.error(L"Unsupported command!");
+        logger.error(L"Unsupported command passed!");
         print_help();
         return 2;
     }
-
+    
+    std::wcerr << L"For detailed information see generated log.\n";
     return 0;
 }

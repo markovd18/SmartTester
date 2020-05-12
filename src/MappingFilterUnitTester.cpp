@@ -21,6 +21,7 @@ void print_and_empty_errors(refcnt::Swstr_list errors) {
 }
 
 void MappingFilterUnitTester::executeSpecificTests(){
+	logger.info(L"Executing specific tests...");
 	executeTest(L"empty source id test", std::bind(&MappingFilterUnitTester::emptySourceIdTest, this));
 	executeTest(L"empty destination id test", std::bind(&MappingFilterUnitTester::emptyDestIdTest, this));
 	executeTest(L"correct id's test", std::bind(&MappingFilterUnitTester::correctIdsTest, this));
@@ -34,7 +35,8 @@ HRESULT MappingFilterUnitTester::emptySourceIdTest()
 	if (!isFilterLoaded())
 	{
 		std::wcerr << L"No filter created! Cannot execute test.\n";
-		exit(E_FAIL);
+		logger.error(L"No filter loaded! Can't execute test.");
+		return E_FAIL;
 	}
 
 	scgms::SPersistent_Filter_Chain_Configuration configuration;
@@ -45,17 +47,24 @@ HRESULT MappingFilterUnitTester::emptySourceIdTest()
 	if (result == S_OK)
 	{
 		configuration->Load_From_Memory(memory.c_str(), memory.size(), errors.get());
+		logger.info(L"Loading configuration from memory...");
+	}
+	else {
+		logger.error(L"Error while creating configuration!");
 	}
 	
 	scgms::IFilter_Configuration_Link** begin, ** end;
 	configuration->get(&begin, &end);
 
 	result = testedFilter->Configure(begin[0], errors.get());
+	logger.info(L"Configuring filter...");
 
 	if (!SUCCEEDED(result)) {	// test shouldn't succeed, we don't want to configure mapping without source id
 		return S_OK;
 	}
 	else {
+		logger.error(L"Filter was configured successfully, but shouldn't be!\n"
+		L"(" + std::wstring(memory.begin(), memory.end()) + L")");
 		return E_FAIL;
 	}
 }
@@ -65,7 +74,8 @@ HRESULT MappingFilterUnitTester::emptyDestIdTest()
 	if (!isFilterLoaded())
 	{
 		std::wcerr << L"No filter created! Cannot execute test.\n";
-		exit(E_FAIL);
+		logger.error(L"No filter loaded! Can't execute test.");
+		return E_FAIL;
 	}
 
 	scgms::SPersistent_Filter_Chain_Configuration configuration;
@@ -76,17 +86,24 @@ HRESULT MappingFilterUnitTester::emptyDestIdTest()
 	if (result == S_OK)
 	{
 		configuration->Load_From_Memory(memory.c_str(), memory.size(), errors.get());
+		logger.info(L"Loading configuration from memory...");
+	}
+	else {
+		logger.error(L"Error while creating configuration!");
 	}
 
 	scgms::IFilter_Configuration_Link** begin, ** end;
 	configuration->get(&begin, &end);
 	
 	result = testedFilter->Configure(begin[0], errors.get());
+	logger.info(L"Configuring filter...");
 
 	if (!SUCCEEDED(result)) {	// test shouldn't succeed, we don't want to configure mapping without destination id
 		return S_OK;
 	}
 	else {
+		logger.error(L"Filter was configured successfully, but shouldn't be!\n"
+			L"(" + std::wstring(memory.begin(), memory.end()) + L")");
 		return E_FAIL;
 	}
 }
@@ -96,7 +113,8 @@ HRESULT MappingFilterUnitTester::configureFilterCorrectly()
 	if (!isFilterLoaded())
 	{
 		std::wcerr << L"No filter created! Cannot execute test.\n";
-		exit(E_FAIL);
+		logger.error(L"No filter loaded! Can't execute test.");
+		return E_FAIL;
 	}
 
 	scgms::SPersistent_Filter_Chain_Configuration configuration;
@@ -107,11 +125,16 @@ HRESULT MappingFilterUnitTester::configureFilterCorrectly()
 	if (result == S_OK)
 	{
 		configuration->Load_From_Memory(memory.c_str(), memory.size(), errors.get());
+		logger.info(L"Loading configuration from memory...");
+	}
+	else {
+		logger.error(L"Error while creating configuration!");
 	}
 
 	scgms::IFilter_Configuration_Link** begin, ** end;
 	configuration->get(&begin, &end);
 
+	logger.info(L"Configuring filter...");
 	return testedFilter->Configure(begin[0], errors.get());
 }
 
@@ -123,6 +146,7 @@ HRESULT MappingFilterUnitTester::correctIdsTest()
 		return S_OK;
 	}
 	else {
+		logger.error(L"Failed to configure filter!");
 		return E_FAIL;
 	}
 }
@@ -139,6 +163,7 @@ HRESULT MappingFilterUnitTester::levelEventMappingTest()
 		if (FAILED(result))
 		{
 			std::wcerr << L"Error while creating \"Level\" IDevice_event!\n";
+			logger.error(L"Error while creating \"Level\" IDevice_event!");
 			return E_FAIL;
 		}
 		scgms::TDevice_Event* raw_event;
@@ -147,6 +172,8 @@ HRESULT MappingFilterUnitTester::levelEventMappingTest()
 		scgms::TDevice_Event src_event = *raw_event;
 
 		result = testedFilter->Execute(event);
+		logger.info(L"Executing \"Level\" event...");
+
 		GUID dst_id = testFilter->getRecievedEvent()->signal_id;
 		if (SUCCEEDED(result) && (dst_id == SIGNAL_DST_ID_GUID))
 		{
@@ -159,18 +186,22 @@ HRESULT MappingFilterUnitTester::levelEventMappingTest()
 				&& (src_event.parameters == raw_event->parameters)
 				&& (src_event.segment_id == raw_event->segment_id))
 			{
+				logger.debug(L"Event's signal_id successfully mapped!");
 				return S_OK;
 			}
 			else {
+				logger.error(L"Other event attributes were modified!");
 				return E_FAIL;
 			}
 			
 		}
 		else {
+			logger.error(L"Event was incorrectly sent or it's signal_id wasn't mapped!");
 			return E_FAIL;
 		}
 	}
 	else {
+		logger.error(L"Failed to configure filter!");
 		return E_FAIL;
 	}
 }
@@ -187,6 +218,7 @@ HRESULT MappingFilterUnitTester::infoEventMappingTest()
 		if (FAILED(result))
 		{
 			std::wcerr << L"Error while creating \"Info\" IDevice_event!\n";
+			logger.error(L"Error while creating \"Info\" IDevice_event!");
 			return E_FAIL;
 		}
 		scgms::TDevice_Event* raw_event;
@@ -195,6 +227,8 @@ HRESULT MappingFilterUnitTester::infoEventMappingTest()
 		scgms::TDevice_Event src_event = *raw_event;
 
 		result = testedFilter->Execute(event);
+		logger.info(L"Executing \"Info\" event...");
+
 		GUID dst_id = testFilter->getRecievedEvent()->signal_id;
 		if (SUCCEEDED(result) && (dst_id == SIGNAL_DST_ID_GUID))
 		{
@@ -207,18 +241,22 @@ HRESULT MappingFilterUnitTester::infoEventMappingTest()
 				&& (src_event.parameters == raw_event->parameters)
 				&& (src_event.segment_id == raw_event->segment_id))
 			{
+				logger.debug(L"Event's signal_id successfully mapped!");
 				return S_OK;
 			}
 			else {
+				logger.error(L"Other event attributes were modified!");
 				return E_FAIL;
 			}
 
 		}
 		else {
+			logger.error(L"Event was incorrectly sent or it's signal_id wasn't mapped!");
 			return E_FAIL;
 		}
 	}
 	else {
+		logger.error(L"Failed to configure filter!");
 		return E_FAIL;
 	}
 }
@@ -235,6 +273,7 @@ HRESULT MappingFilterUnitTester::parametersEventMappingTest()
 		if (FAILED(result))
 		{
 			std::wcerr << L"Error while creating \"Parameters\" IDevice_event!\n";
+			logger.error(L"Error while creating \"Parameters\" IDevice_event!");
 			return E_FAIL;
 		}
 		scgms::TDevice_Event* raw_event;
@@ -243,6 +282,8 @@ HRESULT MappingFilterUnitTester::parametersEventMappingTest()
 		scgms::TDevice_Event src_event = *raw_event;
 
 		result = testedFilter->Execute(event);
+		logger.info(L"Executing \"Parameters\" event...");
+
 		GUID dst_id = testFilter->getRecievedEvent()->signal_id;
 		if (SUCCEEDED(result) && (dst_id == SIGNAL_DST_ID_GUID))
 		{
@@ -255,18 +296,22 @@ HRESULT MappingFilterUnitTester::parametersEventMappingTest()
 				&& (src_event.parameters == raw_event->parameters)
 				&& (src_event.segment_id == raw_event->segment_id))
 			{
+				logger.debug(L"Event's signal_id successfully mapped!");
 				return S_OK;
 			}
 			else {
+				logger.error(L"Other event attributes were modified!");
 				return E_FAIL;
 			}
 
 		}
 		else {
+			logger.error(L"Event was incorrectly sent or it's signal_id wasn't mapped!");
 			return E_FAIL;
 		}
 	}
 	else {
+		logger.error(L"Failed to configure filter!");
 		return E_FAIL;
 	}
 }

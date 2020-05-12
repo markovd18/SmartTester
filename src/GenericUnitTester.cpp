@@ -58,6 +58,7 @@ void GenericUnitTester::loadFilter() {
 
     if (!filterLibrary->Is_Loaded()) {
         std::wcerr << L"Couldn't load " << file_name << " library!\n";
+        logger.error(L"Couldn't load " + std::wstring(file_name) + L"library.");
         return;
     }
 
@@ -67,10 +68,11 @@ void GenericUnitTester::loadFilter() {
     auto result = creator(tested_guid, testFilter, &created_filter);
     if (result != S_OK) {
         std::wcerr << L"Failed creating filter!\n";
+        logger.error(L"Failed creating filter!");
         return;
     }
 
-    logger.info(L"Filter loaded from dynamic library...");
+    logger.info(L"Filter loaded from dynamic library.");
     this->testedFilter = created_filter;
 }
 
@@ -79,7 +81,7 @@ void GenericUnitTester::loadFilter() {
     If loading fails, exits the program.
 */
 void GenericUnitTester::loadScgmsLibrary() {
-    logger.info(L"Loading dynamic library scgms...");
+    logger.debug(L"Loading dynamic library scgms...");
     CDynamic_Library *scgms = new CDynamic_Library;
 
     scgms->Load(SCGMS_LIB);
@@ -90,7 +92,7 @@ void GenericUnitTester::loadScgmsLibrary() {
         exit(E_FAIL);
     }
 
-    logger.info(L"Dynamic library scgms loaded...");
+    logger.debug(L"Dynamic library scgms loaded.");
     scgmsLibrary = scgms;
 }
 
@@ -98,6 +100,13 @@ void GenericUnitTester::loadScgmsLibrary() {
     Executes all generic and specific tests for given filter.
 */
 void GenericUnitTester::executeAllTests() {
+    std::wcout << "****************************************\n"
+        << "Testing " << GuidFileMapper::GetInstance().getFileName(*tested_guid) << " filter:\n"
+        << "****************************************\n";
+    logger.debug(L"****************************************");
+    logger.debug(L"Testing " + std::wstring(GuidFileMapper::GetInstance().getFileName(*tested_guid)) + L" filter:");
+    logger.debug(L"****************************************");
+
     executeGenericTests();
     executeSpecificTests();
 }
@@ -111,9 +120,6 @@ void GenericUnitTester::executeGenericTests() {
     //auto result = creator(&begin, &end);
     //std::wcout << begin->description;
     logger.info(L"Executing generic tests...");
-    std::wcout << "****************************************\n"
-        << "Testing " << GuidFileMapper::GetInstance().getFileName(*tested_guid) << " filter:\n"
-        << "****************************************\n";
     executeTest(L"info event test", std::bind(&GenericUnitTester::infoEventTest, this));
 
 }
@@ -122,7 +128,9 @@ void GenericUnitTester::executeGenericTests() {
     Executes test method passed as a parameter.
 */
 void GenericUnitTester::executeTest(std::wstring testName, std::function<HRESULT(void)> test) {
+    logger.info(L"----------------------------------------");
     logger.info(L"Executing " + testName + L"...");
+    logger.info(L"----------------------------------------");
     std::wcout << "Executing " << testName << "... ";
     HRESULT result = runTestInThread(test);
     printResult(result);
@@ -132,7 +140,7 @@ void GenericUnitTester::executeTest(std::wstring testName, std::function<HRESULT
     Runs test method passed as a parameter in a separate thread.
 */
 HRESULT GenericUnitTester::runTestInThread(std::function<HRESULT(void)> test) {
-    logger.info(L"Running test in thread...");
+    logger.debug(L"Running test in thread...");
     std::cv_status status;
     HRESULT result = S_FALSE;
 
@@ -173,7 +181,6 @@ HRESULT GenericUnitTester::runTestInThread(std::function<HRESULT(void)> test) {
     Runs passed test and notifies all other threads.
 */
 void GenericUnitTester::runTest(std::function<HRESULT(void)> test) {
-    logger.info(L"Running passed test from parameter and notifying all other threads...");
     lastTestResult = test();
     testCv.notify_all();
 }
@@ -224,7 +231,7 @@ HRESULT GenericUnitTester::infoEventTest() {
     {
         std::wcerr << L"No filter created! Cannot execute test.\n";
         logger.error(L"No filter created! Cannot execute test...");
-        exit(E_FAIL);
+        return E_FAIL;
     }
     scgms::IDevice_Event* event;
     

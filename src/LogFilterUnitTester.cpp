@@ -11,6 +11,7 @@ LogFilterUnitTester::LogFilterUnitTester(CDynamic_Library* library, TestFilter* 
 	Executes all tests specific to filter tested by this UnitTester.
 */
 void LogFilterUnitTester::executeSpecificTests() {
+	logger.info(L"Executing specific tests...");
 	executeTest(L"empty log file name test", std::bind(&LogFilterUnitTester::emptyLogFileNameTest, this));
 	executeTest(L"correct log file name test", std::bind(&LogFilterUnitTester::correctLogFileNameTest, this));
 	executeTest(L"log file generation test", std::bind(&LogFilterUnitTester::logFileGenerationTest, this));
@@ -23,8 +24,9 @@ HRESULT LogFilterUnitTester::emptyLogFileNameTest()
 {
 	if (!isFilterLoaded())
 	{
-		std::wcerr << L"No filter created! Cannot execute test.\n";
-		exit(E_FAIL);
+		std::wcerr << L"No filter loaded! Can't execute test.\n";
+		logger.error(L"No filter loaded! Can't execute test.");
+		return E_FAIL;
 	}
 
 	scgms::SPersistent_Filter_Chain_Configuration configuration;
@@ -35,17 +37,23 @@ HRESULT LogFilterUnitTester::emptyLogFileNameTest()
 	if (result == S_OK)
 	{
 		configuration->Load_From_Memory(memory.c_str(), memory.size(), errors.get());
+		logger.info(L"Loading configuration from memory...");
+	}
+	else {
+		logger.error(L"Error while creating configuration!");
 	}
 
 	scgms::IFilter_Configuration_Link** begin, ** end;
 	configuration->get(&begin, &end);
 
+	logger.info(L"Configuring filter...");
 	result = testedFilter->Configure(begin[0], errors.get());
-
+	
 	if (!SUCCEEDED(result)) {	// test shouldn't succeed, we don't want to configure output log without name
 		return S_OK;
 	}
 	else {
+		logger.error(L"Filter was configured succesfully, but shouldn't be!");
 		return E_FAIL;
 	}
 }
@@ -57,8 +65,9 @@ HRESULT LogFilterUnitTester::correctLogFileNameTest()
 {
 	if (!isFilterLoaded())
 	{
-		std::wcerr << L"No filter created! Cannot execute test.\n";
-		exit(E_FAIL);
+		std::wcerr << L"No filter loaded! Can't execute test.\n";
+		logger.error(L"No filter loaded! Can't excecute test.");
+		return E_FAIL;
 	}
 
 	scgms::SPersistent_Filter_Chain_Configuration configuration;
@@ -69,17 +78,23 @@ HRESULT LogFilterUnitTester::correctLogFileNameTest()
 	if (result == S_OK)
 	{
 		configuration->Load_From_Memory(memory.c_str(), memory.size(), errors.get());
+		logger.info(L"Loading configuration from memory...");
+	}
+	else {
+		logger.error(L"Error while creating configuration!");
 	}
 
 	scgms::IFilter_Configuration_Link** begin, ** end;
 	configuration->get(&begin, &end);
 
 	result = testedFilter->Configure(begin[0], errors.get());
+	logger.info(L"Configuring filter...");
 
 	if (SUCCEEDED(result)) {
 		return S_OK;
 	}
 	else {
+		logger.error(L"Failed to configure filter!");
 		return E_FAIL;
 	}
 }
@@ -91,7 +106,8 @@ HRESULT LogFilterUnitTester::logFileGenerationTest()
 {
 	if (!isFilterLoaded())
 	{
-		std::wcerr << L"No filter created! Cannot execute test.\n";
+		std::wcerr << L"No filter loaded! Can't execute test.\n";
+		logger.error(L"No filter loaded! Can't execute test!");
 		exit(E_FAIL);
 	}
 
@@ -103,18 +119,24 @@ HRESULT LogFilterUnitTester::logFileGenerationTest()
 	if (result == S_OK)
 	{
 		configuration->Load_From_Memory(memory.c_str(), memory.size(), errors.get());
+		logger.info(L"Loading configuration from memory...");
+	}
+	else {
+		logger.error(L"Error while creating configuration!");
 	}
 
 	scgms::IFilter_Configuration_Link** begin, ** end;
 	configuration->get(&begin, &end);
 
 	result = testedFilter->Configure(begin[0], errors.get());
+	logger.info(L"Configuring filter...");
 
 	if (SUCCEEDED(result)) {
 		scgms::SFilter_Executor filterExecutor = { configuration.get(), nullptr, nullptr, errors };
 		if (!filterExecutor)
 		{
 			std::wcerr << L"Could not execute configuration! ";
+			logger.error(L"Could not execute configuration! (" + std::wstring(memory.begin(), memory.end()) + L")");
 			return E_FAIL;
 		}
 		else {
@@ -122,9 +144,11 @@ HRESULT LogFilterUnitTester::logFileGenerationTest()
 			std::ifstream file("../bin/log.log");
 			if (file.good())
 			{
+				logger.debug(L"Log file created succesfully!");
 				return S_OK;
 			}
 			else {
+				logger.error(L"Failed to create log file!");
 				return E_FAIL;
 			}
 		}

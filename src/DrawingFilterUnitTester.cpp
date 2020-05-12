@@ -10,6 +10,7 @@ DrawingFilterUnitTester::DrawingFilterUnitTester(CDynamic_Library* library, Test
 	Executes all tests specific to filter tested by this UnitTester.
 */
 void DrawingFilterUnitTester::executeSpecificTests() {
+	logger.info(L"Executing specific tests...");
 	executeTest(L"empty canvas size test", std::bind(&DrawingFilterUnitTester::emptyCanvasSizeTest, this));
 	executeTest(L"correct canvas size test", std::bind(&DrawingFilterUnitTester::correctCanvasSizeTest, this));
 }
@@ -21,8 +22,9 @@ HRESULT DrawingFilterUnitTester::emptyCanvasSizeTest()
 {
 	if (!isFilterLoaded())
 	{
-		std::wcerr << L"No filter created! Cannot execute test.\n";
-		exit(E_FAIL);
+		std::wcerr << L"No filter loaded! Can't execute test.\n";
+		logger.error(L"No filter loaded! Can't execute test.");
+		return E_FAIL;
 	}
 
 	scgms::SPersistent_Filter_Chain_Configuration configuration;
@@ -33,17 +35,23 @@ HRESULT DrawingFilterUnitTester::emptyCanvasSizeTest()
 	if (result == S_OK)
 	{
 		configuration->Load_From_Memory(memory.c_str(), memory.size(), errors.get());
+		logger.info(L"Loading configuration from memory...");
+	}
+	else {
+		logger.error(L"Error while creating configuration!");
 	}
 
 	scgms::IFilter_Configuration_Link** begin, ** end;
 	configuration->get(&begin, &end);
 
 	result = testedFilter->Configure(begin[0], errors.get());
+	logger.info(L"Configuring filter...");
 
 	if (!SUCCEEDED(result)) {	// test shouldn't succeed, we don't want to configure canvas without size
 		return S_OK;
 	}
 	else {
+		logger.error(L"Filter was configured successfully, but shouldn't be!");
 		return E_FAIL;
 	}
 }
@@ -56,6 +64,7 @@ HRESULT DrawingFilterUnitTester::correctCanvasSizeTest()
 	if (!isFilterLoaded())
 	{
 		std::wcerr << L"No filter created! Cannot execute test.\n";
+		logger.error(L"No filter loaded! Can't execute test.");
 		exit(E_FAIL);
 	}
 
@@ -67,17 +76,23 @@ HRESULT DrawingFilterUnitTester::correctCanvasSizeTest()
 	if (result == S_OK)
 	{
 		configuration->Load_From_Memory(memory.c_str(), memory.size(), errors.get());
+		logger.info(L"Loading configuration from memory...");
+	}
+	else {
+		logger.error(L"Error while creating configuration!");
 	}
 
 	scgms::IFilter_Configuration_Link** begin, ** end;
 	configuration->get(&begin, &end);
 
 	result = testedFilter->Configure(begin[0], errors.get());
+	logger.info(L"Configuring filter...");
 
-	if (SUCCEEDED(result)) {	// test shouldn't succeed, we don't want to configure canvas without size
+	if (SUCCEEDED(result)) {	
 		return S_OK;
 	}
 	else {
+		logger.error(L"Failed to configure filter!");
 		return E_FAIL;
 	}
 }
