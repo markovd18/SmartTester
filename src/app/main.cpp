@@ -3,10 +3,10 @@
 
 #include <iostream>
 #include <string>
-#include "../../smartcgms/src/common/rtl/guid.h"
-#include "../../smartcgms/src/common/rtl/hresult.h"
-#include "UnitTestExecutor.h"
-#include "constants.h"
+#include <rtl/guid.h>
+#include <rtl/hresult.h>
+#include "../utils/UnitTestExecutor.h"
+#include "../utils/constants.h"
 
 Logger& logger = Logger::GetInstance();
 

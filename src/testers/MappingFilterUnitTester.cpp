@@ -1,6 +1,6 @@
 #include <iostream>
+#include <rtl/FilterLib.h>
 #include "MappingFilterUnitTester.h"
-#include "../../smartcgms/src/common/rtl/FilterLib.h"
 
 MappingFilterUnitTester::MappingFilterUnitTester(CDynamic_Library* library, TestFilter* testFilter, const GUID* guid) : GenericUnitTester(library, testFilter, guid) {
 	SIGNAL_SRC_ID_STR = "{E1CD07EF-B079-4911-B79B-D203486101C8}";

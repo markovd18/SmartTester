@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
+#include <rtl/FilterLib.h>
 #include "LogFilterUnitTester.h"
-#include "../../smartcgms/src/common/rtl/FilterLib.h"
 
 LogFilterUnitTester::LogFilterUnitTester(CDynamic_Library* library, TestFilter* testFilter,const GUID* guid) : GenericUnitTester(library, testFilter, guid){
 	//

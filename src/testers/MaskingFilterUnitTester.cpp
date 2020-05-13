@@ -1,6 +1,6 @@
 #include <iostream>
+#include <rtl/FilterLib.h>
 #include "MaskingFilterUnitTester.h"
-#include "../../smartcgms/src/common/rtl/FilterLib.h"
 
 MaskingFilterUnitTester::MaskingFilterUnitTester(CDynamic_Library* library, TestFilter* testFilter, const GUID* guid) : GenericUnitTester(library, testFilter, guid)
 {

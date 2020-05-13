@@ -15,7 +15,7 @@
 #endif
 
 Logger::Logger() {
-	fs::create_directory("../../SmartTester/logs");
+	fs::create_directory("../logs");
 	stream.open(L"../logs/" + fileNameByDate() + L".log", std::ios::app);
 }
 

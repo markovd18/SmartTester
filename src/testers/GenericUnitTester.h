@@ -5,10 +5,10 @@
 
 #include <mutex>
 #include <functional>
-#include "../../smartcgms/src/common/rtl/Dynamic_Library.h"
-#include "../../smartcgms/src/common/rtl/hresult.h"
-#include "TestFilter.h"
-#include "Logger.h"
+#include <rtl/Dynamic_Library.h>
+#include <rtl/hresult.h>
+#include "../utils/TestFilter.h"
+#include "../utils/Logger.h"
 
 /**
     Contains generic tests and methods, which can be applied on any filter.

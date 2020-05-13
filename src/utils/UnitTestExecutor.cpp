@@ -1,11 +1,11 @@
 #include <iostream>
+#include <rtl/Dynamic_Library.h>
+#include <rtl/guid.h>
+#include <rtl/hresult.h>
 #include "UnitTestExecutor.h"
-#include "LogFilterUnitTester.h"
-#include "GuidTesterMapper.h"
-#include "GuidFileMapper.h"
-#include "../../smartcgms/src/common/rtl/Dynamic_Library.h"
-#include "../../smartcgms/src/common/rtl/guid.h"
-#include "../../smartcgms/src/common/rtl/hresult.h"
+#include "../testers/LogFilterUnitTester.h"
+#include "../mappers/GuidTesterMapper.h"
+#include "../mappers/GuidFileMapper.h"
 #include "constants.h"
 #include "Logger.h"
 

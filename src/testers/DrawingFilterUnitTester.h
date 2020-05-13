@@ -4,7 +4,7 @@
 #define _DRAWING_FILTER_UNIT_TESTER_H_
 
 #include "GenericUnitTester.h"
-#include "../../smartcgms/src/common/rtl/hresult.h"
+#include <rtl/hresult.h>
 
 class DrawingFilterUnitTester : public GenericUnitTester {
 public:

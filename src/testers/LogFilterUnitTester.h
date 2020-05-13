@@ -2,8 +2,8 @@
 
 #ifndef _LOG_FILTER_UNIT_TESTER_H_
 #define _LOG_FILTER_UNIT_TESTER_H_
+#include <rtl/hresult.h>
 #include "GenericUnitTester.h"
-#include "../../smartcgms/src/common/rtl/hresult.h"
 
 class LogFilterUnitTester : public GenericUnitTester{
 public:

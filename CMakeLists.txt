@@ -8,17 +8,23 @@ project ("SmartTester")
 # specify the C++ standard
 set(CMAKE_CXX_STANDARD 17)
 
-add_library(Dynamic_Library "../smartcgms/src/common/rtl/Dynamic_Library.cpp")
-add_library(referencedImpl "../smartcgms/src/common/rtl/referencedImpl.cpp")
-add_library(FilterLib "../smartcgms/src/common/rtl/FilterLib.cpp")
-add_library(scgmsLib "../smartcgms/src/common/rtl/scgmsLib.cpp")
-add_library(DeviceLib "../smartcgms/src/common/rtl/DeviceLib.cpp")
-add_library(string_utils "../smartcgms/src/common/utils/string_utils.cpp")
-# Add source to this project's executable.
-add_executable (SmartTester "src/main.cpp" src/TestFilter.cpp src/TestFilter.h src/UnitTestExecutor.cpp src/UnitTestExecutor.h 
-        src/GuidFileMapper.cpp src/GuidFileMapper.h src/constants.h src/GenericUnitTester.h src/GenericUnitTester.cpp src/LogFilterUnitTester.h 
-        src/LogFilterUnitTester.cpp src/GuidTesterMapper.h src/GuidTesterMapper.cpp src/DrawingFilterUnitTester.h src/DrawingFilterUnitTester.cpp 
-        src/MappingFilterUnitTester.h src/MappingFilterUnitTester.cpp src/Logger.h src/Logger.cpp src/MaskingFilterUnitTester.h src/MaskingFilterUnitTester.cpp)
+SET(SMARTCGMS_COMMON_DIR "../smartcgms/src/common/" CACHE PATH "SmartCGMS 'common' directory location")
+INCLUDE_DIRECTORIES("${SMARTCGMS_COMMON_DIR}")
+
+add_library(Dynamic_Library "${SMARTCGMS_COMMON_DIR}/rtl/Dynamic_Library.cpp")
+add_library(referencedImpl "${SMARTCGMS_COMMON_DIR}/rtl/referencedImpl.cpp")
+add_library(FilterLib "${SMARTCGMS_COMMON_DIR}/rtl/FilterLib.cpp")
+add_library(scgmsLib "${SMARTCGMS_COMMON_DIR}/rtl/scgmsLib.cpp")
+add_library(DeviceLib "${SMARTCGMS_COMMON_DIR}/rtl/DeviceLib.cpp")
+add_library(string_utils "${SMARTCGMS_COMMON_DIR}/utils/string_utils.cpp")
+
+
+
+file(GLOB APP ${PROJECT_SOURCE_DIR}/src/app/*.cpp)
+file(GLOB MAPPERS ${PROJECT_SOURCE_DIR}/src/mappers/*.cpp ${PROJECT_SOURCE_DIR}/src/mappers/*.h)
+file(GLOB TESTERS ${PROJECT_SOURCE_DIR}/src/testers/*.cpp ${PROJECT_SOURCE_DIR}/src/testers/*.h)
+file(GLOB UTILS ${PROJECT_SOURCE_DIR}/src/utils/*.cpp ${PROJECT_SOURCE_DIR}/src/utils/*.h)
+add_executable (SmartTester ${APP} ${MAPPERS} ${TESTERS} ${UTILS})
         
 target_link_libraries(SmartTester PUBLIC Dynamic_Library referencedImpl FilterLib scgmsLib DeviceLib string_utils)
 

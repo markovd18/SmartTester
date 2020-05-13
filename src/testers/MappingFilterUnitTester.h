@@ -2,8 +2,8 @@
 
 #ifndef _CSV_LOG_FILE_FILTER_UNIT_TESTER_H_
 #define _CSV_LOG_FILE_FILTER_UNIT_TESTER_H_
-#include "GenericUnitTester.h"
-#include "../../smartcgms/src/common/rtl/hresult.h"
+#include <rtl/hresult.h>
+#include "../testers/GenericUnitTester.h"
 
 class MappingFilterUnitTester : public GenericUnitTester {
 private:

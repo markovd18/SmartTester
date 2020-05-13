@@ -1,6 +1,6 @@
 #include <iostream>
+#include <rtl/FilterLib.h>
 #include "DrawingFilterUnitTester.h"
-#include "../../smartcgms/src/common/rtl/FilterLib.h"
 
 DrawingFilterUnitTester::DrawingFilterUnitTester(CDynamic_Library* library, TestFilter* testFilter, const GUID* guid) : GenericUnitTester(library, testFilter, guid) {
 	//

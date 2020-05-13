@@ -4,9 +4,9 @@
 
 #include <map>
 #include <functional>
-#include "GenericUnitTester.h"
-#include "../../smartcgms/src/common/rtl/guid.h"
-#include "Logger.h"
+#include <rtl/guid.h>
+#include "../testers/GenericUnitTester.h"
+#include "../utils/Logger.h"
 
 class GuidTesterMapper {
 

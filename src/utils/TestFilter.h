@@ -5,8 +5,8 @@
 #ifndef SMARTTESTER_TESTFILTER_H
 #define SMARTTESTER_TESTFILTER_H
 
-#include "../../smartcgms/src/common/iface/FilterIface.h"
-#include "../../smartcgms/src/common/rtl/referencedImpl.h"
+#include <iface/FilterIface.h>
+#include <rtl/referencedImpl.h>
 
 class TestFilter : public virtual scgms::IFilter, public virtual refcnt::CNotReferenced {
 

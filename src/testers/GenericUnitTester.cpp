@@ -3,11 +3,11 @@
 #include <thread>
 #include <condition_variable>
 #include <functional>
-#include "../../smartcgms/src/common/rtl/hresult.h"
-#include "../../smartcgms/src/common/rtl/FilterLib.h"
-#include "GuidFileMapper.h"
+#include <rtl/hresult.h>
+#include <rtl/FilterLib.h>
+#include "../mappers/GuidFileMapper.h"
+#include "../utils/constants.h"
 #include "GenericUnitTester.h"
-#include "constants.h"
 
 /**
     Creates an instance of GenericUnitTesterClass.

@@ -2,8 +2,8 @@
 
 #ifndef _MASKING_FILTER_UNIT_TESTER_H_
 #define _MASKING_FILTER_UNIT_TESTER_H_
-#include "GenericUnitTester.h"
-#include "../../smartcgms/src/common/rtl/hresult.h"
+#include "../testers/GenericUnitTester.h"
+#include <rtl/hresult.h>
 
 class MaskingFilterUnitTester : public GenericUnitTester {
 private:
