@@ -77,7 +77,7 @@ HRESULT LogFilterUnitTester::correctLogFileNameTest()
 
 	scgms::SPersistent_Filter_Chain_Configuration configuration;
 	refcnt::Swstr_list errors;
-	std::string memory = "[Filter_001_{c0e942b9-3928-4b81-9b43-a347668200ba}]\n\nLog_File = log.log";
+	std::string memory = "[Filter_001_{c0e942b9-3928-4b81-9b43-a347668200ba}]\n\nLog_File = correctLogFileNameTestLog.log";
 
 	HRESULT result = configuration ? S_OK : E_FAIL;
 	if (result == S_OK)
@@ -122,7 +122,7 @@ HRESULT LogFilterUnitTester::logFileGenerationTest()
 
 	scgms::SPersistent_Filter_Chain_Configuration configuration;
 	refcnt::Swstr_list errors;
-	std::string memory = "[Filter_001_{c0e942b9-3928-4b81-9b43-a347668200ba}]\n\nLog_File = log.log";
+	std::string memory = "[Filter_001_{c0e942b9-3928-4b81-9b43-a347668200ba}]\n\nLog_File = logFileGenerationTestLog.log";
 
 	HRESULT result = configuration ? S_OK : E_FAIL;
 	if (result == S_OK)
@@ -152,7 +152,7 @@ HRESULT LogFilterUnitTester::logFileGenerationTest()
 		}
 		else {
 			filterExecutor->Terminate();
-			std::ifstream file("../bin/log.log");
+			std::ifstream file("logFileGenerationTestLog.log");
 			if (file.good())
 			{
 				logger.debug(L"Log file created succesfully!");
