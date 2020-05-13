@@ -5,6 +5,7 @@
 
 #include <mutex>
 #include <functional>
+#include <condition_variable>
 #include <rtl/Dynamic_Library.h>
 #include <rtl/hresult.h>
 #include "../utils/TestFilter.h"
