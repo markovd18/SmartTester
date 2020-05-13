@@ -41,6 +41,7 @@ HRESULT LogFilterUnitTester::emptyLogFileNameTest()
 	}
 	else {
 		logger.error(L"Error while creating configuration!");
+		return E_FAIL;
 	}
 
 	scgms::IFilter_Configuration_Link** begin, ** end;
@@ -50,12 +51,16 @@ HRESULT LogFilterUnitTester::emptyLogFileNameTest()
 	result = testedFilter->Configure(begin[0], errors.get());
 	
 	if (!SUCCEEDED(result)) {	// test shouldn't succeed, we don't want to configure output log without name
-		return S_OK;
+		result = S_OK;
 	}
 	else {
-		logger.error(L"Filter was configured succesfully, but shouldn't be!");
-		return E_FAIL;
+		logger.error(L"Filter was configured succesfully, but shouldn't be!\n"
+		L"(" + std::wstring(memory.begin(), memory.end()) + L")");
+		result = E_FAIL;
 	}
+
+	shutDownTest();
+	return result;
 }
 
 /**
@@ -82,6 +87,7 @@ HRESULT LogFilterUnitTester::correctLogFileNameTest()
 	}
 	else {
 		logger.error(L"Error while creating configuration!");
+		return E_FAIL;
 	}
 
 	scgms::IFilter_Configuration_Link** begin, ** end;
@@ -91,12 +97,15 @@ HRESULT LogFilterUnitTester::correctLogFileNameTest()
 	logger.info(L"Configuring filter...");
 
 	if (SUCCEEDED(result)) {
-		return S_OK;
+		result = S_OK;
 	}
 	else {
 		logger.error(L"Failed to configure filter!");
-		return E_FAIL;
+		result = E_FAIL;
 	}
+
+	shutDownTest();
+	return result;
 }
 
 /**
@@ -108,7 +117,7 @@ HRESULT LogFilterUnitTester::logFileGenerationTest()
 	{
 		std::wcerr << L"No filter loaded! Can't execute test.\n";
 		logger.error(L"No filter loaded! Can't execute test!");
-		exit(E_FAIL);
+		return E_FAIL;
 	}
 
 	scgms::SPersistent_Filter_Chain_Configuration configuration;
@@ -123,6 +132,8 @@ HRESULT LogFilterUnitTester::logFileGenerationTest()
 	}
 	else {
 		logger.error(L"Error while creating configuration!");
+		shutDownTest();
+		return E_FAIL;
 	}
 
 	scgms::IFilter_Configuration_Link** begin, ** end;
@@ -137,7 +148,7 @@ HRESULT LogFilterUnitTester::logFileGenerationTest()
 		{
 			std::wcerr << L"Could not execute configuration! ";
 			logger.error(L"Could not execute configuration! (" + std::wstring(memory.begin(), memory.end()) + L")");
-			return E_FAIL;
+			result = E_FAIL;
 		}
 		else {
 			filterExecutor->Terminate();
@@ -145,15 +156,18 @@ HRESULT LogFilterUnitTester::logFileGenerationTest()
 			if (file.good())
 			{
 				logger.debug(L"Log file created succesfully!");
-				return S_OK;
+				result = S_OK;
 			}
 			else {
 				logger.error(L"Failed to create log file!");
-				return E_FAIL;
+				result = E_FAIL;
 			}
 		}
 	}
 	else {
-		return E_FAIL;
+		result = E_FAIL;
 	}
+
+	shutDownTest();
+	return result;
 }

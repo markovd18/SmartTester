@@ -8,6 +8,8 @@
 #include "UnitTestExecutor.h"
 #include "constants.h"
 
+Logger& logger = Logger::GetInstance();
+
 /**
     Prints few tips on how to use the application and which parameters to specify.
 */
@@ -25,7 +27,7 @@ void print_help() {
     Parses guid in string from command-line into hexadecimal numbers and creates GUID structure.
 */
 GUID parse_guid(std::string guid_string) {
-    Logger& logger = Logger::GetInstance();
+
     GUID guid{};
     if (!guid_string.empty()) {
         logger.debug(L"Parsing GUID: " + std::wstring(guid_string.begin(), guid_string.end()) + L"...");
@@ -34,7 +36,7 @@ GUID parse_guid(std::string guid_string) {
         std::string sub_token;
         size_t position = 0;
         int counter = 0;
-
+        
         try {
             while ((position = guid_string.find(delimeter)) != std::string::npos) {
                 token = guid_string.substr(0, position);
@@ -73,7 +75,7 @@ GUID parse_guid(std::string guid_string) {
                 guid_string.erase(0, 2 * sizeof(char));
             }
         }
-        catch (std::runtime_error) {
+        catch (std::exception) {
             std::wcerr << L"Invalid format of GUID passed!\n"
                 << L"Expected format: " << GUID_FORMAT << "\n";
             logger.error(L"Invalid format of GUID passed!");
@@ -116,7 +118,8 @@ int execute_regression_testing(const char* config_path) {
     Entry point of application.
 */
 int main(int argc, char* argv[]) {
-    Logger& logger = Logger::GetInstance();
+    logger.info(L"Starting SmartTester application...");
+
     if (argc < 2) {
         std::wcerr << L"Wrong parameter count!\n";
         logger.error(L"Wrong parameter count passed!");
@@ -131,6 +134,7 @@ int main(int argc, char* argv[]) {
             if (argv[2] != NULL) {
                 parameter = argv[2];
             }
+            logger.info(L"Unit tests will be executed.");
             execute_unit_testing(parameter);
             break;
         case 'r':   // regression testing
@@ -148,7 +152,8 @@ int main(int argc, char* argv[]) {
         print_help();
         return 2;
     }
-    
+
+    logger.info(L"Shutting down.");
     std::wcerr << L"For detailed information see generated log.\n";
     return 0;
 }

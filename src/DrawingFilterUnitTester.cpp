@@ -51,7 +51,8 @@ HRESULT DrawingFilterUnitTester::emptyCanvasSizeTest()
 		return S_OK;
 	}
 	else {
-		logger.error(L"Filter was configured successfully, but shouldn't be!");
+		logger.error(L"Filter was configured successfully, but shouldn't be!\n"
+		L"(" + std::wstring(memory.begin(), memory.end()) + L")");
 		return E_FAIL;
 	}
 }

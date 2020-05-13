@@ -97,14 +97,40 @@ void GenericUnitTester::loadScgmsLibrary() {
 }
 
 /**
+    Returns name of the tested filter.
+*/
+const wchar_t* GenericUnitTester::getFilterName()
+{
+    if (!filterLibrary->Is_Loaded())
+    {
+        return nullptr;
+    }
+
+    auto creator = filterLibrary->Resolve<scgms::TGet_Filter_Descriptors>("do_get_filter_descriptors");
+    scgms::TFilter_Descriptor* begin, * end;
+    creator(&begin, &end);
+    for (int i = 0; i < (end - begin); i++)
+    {
+        if (begin->id == *tested_guid)
+        {
+            return begin->description;
+        }
+        begin++;
+    }
+    return nullptr;
+}
+
+/**
     Executes all generic and specific tests for given filter.
 */
 void GenericUnitTester::executeAllTests() {
+    const wchar_t* filter_name = getFilterName();
+
     std::wcout << "****************************************\n"
-        << "Testing " << GuidFileMapper::GetInstance().getFileName(*tested_guid) << " filter:\n"
+        << "Testing " << filter_name << " filter:\n"
         << "****************************************\n";
     logger.debug(L"****************************************");
-    logger.debug(L"Testing " + std::wstring(GuidFileMapper::GetInstance().getFileName(*tested_guid)) + L" filter:");
+    logger.debug(L"Testing " + std::wstring(filter_name) + L" filter:");
     logger.debug(L"****************************************");
 
     executeGenericTests();
@@ -115,10 +141,7 @@ void GenericUnitTester::executeAllTests() {
     Executes only tests which can be applied on every filter.
 */
 void GenericUnitTester::executeGenericTests() {
-    //auto creator = filterLibrary->Resolve<scgms::TGet_Filter_Descriptors>("do_get_filter_descriptors");
-    //scgms::TFilter_Descriptor* begin, * end;
-    //auto result = creator(&begin, &end);
-    //std::wcout << begin->description;
+    
     logger.info(L"Executing generic tests...");
     executeTest(L"info event test", std::bind(&GenericUnitTester::infoEventTest, this));
 
@@ -137,6 +160,18 @@ void GenericUnitTester::executeTest(std::wstring testName, std::function<HRESULT
 }
 
 /**
+    Creates Shut_Down event and executes it.
+*/
+HRESULT GenericUnitTester::shutDownTest()
+{
+    scgms::IDevice_Event* shutDown;
+
+    auto creator = scgmsLibrary->Resolve<scgms::TCreate_Device_Event>("create_device_event");
+    auto result = creator(scgms::NDevice_Event_Code::Shut_Down, &shutDown);
+    return testedFilter->Execute(shutDown);
+}
+
+/**
     Runs test method passed as a parameter in a separate thread.
 */
 HRESULT GenericUnitTester::runTestInThread(std::function<HRESULT(void)> test) {
@@ -152,12 +187,9 @@ HRESULT GenericUnitTester::runTestInThread(std::function<HRESULT(void)> test) {
         status = testCv.wait_for(lock, std::chrono::milliseconds(MAX_EXEC_TIME));
         lock.unlock();
 
-        // poslat ShutDown
-        scgms::IDevice_Event* shutDown;
-
-        auto creator = scgmsLibrary->Resolve<scgms::TCreate_Device_Event>("create_device_event");
-        auto result = creator(scgms::NDevice_Event_Code::Shut_Down, &shutDown);
-        testedFilter->Execute(shutDown);
+        if (status == std::cv_status::timeout) {
+            shutDownTest();
+        }
 
         if (thread.joinable())
         {
@@ -229,8 +261,8 @@ void GenericUnitTester::printResult(HRESULT result) {
 HRESULT GenericUnitTester::infoEventTest() {
     if (!isFilterLoaded())
     {
-        std::wcerr << L"No filter created! Cannot execute test.\n";
-        logger.error(L"No filter created! Cannot execute test...");
+        std::wcerr << L"No filter created! Can't execute test.\n";
+        logger.error(L"No filter created! Can't execute test...");
         return E_FAIL;
     }
     scgms::IDevice_Event* event;
@@ -241,30 +273,29 @@ HRESULT GenericUnitTester::infoEventTest() {
     {
         std::wcerr << L"Error while creating \"Information\" IDevice_event!\n";
         logger.error(L"Error while creating \"Information\" IDevice_event!");
+        shutDownTest();
         return E_FAIL;
     }
 
+    logger.info(L"Executing event...");
     result = testedFilter->Execute(event);
 
     if (SUCCEEDED(result)) {
         scgms::TDevice_Event* recievedEvent = testFilter->getRecievedEvent();
         if (recievedEvent->event_code == scgms::NDevice_Event_Code::Information)
         {
-            result = creator(scgms::NDevice_Event_Code::Shut_Down, &event);
-            if (FAILED(result))
-            {
-                std::wcerr << L"Error while creating \"Shut_Down\" IDevice_event!\n";
-                logger.error(L"Error while creating \"Shut_Down\" IDevice_event!");
-                return E_FAIL;
-            }
-            testedFilter->Execute(event);
-            return S_OK;
+            result = S_OK;
         }
         else {
-            return E_FAIL;
+            logger.error(L"Event was modified during execution!");
+            result = E_FAIL;
         }
     }
     else {
-        return E_FAIL;
+        logger.error(L"Event wasn't correctly executed!");
+        result = E_FAIL;
     }
+
+    shutDownTest();
+    return result;
 }

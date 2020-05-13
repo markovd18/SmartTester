@@ -21,6 +21,7 @@ private:
 
     void loadFilter();
     void loadScgmsLibrary();
+    const wchar_t* getFilterName();
     HRESULT runTestInThread(std::function<HRESULT(void)> test);
     void runTest(std::function<HRESULT(void)> test);
     void printResult(HRESULT result);
@@ -33,6 +34,7 @@ protected:
     scgms::IFilter* testedFilter;
 
     void executeTest(std::wstring testName, std::function<HRESULT(void)> test);
+    HRESULT shutDownTest();
 
 public:
     Logger& logger = Logger::GetInstance();

@@ -18,8 +18,8 @@ add_library(string_utils "../smartcgms/src/common/utils/string_utils.cpp")
 add_executable (SmartTester "src/main.cpp" src/TestFilter.cpp src/TestFilter.h src/UnitTestExecutor.cpp src/UnitTestExecutor.h 
         src/GuidFileMapper.cpp src/GuidFileMapper.h src/constants.h src/GenericUnitTester.h src/GenericUnitTester.cpp src/LogFilterUnitTester.h 
         src/LogFilterUnitTester.cpp src/GuidTesterMapper.h src/GuidTesterMapper.cpp src/DrawingFilterUnitTester.h src/DrawingFilterUnitTester.cpp 
-        src/MappingFilterUnitTester.h src/MappingFilterUnitTester.cpp src/Logger.h src/Logger.cpp)
-
+        src/MappingFilterUnitTester.h src/MappingFilterUnitTester.cpp src/Logger.h src/Logger.cpp src/MaskingFilterUnitTester.h src/MaskingFilterUnitTester.cpp)
+        
 target_link_libraries(SmartTester PUBLIC Dynamic_Library referencedImpl FilterLib scgmsLib DeviceLib string_utils)
 
 IF(WIN32)
