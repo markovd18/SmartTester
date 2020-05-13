@@ -3,6 +3,7 @@
 #include <thread>
 #include <condition_variable>
 #include <functional>
+#include <string>
 #include <rtl/hresult.h>
 #include <rtl/FilterLib.h>
 #include "../mappers/GuidFileMapper.h"
@@ -53,12 +54,15 @@ GenericUnitTester::~GenericUnitTester() {
 void GenericUnitTester::loadFilter() {
 
     const wchar_t* file_name = GuidFileMapper::GetInstance().getFileName(*(this->tested_guid));
-    filterLibrary->Load(file_name);
+    std::wstring file = file_name;
+    file.append(LIB_EXTENSION);
+
+    filterLibrary->Load(file.c_str());
 
 
     if (!filterLibrary->Is_Loaded()) {
         std::wcerr << L"Couldn't load " << file_name << " library!\n";
-        logger.error(L"Couldn't load " + std::wstring(file_name) + L"library.");
+        logger.error(L"Couldn't load " + std::wstring(file_name) + L" library.");
         return;
     }
 
@@ -84,7 +88,10 @@ void GenericUnitTester::loadScgmsLibrary() {
     logger.debug(L"Loading dynamic library scgms...");
     CDynamic_Library *scgms = new CDynamic_Library;
 
-    scgms->Load(SCGMS_LIB);
+    std::wstring file = SCGMS_LIB;
+    file.append(LIB_EXTENSION);
+
+    scgms->Load(file.c_str());
     if (!scgms->Is_Loaded())
     {
         std::wcerr << L"Couldn't load scgms library!\n";

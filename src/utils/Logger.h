@@ -28,7 +28,7 @@ public:
 	static Logger& GetInstance();
 private:
 	std::wofstream stream;
-	std::wstring fileNameByDate();
+	std::string fileNameByDate();
 	std::wstring timeFormat();
 };
 

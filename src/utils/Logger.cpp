@@ -16,19 +16,19 @@
 
 Logger::Logger() {
 	fs::create_directory("../logs");
-	stream.open(L"../logs/" + fileNameByDate() + L".log", std::ios::app);
+	stream.open("../logs/" + fileNameByDate() + ".log", std::ios::app);
 }
 
-std::wstring Logger::fileNameByDate() {
+std::string Logger::fileNameByDate() {
 	time_t rawTime;
 	struct tm* timeInfo;
-	wchar_t buffer[80];
+	char buffer[80];
 
 	time(&rawTime);
 	timeInfo = localtime(&rawTime);
 
-	wcsftime(buffer, 80, L"%d-%m-%Y %H-%M-%S", timeInfo);
-	return std::wstring(buffer);
+	strftime(buffer, 80, "%d-%m-%Y %H-%M-%S", timeInfo);
+	return std::string(buffer);
 }
 
 std::wstring Logger::timeFormat() {

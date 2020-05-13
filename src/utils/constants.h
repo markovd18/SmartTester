@@ -20,12 +20,19 @@ constexpr GUID MASKING_GUID = { 0xa1124c89, 0x18a4, 0xf4c1, {0x28, 0xe8, 0xa9, 0
 constexpr wchar_t* GUID_FORMAT = L"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
 
 #ifdef _WIN32
+constexpr wchar_t* LIB_EXTENSION = L".dll";
 constexpr wchar_t* SCGMS_LIB = L"scgms";
 constexpr wchar_t* LOG_LIBRARY = L"filters/log";
 constexpr wchar_t* DRAWING_LIBRARY = L"filters/drawing";
 constexpr wchar_t* SIGNAL_LIBRARY = L"filters/signal";
 
 #else
+
+#ifdef __APPLE__
+constexpr wchar_t* LIB_EXTENSION = L".dylib";
+#else
+constexpr wchar_t* LIB_EXTENSION = L".so";
+#endif
 
 constexpr wchar_t* SCGMS_LIB = L"libscgms";
 constexpr wchar_t* LOG_LIBRARY = L"filters/liblog";
