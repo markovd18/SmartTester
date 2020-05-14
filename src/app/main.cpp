@@ -7,6 +7,7 @@
 #include <rtl/hresult.h>
 #include "../utils/UnitTestExecutor.h"
 #include "../utils/constants.h"
+#include "../testers/RegressionTester.h"
 
 Logger& logger = Logger::GetInstance();
 
@@ -111,12 +112,10 @@ void execute_unit_testing(std::string guid_string) {
     Loads filter configuration and executes regression tests.
 */
 int execute_regression_testing(std::wstring config_filepath) {
-    CDynamic_Library::Set_Library_Base(LIB_DIR);
-    CDynamic_Library library;
 
-    RegressionTester regTester = RegressionTester(&library, config_filepath);
-    
-    return S_OK;
+    RegressionTester regTester = RegressionTester(config_filepath);
+    auto result = regTester.compareLogs("log.log", "log.log");
+    return result;
 }
 
 /**
