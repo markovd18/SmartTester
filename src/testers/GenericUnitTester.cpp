@@ -127,6 +127,18 @@ const wchar_t* GenericUnitTester::getFilterName()
     return nullptr;
 }
 
+void GenericUnitTester::printAndEmptyErrors(refcnt::Swstr_list errors) {
+    refcnt::wstr_container* wstr;
+    if (errors->empty() != S_OK) {
+        std::wcerr << "Error description: " << std::endl;
+        while (errors->pop(&wstr) == S_OK) {
+            std::wcerr << refcnt::WChar_Container_To_WString(wstr) << std::endl;
+            logger.error(refcnt::WChar_Container_To_WString(wstr));
+            wstr->Release();
+        }
+    }
+}
+
 /**
     Executes all generic and specific tests for given filter.
 */

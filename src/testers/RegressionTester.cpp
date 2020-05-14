@@ -7,12 +7,25 @@
 #include <rtl/scgmsLib.h>
 #include <rtl/referencedImpl.h>
 #include <rtl/hresult.h>
+#include <utils/string_utils.h>
 #include <iostream>
 #include <string>
 #include <fstream>
 #include <cstdlib>
 #include <vector>
 #include<algorithm>
+
+void RegressionTester::printAndEmptyErrors(refcnt::Swstr_list errors) {
+    refcnt::wstr_container* wstr;
+    if (errors->empty() != S_OK) {
+        std::wcerr << "Error description: " << std::endl;
+        while (errors->pop(&wstr) == S_OK) {
+            std::wcerr << refcnt::WChar_Container_To_WString(wstr) << std::endl;
+            logger.error(refcnt::WChar_Container_To_WString(wstr));
+            wstr->Release();
+        }
+    }
+}
 
 RegressionTester::RegressionTester(std::wstring config_filepath) {
     this->config_filepath = config_filepath;
@@ -28,10 +41,11 @@ std::vector<std::vector<std::string>> RegressionTester::setLogVector(std::string
     myfile.open(cLog.c_str());
     if (!myfile.is_open())
     {
-        cout << "Nepodarilo se soubor otevrit " << cLog << endl;
+        wcerr << "Couldn't open the file \"" << Widen_Char(cLog.c_str()) << "\"\n";
+        logger.error(L"Couldn't open the file \"" + Widen_Char(cLog.c_str()) + L"\"");
         exit(EXIT_FAILURE);
     }
-    //Alokace vicerozmerneho pole na stringy
+
     vector<vector<string>> logArr;
 
     while (getline(myfile, line)) {
@@ -64,6 +78,7 @@ HRESULT RegressionTester::compareLogs(std::string cLog, std::string rLog) {
     if (config_filepath.empty())
     {
         std::wcerr << L"Can't compare logs without configuration!\n";
+        logger.error(L"Can't compare logs without configuration!");
         return E_FAIL;
     }
 
@@ -71,8 +86,9 @@ HRESULT RegressionTester::compareLogs(std::string cLog, std::string rLog) {
     sort(logArr.begin() + 1, logArr.end(), [](const vector<string>& lhs, const vector<string>& rhs) {
         return std::stoi(lhs.at(0)) < std::stoi(rhs.at(0));
         });
-    vector<vector<string>> resultArr = setLogVector(rLog.c_str());
 
+    vector<vector<string>> resultArr = setLogVector(rLog.c_str());
+    vector<vector<string>> errorResult;
     bool errorFlag = false;
     bool mainErrorFlag = true;
     int iterator = 1;
@@ -89,27 +105,39 @@ HRESULT RegressionTester::compareLogs(std::string cLog, std::string rLog) {
             }
 
             if (errorFlag == false) {
-                //vypis erroru chybi result[y1]
+
                 mainErrorFlag = false;
-                cout << "Missing line form result, position: " << y1 << endl;
+                errorResult.push_back(resultArr.at(y1));
             }
             errorFlag = false;
-
-
         }
         if (mainErrorFlag) {
-            cout << "Test probehl uspesne" << endl;
-            // vypis logu
+            wcout << "Test result is OK!" << endl;
+            logger.info(L"Test result is OK!");
+            if (logArr.size() > 1)
+            {
+                logger.info(L"There were reduntant lines found:");
+                wcout << L"There were redundant lines found!\n";
+                logArr.erase(logArr.begin());
+                printLines(logArr);
+            }
+
             return S_OK;
         }
-
+        else {
+            logger.error(L"There were lines missing in log file!");
+            logger.error(L"Test failed!");
+            wcout << L"There were lines missing in log file!\n";
+            wcout << L"Test failed!\n";
+            printLines(errorResult);
+            return E_FAIL;
+        }
     }
-    else {
-        // loogy se neshoduji
+    else {  // different number of parametes in line is not correct
+        wcerr << L"There is different number of parameters in first line!\n";
+        logger.error(L"There is different number of parameters in first line!");
         return E_FAIL;
     }
-
-
 }
 
 void RegressionTester::loadConfig() {
@@ -129,6 +157,7 @@ void RegressionTester::loadConfig() {
 
 	if (rc == S_FALSE) {
 		std::wcerr << L"Warning: some filters were not loaded!" << std::endl;
+        printAndEmptyErrors(errors);
 	}
 	scgms::SFilter_Executor gFilter_Executor;
 	gFilter_Executor = scgms::SFilter_Executor{ configuration.get(), nullptr, nullptr, errors };
@@ -136,12 +165,23 @@ void RegressionTester::loadConfig() {
 	if (!gFilter_Executor)
 	{
 		std::wcerr << L"Could not execute the filters!" << std::endl;
-		//return 1;
+        printAndEmptyErrors(errors);
+        exit(EXIT_FAILURE);
 	}
 
 	
 	// wait for filters to finish, or user to close the app
 	gFilter_Executor->Terminate();
-	//std::wcerr << L"Everything went well" << std::endl;
+}
+
+void RegressionTester::printLines(std::vector<std::vector<std::string>> errorResult)
+{
+    for (int y = 0; y < errorResult.size(); y++) {
+        std::string line;
+        for (int x = 0; x < errorResult[y].size(); x++) {
+            line += errorResult[y][x] + "; ";
+        }
+        logger.trace(Widen_Char(line.c_str()));
+    }
 }
 

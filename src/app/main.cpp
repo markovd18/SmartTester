@@ -5,6 +5,7 @@
 #include <string>
 #include <rtl/guid.h>
 #include <rtl/hresult.h>
+#include <utils/string_utils.h>
 #include "../utils/UnitTestExecutor.h"
 #include "../utils/constants.h"
 #include "../testers/RegressionTester.h"
@@ -114,7 +115,14 @@ void execute_unit_testing(std::string guid_string) {
 int execute_regression_testing(std::wstring config_filepath) {
 
     RegressionTester regTester = RegressionTester(config_filepath);
-    auto result = regTester.compareLogs("log.log", "log.log");
+    std::string log_filepath = Narrow_WString(config_filepath);
+
+    log_filepath.erase(log_filepath.size() - Narrow_WChar(CONFIG_FILE).size());
+    log_filepath += Narrow_WChar(LOG_FILE);
+
+    auto result = regTester.compareLogs(Narrow_WChar(LOG_FILE), log_filepath);
+    logger.info(L"Shutting down.");
+    std::wcerr << L"For detailed information see generated log.\n";
     return result;
 }
 
@@ -123,6 +131,7 @@ int execute_regression_testing(std::wstring config_filepath) {
 */
 int main(int argc, char* argv[]) {
     logger.info(L"Starting SmartTester application...");
+    std::wcout << L"Starting SmartTester application...\n";
 
     if (argc < 2) {
         std::wcerr << L"Wrong parameter count!\n";
@@ -140,9 +149,12 @@ int main(int argc, char* argv[]) {
                 parameter = argv[2];
             }
             logger.info(L"Unit tests will be executed.");
+            std::wcout << L"Executing unit tests.\n";
             execute_unit_testing(parameter);
             break;
         case 'r':   // regression testing
+            logger.info(L"Regression tests will be executed.");
+            std::wcout << L"Executing regression tests.\n";
             config_filepath = argc > 2 ? std::wstring{ argv[2], argv[2] + strlen(argv[2]) } : std::wstring{};
             return execute_regression_testing(config_filepath);
         default:
@@ -160,6 +172,6 @@ int main(int argc, char* argv[]) {
     }
 
     logger.info(L"Shutting down.");
-    std::wcerr << L"For detailed information see generated log.\n";
+    std::wcout << L"For detailed information see generated log.\n";
     return 0;
 }

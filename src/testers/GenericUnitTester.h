@@ -36,6 +36,7 @@ protected:
 
     void executeTest(std::wstring testName, std::function<HRESULT(void)> test);
     HRESULT shutDownTest();
+    void printAndEmptyErrors(refcnt::Swstr_list errors);
 
 public:
     Logger& logger = Logger::GetInstance();

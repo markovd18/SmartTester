@@ -25,6 +25,8 @@ constexpr wchar_t* SCGMS_LIB = L"scgms";
 constexpr wchar_t* LOG_LIBRARY = L"filters/log";
 constexpr wchar_t* DRAWING_LIBRARY = L"filters/drawing";
 constexpr wchar_t* SIGNAL_LIBRARY = L"filters/signal";
+constexpr wchar_t* LOG_FILE = L"log.csv";
+constexpr wchar_t* CONFIG_FILE = L"config.ini";
 
 #else
 
