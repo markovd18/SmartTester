@@ -21,3 +21,4 @@ logs
 /.idea/misc.xml
 /.idea/modules.xml
 *.log
+*.xml

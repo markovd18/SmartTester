@@ -17,6 +17,13 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR ${CMAKE_CXX_COMPILER_ID} MATCHE
 	ENDIF()
     # on GCC and Clang, we need to add libdl and and libm
 	SET(REQUIRED_LIBRARIES ${REQUIRED_LIBRARIES} ${CMAKE_DL_LIBS} m)
+    ADD_DEFINITIONS(-Wall -Wextra -Wno-ignored-attributes -Wno-deprecated-declarations -Wno-unknown-pragmas -Wno-unused-parameter -fPIC)
+    # gcc reports a specific use case of copy semantics as deprecated, unline Clang
+	IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+		ADD_DEFINITIONS(-Wno-deprecated-copy -Wimplicit-fallthrough=0 -Wno-class-memaccess)
+	ENDIF()
+    # debug build = no optimization, add debug symbols
+	SET(CMAKE_CXX_FLAGS_DEBUG "-g")
     set(CMAKE_CXX_STANDARD 17)
 ELSEIF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set(CMAKE_CXX_STANDARD 17)
