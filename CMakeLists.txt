@@ -5,36 +5,63 @@ cmake_minimum_required (VERSION 3.0)
 
 project ("SmartTester")
 
-# specify the C++ standard
-set(CMAKE_CXX_STANDARD 17)
+FIND_PACKAGE(Threads REQUIRED)
+SET(REQUIRED_LIBRARIES ${CMAKE_THREAD_LIBS_INIT})
 
-add_library(Dynamic_Library "../smartcgms/src/common/rtl/Dynamic_Library.cpp")
-add_library(referencedImpl "../smartcgms/src/common/rtl/referencedImpl.cpp")
-add_library(FilterLib "../smartcgms/src/common/rtl/FilterLib.cpp")
-add_library(scgmsLib "../smartcgms/src/common/rtl/scgmsLib.cpp")
-add_library(DeviceLib "../smartcgms/src/common/rtl/DeviceLib.cpp")
-add_library(string_utils "../smartcgms/src/common/utils/string_utils.cpp")
-# Add source to this project's executable.
-add_executable (SmartTester "src/main.cpp" src/TestFilter.cpp src/TestFilter.h src/UnitTester.cpp src/UnitTester.h)
+SET(LINK_STDCPPFS FALSE)
 
-# set output directory to
-SET(output_dir "${PROJECT_SOURCE_DIR}/compiled")
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
+    SET(LINK_STDCPPFS TRUE)
+    IF ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Apple" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 11.0)
+		SET(LINK_STDCPPFS FALSE)
+	ENDIF()
+    # on GCC and Clang, we need to add libdl and and libm
+	SET(REQUIRED_LIBRARIES ${REQUIRED_LIBRARIES} ${CMAKE_DL_LIBS} m)
+    ADD_DEFINITIONS(-Wall -Wextra -Wno-ignored-attributes -Wno-deprecated-declarations -Wno-unknown-pragmas -Wno-unused-parameter -fPIC)
+    # gcc reports a specific use case of copy semantics as deprecated, unline Clang
+	IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+		ADD_DEFINITIONS(-Wno-deprecated-copy -Wimplicit-fallthrough=0 -Wno-class-memaccess)
+	ENDIF()
+    # debug build = no optimization, add debug symbols
+	SET(CMAKE_CXX_FLAGS_DEBUG "-g")
+    set(CMAKE_CXX_STANDARD 17)
+ELSEIF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    set(CMAKE_CXX_STANDARD 17)
+ELSE()
+    set(CMAKE_CXX_STANDARD 17)
+ENDIF()
+    
+IF(LINK_STDCPPFS)
+	SET(REQUIRED_LIBRARIES ${REQUIRED_LIBRARIES} stdc++fs)
+ENDIF()
 
-# globally set output directory for single-configuration environments (GCC, ..)
-SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${output_dir}")
-SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${output_dir}")
-SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${output_dir}")
+LINK_LIBRARIES(${REQUIRED_LIBRARIES})
 
-# globally set output directory for multi-configuration environments (MSVS, ..)
-FOREACH(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
-    SET(ORIG_OUT_CONFIG ${OUTPUTCONFIG})
-    STRING(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG)
-    SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} "${output_dir}/${ORIG_OUT_CONFIG}")
-    SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} "${output_dir}/${ORIG_OUT_CONFIG}")
-    SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} "${output_dir}/${ORIG_OUT_CONFIG}")
-ENDFOREACH(OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES)
+SET(SMARTCGMS_COMMON_DIR "../smartcgms/src/common/" CACHE PATH "SmartCGMS 'common' directory location")
+INCLUDE_DIRECTORIES("${SMARTCGMS_COMMON_DIR}")
 
-target_link_libraries(SmartTester PUBLIC Dynamic_Library referencedImpl FilterLib scgmsLib DeviceLib string_utils)
-set_target_properties( SmartTester PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR} )
+add_library(Dynamic_Library "${SMARTCGMS_COMMON_DIR}/rtl/Dynamic_Library.cpp")
+add_library(referencedImpl "${SMARTCGMS_COMMON_DIR}/rtl/referencedImpl.cpp")
+add_library(FilterLib "${SMARTCGMS_COMMON_DIR}/rtl/FilterLib.cpp")
+add_library(scgmsLib "${SMARTCGMS_COMMON_DIR}/rtl/scgmsLib.cpp")
+add_library(DeviceLib "${SMARTCGMS_COMMON_DIR}/rtl/DeviceLib.cpp")
+add_library(string_utils "${SMARTCGMS_COMMON_DIR}/utils/string_utils.cpp")
+add_library(winapi_mapping "${SMARTCGMS_COMMON_DIR}/utils/winapi_mapping.cpp")
 
+
+file(GLOB APP ${PROJECT_SOURCE_DIR}/src/app/*.cpp)
+file(GLOB MAPPERS ${PROJECT_SOURCE_DIR}/src/mappers/*.cpp ${PROJECT_SOURCE_DIR}/src/mappers/*.h)
+file(GLOB TESTERS ${PROJECT_SOURCE_DIR}/src/testers/*.cpp ${PROJECT_SOURCE_DIR}/src/testers/*.h)
+file(GLOB UTILS ${PROJECT_SOURCE_DIR}/src/utils/*.cpp ${PROJECT_SOURCE_DIR}/src/utils/*.h)
+add_executable (SmartTester ${APP} ${MAPPERS} ${TESTERS} ${UTILS})
+        
+target_link_libraries(SmartTester PUBLIC Dynamic_Library referencedImpl FilterLib scgmsLib DeviceLib string_utils winapi_mapping)
+
+IF(WIN32)
+    set_target_properties( SmartTester PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/windows_64 )
+ELSEIF(APPLE)
+    set_target_properties( SmartTester PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/macos_64 )
+ELSE()
+    set_target_properties( SmartTester PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/debian_64 )
+ENDIF()
 
