@@ -5,31 +5,38 @@
 
 #include <mutex>
 #include <functional>
-#include "../../smartcgms/src/common/rtl/Dynamic_Library.h"
-#include "TestFilter.h"
-#include "Logger.h"
+#include <condition_variable>
+#include <rtl/Dynamic_Library.h>
+#include <rtl/hresult.h>
+#include "../utils/TestFilter.h"
+#include "../utils/Logger.h"
 
 /**
     Contains generic tests and methods, which can be applied on any filter.
 */
 class GenericUnitTester {
 private:
-    CDynamic_Library* filterLibrary;
-    CDynamic_Library* scgmsLibrary;
-    TestFilter* testFilter;
-    const GUID* tested_guid;
-    scgms::IFilter* testedFilter;
-
     std::mutex testMutex;
     std::condition_variable testCv;
     HRESULT lastTestResult;
 
     void loadFilter();
     void loadScgmsLibrary();
+    const wchar_t* getFilterName();
     HRESULT runTestInThread(std::function<HRESULT(void)> test);
     void runTest(std::function<HRESULT(void)> test);
-    void executeTest(std::wstring testName, std::function<HRESULT(void)> test);
     void printResult(HRESULT result);
+
+protected:
+    CDynamic_Library* filterLibrary;
+    CDynamic_Library* scgmsLibrary;
+    TestFilter* testFilter;
+    const GUID* tested_guid;
+    scgms::IFilter* testedFilter;
+
+    void executeTest(std::wstring testName, std::function<HRESULT(void)> test);
+    HRESULT shutDownTest();
+    void printAndEmptyErrors(refcnt::Swstr_list errors);
 
 public:
     Logger& logger = Logger::GetInstance();

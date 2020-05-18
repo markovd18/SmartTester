@@ -1,11 +1,11 @@
 #include <iostream>
+#include <rtl/Dynamic_Library.h>
+#include <rtl/guid.h>
+#include <rtl/hresult.h>
 #include "UnitTestExecutor.h"
-#include "LogFilterUnitTester.h"
-#include "GuidTesterMapper.h"
-#include "GuidFileMapper.h"
-#include "../../smartcgms/src/common/rtl/Dynamic_Library.h"
-#include "../../smartcgms/src/common/rtl/guid.h"
-#include "../../smartcgms/src/common/rtl/hresult.h"
+#include "../testers/LogFilterUnitTester.h"
+#include "../mappers/GuidTesterMapper.h"
+#include "../mappers/GuidFileMapper.h"
 #include "constants.h"
 #include "Logger.h"
 
@@ -25,7 +25,11 @@ void UnitTestExecutor::executeFilterTests(const GUID& guid) {
 	}
 	
 	GenericUnitTester* unitTester = getUnitTester(guid);
-	unitTester->executeAllTests();
+	if ((unitTester) && unitTester->isFilterLoaded())
+	{
+		unitTester->executeAllTests();
+	}
+	
 	delete unitTester;
 }
 
@@ -33,7 +37,7 @@ void UnitTestExecutor::executeFilterTests(const GUID& guid) {
 	Executes all tests across all filters.
 */
 void UnitTestExecutor::executeAllTests() {
-	logger.info(L"Executing all tests...");
+	logger.info(L"Executing all tests across all filters.");
 	std::map<GUID, const wchar_t*>::iterator iterator;
 	std::map<GUID, const wchar_t*> map = GuidFileMapper::GetInstance().getMap();
 

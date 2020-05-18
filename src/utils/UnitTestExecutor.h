@@ -4,9 +4,8 @@
 
 #ifndef SMARTTESTER_UNITTESTER_H
 #define SMARTTESTER_UNITTESTER_H
-
-#include "../../smartcgms/src/common/rtl/guid.h"
-#include "GenericUnitTester.h"
+#include <rtl/guid.h>
+#include "../testers/GenericUnitTester.h"
 #include "Logger.h"
 
 /**

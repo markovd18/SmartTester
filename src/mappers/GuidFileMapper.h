@@ -3,7 +3,7 @@
 #define _GUID_FILE_MAPPER_H_
 
 #include <map>
-#include "../../smartcgms/src/common/rtl/guid.h"
+#include <rtl/guid.h>
 
 /**
 	Singleton class used for mapping GUID to propper dynamic library file name.

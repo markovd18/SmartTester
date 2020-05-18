@@ -5,21 +5,57 @@ cmake_minimum_required (VERSION 3.0)
 
 project ("SmartTester")
 
-# specify the C++ standard
-set(CMAKE_CXX_STANDARD 17)
+FIND_PACKAGE(Threads REQUIRED)
+SET(REQUIRED_LIBRARIES ${CMAKE_THREAD_LIBS_INIT})
 
-add_library(Dynamic_Library "../smartcgms/src/common/rtl/Dynamic_Library.cpp")
-add_library(referencedImpl "../smartcgms/src/common/rtl/referencedImpl.cpp")
-add_library(FilterLib "../smartcgms/src/common/rtl/FilterLib.cpp")
-add_library(scgmsLib "../smartcgms/src/common/rtl/scgmsLib.cpp")
-add_library(DeviceLib "../smartcgms/src/common/rtl/DeviceLib.cpp")
-add_library(string_utils "../smartcgms/src/common/utils/string_utils.cpp")
-# Add source to this project's executable.
-add_executable (SmartTester "src/main.cpp" src/TestFilter.cpp src/TestFilter.h src/UnitTestExecutor.cpp src/UnitTestExecutor.h 
-        src/GuidFileMapper.cpp src/GuidFileMapper.h src/constants.h src/GenericUnitTester.h src/GenericUnitTester.cpp src/LogFilterUnitTester.h 
-        src/LogFilterUnitTester.cpp src/GuidTesterMapper.h src/GuidTesterMapper.cpp src/Logger.h src/Logger.cpp)
+SET(LINK_STDCPPFS FALSE)
 
-target_link_libraries(SmartTester PUBLIC Dynamic_Library referencedImpl FilterLib scgmsLib DeviceLib string_utils)
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
+    SET(LINK_STDCPPFS TRUE)
+    IF ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Apple" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 11.0)
+		SET(LINK_STDCPPFS FALSE)
+	ENDIF()
+    # on GCC and Clang, we need to add libdl and and libm
+	SET(REQUIRED_LIBRARIES ${REQUIRED_LIBRARIES} ${CMAKE_DL_LIBS} m)
+    ADD_DEFINITIONS(-Wall -Wextra -Wno-ignored-attributes -Wno-deprecated-declarations -Wno-unknown-pragmas -Wno-unused-parameter -fPIC)
+    # gcc reports a specific use case of copy semantics as deprecated, unline Clang
+	IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+		ADD_DEFINITIONS(-Wno-deprecated-copy -Wimplicit-fallthrough=0 -Wno-class-memaccess)
+	ENDIF()
+    # debug build = no optimization, add debug symbols
+	SET(CMAKE_CXX_FLAGS_DEBUG "-g")
+    set(CMAKE_CXX_STANDARD 17)
+ELSEIF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    set(CMAKE_CXX_STANDARD 17)
+ELSE()
+    set(CMAKE_CXX_STANDARD 17)
+ENDIF()
+    
+IF(LINK_STDCPPFS)
+	SET(REQUIRED_LIBRARIES ${REQUIRED_LIBRARIES} stdc++fs)
+ENDIF()
+
+LINK_LIBRARIES(${REQUIRED_LIBRARIES})
+
+SET(SMARTCGMS_COMMON_DIR "../smartcgms/src/common/" CACHE PATH "SmartCGMS 'common' directory location")
+INCLUDE_DIRECTORIES("${SMARTCGMS_COMMON_DIR}")
+
+add_library(Dynamic_Library "${SMARTCGMS_COMMON_DIR}/rtl/Dynamic_Library.cpp")
+add_library(referencedImpl "${SMARTCGMS_COMMON_DIR}/rtl/referencedImpl.cpp")
+add_library(FilterLib "${SMARTCGMS_COMMON_DIR}/rtl/FilterLib.cpp")
+add_library(scgmsLib "${SMARTCGMS_COMMON_DIR}/rtl/scgmsLib.cpp")
+add_library(DeviceLib "${SMARTCGMS_COMMON_DIR}/rtl/DeviceLib.cpp")
+add_library(string_utils "${SMARTCGMS_COMMON_DIR}/utils/string_utils.cpp")
+add_library(winapi_mapping "${SMARTCGMS_COMMON_DIR}/utils/winapi_mapping.cpp")
+
+
+file(GLOB APP ${PROJECT_SOURCE_DIR}/src/app/*.cpp)
+file(GLOB MAPPERS ${PROJECT_SOURCE_DIR}/src/mappers/*.cpp ${PROJECT_SOURCE_DIR}/src/mappers/*.h)
+file(GLOB TESTERS ${PROJECT_SOURCE_DIR}/src/testers/*.cpp ${PROJECT_SOURCE_DIR}/src/testers/*.h)
+file(GLOB UTILS ${PROJECT_SOURCE_DIR}/src/utils/*.cpp ${PROJECT_SOURCE_DIR}/src/utils/*.h)
+add_executable (SmartTester ${APP} ${MAPPERS} ${TESTERS} ${UTILS})
+        
+target_link_libraries(SmartTester PUBLIC Dynamic_Library referencedImpl FilterLib scgmsLib DeviceLib string_utils winapi_mapping)
 
 IF(WIN32)
     set_target_properties( SmartTester PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/windows_64 )
