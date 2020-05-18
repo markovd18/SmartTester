@@ -2,6 +2,7 @@
 // Created by Martin on 22.4.2020.
 //
 #include "RegressionTester.h"
+#include "../utils/constants.h"
 #include <iface/DeviceIface.h>
 #include <rtl/FilterLib.h>
 #include <rtl/scgmsLib.h>
@@ -33,26 +34,25 @@ RegressionTester::RegressionTester(std::wstring config_filepath) {
 }
 
 std::vector<std::vector<std::string>> RegressionTester::setLogVector(std::string cLog) {
-    using namespace std;
-    string line;
-    string divideBy = ";";
+    std::string line;
+    std::string divideBy = ";";
     
-    ifstream myfile;
+    std::ifstream myfile;
     myfile.open(cLog.c_str());
     if (!myfile.is_open())
     {
-        wcerr << "Couldn't open the file \"" << Widen_Char(cLog.c_str()) << "\"\n";
+        std::wcerr << "Couldn't open the file \"" << Widen_Char(cLog.c_str()) << "\"\n";
         logger.error(L"Couldn't open the file \"" + Widen_Char(cLog.c_str()) + L"\"");
         exit(EXIT_FAILURE);
     }
 
-    vector<vector<string>> logArr;
+    std::vector<std::vector<std::string>> logArr;
 
     while (getline(myfile, line)) {
-        string token;
+        std::string token;
         size_t pos = 0;
-        vector<string> tmpVec;
-        while ((pos = line.find(divideBy)) != string::npos) {
+        std::vector<std::string> tmpVec;
+        while ((pos = line.find(divideBy)) != std::string::npos) {
             tmpVec.push_back(line.substr(0, pos));
             line.erase(0, pos + divideBy.length() + 1);
         }
@@ -63,9 +63,33 @@ std::vector<std::vector<std::string>> RegressionTester::setLogVector(std::string
 }
 
 bool RegressionTester::compareLines(std::vector<std::string> log, std::vector<std::string> result) {
-    for (int i = 2; i < result.size(); i++) {
-        if (result.at(i).compare(log.at(i))) {
-            return false;
+    for (int i = firstComparedIndex; i < result.size(); i++) {
+
+        if ((i >= firstNumberValueIndex) && (i <= lastNumberValueIndex))
+        {
+            std::string expectedField = result.at(i);
+            std::string actualField = log.at(i);
+            if (expectedField.empty() && actualField.empty())
+            {
+                continue;
+            }
+            else if (expectedField.empty() || actualField.empty()) {
+                return false;
+            }
+
+            double expected = std::stod(result.at(i));
+            double actual = std::stod(log.at(i));
+            double lambda = 0.0001;
+
+            if (abs(expected - actual) > lambda)
+            {
+                return false;
+            }
+        }
+        else {
+            if (result.at(i).compare(log.at(i)) != 0) {
+                return false;
+            }
         }
     }
 
@@ -73,7 +97,6 @@ bool RegressionTester::compareLines(std::vector<std::string> log, std::vector<st
 }
 
 HRESULT RegressionTester::compareLogs(std::string cLog, std::string rLog) {
-    using namespace std;
 
     if (config_filepath.empty())
     {
@@ -82,19 +105,29 @@ HRESULT RegressionTester::compareLogs(std::string cLog, std::string rLog) {
         return E_FAIL;
     }
 
-    vector<vector<string>> logArr = setLogVector(cLog.c_str());
-    sort(logArr.begin() + 1, logArr.end(), [](const vector<string>& lhs, const vector<string>& rhs) {
+    std::vector<std::vector<std::string>> logArr = setLogVector(cLog.c_str());
+    sort(logArr.begin() + 1, logArr.end(), [](const std::vector<std::string>& lhs, const std::vector<std::string>& rhs) {
         return std::stoi(lhs.at(0)) < std::stoi(rhs.at(0));
         });
 
-    vector<vector<string>> resultArr = setLogVector(rLog.c_str());
-    vector<vector<string>> errorResult;
+    std::vector<std::vector<std::string>> resultArr = setLogVector(rLog.c_str());
+    sort(resultArr.begin() + 1, resultArr.end(), [](const std::vector<std::string>& lhs, const std::vector<std::string>& rhs) {
+        return std::stoi(lhs.at(0)) < std::stoi(rhs.at(0));
+        });
+
+    std::vector<std::vector<std::string>> errorResult;
+    std::vector<std::string> mismatchLine;
+    std::vector<std::string> expectedLine;
     bool errorFlag = false;
     bool mainErrorFlag = true;
+    bool firstMismatch = true;
     int iterator = 1;
     if (logArr[0].size() == resultArr[0].size()) {
         for (int y1 = 1; y1 < resultArr.size(); y1++) {
-
+            if (y1 == 2463)
+            {
+                int ddfsff = 0;
+            }
             for (int y2 = iterator; y2 < logArr.size(); y2++) {
                 if (compareLines(logArr.at(y2), resultArr.at(y1))) {
                     logArr.erase(logArr.begin() + y2);
@@ -105,19 +138,25 @@ HRESULT RegressionTester::compareLogs(std::string cLog, std::string rLog) {
             }
 
             if (errorFlag == false) {
-
-                mainErrorFlag = false;
                 errorResult.push_back(resultArr.at(y1));
+                if (firstMismatch)
+                {
+                    expectedLine = errorResult.at(0);
+                    mismatchLine = logArr.at(iterator);
+                    firstMismatch = false;
+                }
+                mainErrorFlag = false;
+                
             }
             errorFlag = false;
         }
         if (mainErrorFlag) {
-            wcout << "Test result is OK!" << endl;
+            std::wcout << "Test result is OK!\n";
             logger.info(L"Test result is OK!");
             if (logArr.size() > 1)
             {
                 logger.info(L"There were reduntant lines found:");
-                wcout << L"There were redundant lines found!\n";
+                std::wcout << L"There were redundant lines found!\n";
                 logArr.erase(logArr.begin());
                 printLines(logArr);
             }
@@ -125,16 +164,22 @@ HRESULT RegressionTester::compareLogs(std::string cLog, std::string rLog) {
             return S_OK;
         }
         else {
-            logger.error(L"There were lines missing in log file!");
             logger.error(L"Test failed!");
-            wcout << L"There were lines missing in log file!\n";
-            wcout << L"Test failed!\n";
+            logger.error(L"First mismatch:");
+            logger.error(L"Expected line:");
+            printOneLine(expectedLine);
+            logger.error(L"Actual line:");
+            printOneLine(mismatchLine);
+            logger.error(L"Lines that were not found:");
             printLines(errorResult);
+
+            std::wcout << L"There were lines missing in log file!\n";
+            std::wcout << L"Test failed!\n";
             return E_FAIL;
         }
     }
     else {  // different number of parametes in line is not correct
-        wcerr << L"There is different number of parameters in first line!\n";
+        std::wcerr << L"There is different number of parameters in first line!\n";
         logger.error(L"There is different number of parameters in first line!");
         return E_FAIL;
     }
@@ -171,7 +216,17 @@ void RegressionTester::loadConfig() {
 
 	
 	// wait for filters to finish, or user to close the app
-	gFilter_Executor->Terminate();
+	gFilter_Executor->Wait_For_Shutdown_and_Terminate();
+}
+
+void RegressionTester::printOneLine(std::vector<std::string> line)
+{
+    std::string printedLine = "";
+    for (int i = 0; i < line.size(); i++)
+    {
+        printedLine.append(line.at(i) + "; ");
+    }
+    logger.error(Widen_Char(printedLine.c_str()));
 }
 
 void RegressionTester::printLines(std::vector<std::vector<std::string>> errorResult)

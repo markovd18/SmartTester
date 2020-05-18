@@ -6,6 +6,7 @@
 #include <string>
 #include <rtl/hresult.h>
 #include <rtl/FilterLib.h>
+#include <utils/string_utils.h>
 #include "../mappers/GuidFileMapper.h"
 #include "../utils/constants.h"
 #include "GenericUnitTester.h"
@@ -307,11 +308,14 @@ HRESULT GenericUnitTester::infoEventTest() {
         }
         else {
             logger.error(L"Event was modified during execution!");
+            logger.error(L"expected code: " + (int)scgms::NDevice_Event_Code::Information);
+            logger.error(L"expected code: " + (int)recievedEvent->event_code);
             result = E_FAIL;
         }
     }
     else {
-        logger.error(L"Event wasn't correctly executed!");
+        logger.error(L"expected result: " + Widen_Char(std::system_category().message(S_OK).c_str()));
+        logger.error(L"actual result: " + Widen_Char(std::system_category().message(result).c_str()));
         result = E_FAIL;
     }
 

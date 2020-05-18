@@ -1,5 +1,6 @@
 #include <iostream>
 #include <rtl/FilterLib.h>
+#include <utils/string_utils.h>
 #include "MappingFilterUnitTester.h"
 
 MappingFilterUnitTester::MappingFilterUnitTester(CDynamic_Library* library, TestFilter* testFilter, const GUID* guid) : GenericUnitTester(library, testFilter, guid) {
@@ -62,6 +63,8 @@ HRESULT MappingFilterUnitTester::emptySourceIdTest()
 	else {
 		logger.error(L"Filter was configured successfully, but shouldn't be!\n"
 		L"(" + std::wstring(memory.begin(), memory.end()) + L")");
+		logger.error(L"expected result: " + Widen_Char(std::system_category().message(E_FAIL).c_str()));
+		logger.error(L"actual result: " + Widen_Char(std::system_category().message(result).c_str()));
 		result = E_FAIL;
 	}
 
@@ -109,6 +112,8 @@ HRESULT MappingFilterUnitTester::emptyDestIdTest()
 	else {
 		logger.error(L"Filter was configured successfully, but shouldn't be!\n"
 			L"(" + std::wstring(memory.begin(), memory.end()) + L")");
+		logger.error(L"expected result: " + Widen_Char(std::system_category().message(E_FAIL).c_str()));
+		logger.error(L"actual result: " + Widen_Char(std::system_category().message(result).c_str()));
 		result = E_FAIL;
 	}
 
@@ -219,11 +224,15 @@ HRESULT MappingFilterUnitTester::levelEventMappingTest()
 		}
 		else {
 			logger.error(L"Event was incorrectly sent or it's signal_id wasn't mapped!");
+			logger.error(L"expected result: " + GUID_To_WString(SIGNAL_DST_ID_GUID));
+			logger.error(L"actual result: " + GUID_To_WString(dst_id));
 			result = E_FAIL;
 		}
 	}
 	else {
 		logger.error(L"Failed to configure filter!");
+		logger.error(L"expected result: " + Widen_Char(std::system_category().message(S_OK).c_str()));
+		logger.error(L"actual result: " + Widen_Char(std::system_category().message(result).c_str()));
 		result = E_FAIL;
 	}
 
@@ -281,11 +290,15 @@ HRESULT MappingFilterUnitTester::infoEventMappingTest()
 		}
 		else {
 			logger.error(L"Event was incorrectly sent or it's signal_id wasn't mapped!");
+			logger.error(L"expected result: " + GUID_To_WString(SIGNAL_DST_ID_GUID));
+			logger.error(L"actual result: " + GUID_To_WString(dst_id));
 			result = E_FAIL;
 		}
 	}
 	else {
 		logger.error(L"Failed to configure filter!");
+		logger.error(L"expected result: " + Widen_Char(std::system_category().message(S_OK).c_str()));
+		logger.error(L"actual result: " + Widen_Char(std::system_category().message(result).c_str()));
 		result = E_FAIL;
 	}
 
@@ -343,11 +356,15 @@ HRESULT MappingFilterUnitTester::parametersEventMappingTest()
 		}
 		else {
 			logger.error(L"Event was incorrectly sent or it's signal_id wasn't mapped!");
+			logger.error(L"expected result: " + GUID_To_WString(SIGNAL_DST_ID_GUID));
+			logger.error(L"actual result: " + GUID_To_WString(dst_id));
 			result = E_FAIL;
 		}
 	}
 	else {
 		logger.error(L"Failed to configure filter!");
+		logger.error(L"expected result: " + Widen_Char(std::system_category().message(S_OK).c_str()));
+		logger.error(L"actual result: " + Widen_Char(std::system_category().message(result).c_str()));
 		result = E_FAIL;
 	}
 

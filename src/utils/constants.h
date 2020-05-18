@@ -28,6 +28,9 @@ constexpr wchar_t* SIGNAL_LIBRARY = L"filters/signal";
 constexpr wchar_t* LOG_FILE = L"log.csv";
 constexpr wchar_t* CONFIG_FILE = L"config.ini";
 
+constexpr int firstComparedIndex = 2;
+constexpr int firstNumberValueIndex = 4;
+constexpr int lastNumberValueIndex = 6;
 #else
 
 #ifdef __APPLE__

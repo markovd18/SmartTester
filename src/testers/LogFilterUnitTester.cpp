@@ -1,6 +1,9 @@
 #include <iostream>
 #include <fstream>
 #include <rtl/FilterLib.h>
+#include <rtl/FilesystemLib.h>
+#include <rtl/hresult.h>
+#include <utils/string_utils.h>
 #include "LogFilterUnitTester.h"
 
 LogFilterUnitTester::LogFilterUnitTester(CDynamic_Library* library, TestFilter* testFilter,const GUID* guid) : GenericUnitTester(library, testFilter, guid){
@@ -55,7 +58,9 @@ HRESULT LogFilterUnitTester::emptyLogFileNameTest()
 	}
 	else {
 		logger.error(L"Filter was configured succesfully, but shouldn't be!\n"
-		L"(" + std::wstring(memory.begin(), memory.end()) + L")");
+			L"(" + std::wstring(memory.begin(), memory.end()) + L")");
+		logger.error(L"expected result: " + Widen_Char(std::system_category().message(E_FAIL).c_str()));
+		logger.error(L"actual result: " + Widen_Char(std::system_category().message(result).c_str()));
 		result = E_FAIL;
 	}
 
@@ -100,11 +105,15 @@ HRESULT LogFilterUnitTester::correctLogFileNameTest()
 		result = S_OK;
 	}
 	else {
-		logger.error(L"Failed to configure filter!");
+		logger.error(L"Failed to configure filter!"
+			L"\n(" + std::wstring(memory.begin(), memory.end()) + L")");
+		logger.error(L"expected result: " + Widen_Char(std::system_category().message(S_OK).c_str()));
+		logger.error(L"actual result: " + Widen_Char(std::system_category().message(result).c_str()));
 		result = E_FAIL;
 	}
 
 	shutDownTest();
+	std::remove("correctLogFileNameTestLog.log");
 	return result;
 }
 
@@ -162,12 +171,18 @@ HRESULT LogFilterUnitTester::logFileGenerationTest()
 				logger.error(L"Failed to create log file!");
 				result = E_FAIL;
 			}
+			file.close();
 		}
 	}
 	else {
+		logger.error(L"Failed to configure filter:!\n"
+		L"(" + std::wstring(memory.begin(), memory.end()) + L")");
+		logger.error(L"expected result: " + Widen_Char(std::system_category().message(E_FAIL).c_str()));
+		logger.error(L"actual result: " + Widen_Char(std::system_category().message(result).c_str()));
 		result = E_FAIL;
 	}
 
 	shutDownTest();
+	std::remove("logFileGenerationTest.log");
 	return result;
 }

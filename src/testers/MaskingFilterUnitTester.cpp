@@ -1,5 +1,6 @@
 #include <iostream>
 #include <rtl/FilterLib.h>
+#include <utils/string_utils.h>
 #include "MaskingFilterUnitTester.h"
 
 MaskingFilterUnitTester::MaskingFilterUnitTester(CDynamic_Library* library, TestFilter* testFilter, const GUID* guid) : GenericUnitTester(library, testFilter, guid)
@@ -33,7 +34,7 @@ HRESULT MaskingFilterUnitTester::configureFilterCorrectly(std::string &bitmask)
 	scgms::SPersistent_Filter_Chain_Configuration configuration;
 	refcnt::Swstr_list errors;
 	std::string memory = "[Filter_001_{A1124C89-18A4-F4C1-28E8-A9471A58021E}]\n\nSignal = " + SIGNAL_ID_STR + "\n\nBitmask = " + bitmask;
-	logger.debug(L"Signal = " + std::wstring(SIGNAL_ID_STR.begin(), SIGNAL_ID_STR.end()) + L"\nBitmask = " + std::wstring(bitmask.begin(), bitmask.end()));
+	logger.debug(L"Signal = " + std::wstring(SIGNAL_ID_STR.begin(), SIGNAL_ID_STR.end()) + L", Bitmask = " + std::wstring(bitmask.begin(), bitmask.end()));
 
 	HRESULT result = configuration ? S_OK : E_FAIL;
 	if (result == S_OK)
@@ -111,6 +112,8 @@ HRESULT MaskingFilterUnitTester::bitmaskMappingTest(std::string &bitmask)
 				if (raw_event->event_code != scgms::NDevice_Event_Code::Masked_Level)
 				{
 					logger.error(L"Event wasn't correctly masked!");
+					logger.error(L"expected code: " + (int)scgms::NDevice_Event_Code::Masked_Level);
+					logger.error(L"expected code: " + (int)raw_event->event_code);
 					test_result = E_FAIL;
 				}
 				logger.debug(L"Event correctly masked!");
@@ -119,6 +122,8 @@ HRESULT MaskingFilterUnitTester::bitmaskMappingTest(std::string &bitmask)
 				if (raw_event->event_code != scgms::NDevice_Event_Code::Level)
 				{
 					logger.error(L"Event shouldn't have been masked!");
+					logger.error(L"expected code: " + (int)scgms::NDevice_Event_Code::Level);
+					logger.error(L"expected code: " + (int)raw_event->event_code);
 					test_result = E_FAIL;
 				}
 			}
@@ -146,7 +151,7 @@ HRESULT MaskingFilterUnitTester::infoEventMaskingTest()
 	refcnt::Swstr_list errors;
 	std::string bitmask = "00101111";
 	std::string memory = "[Filter_001_{A1124C89-18A4-F4C1-28E8-A9471A58021E}]\n\nSignal = " + SIGNAL_ID_STR + "\n\nBitmask = " + bitmask;
-	logger.debug(L"Signal = " + std::wstring(SIGNAL_ID_STR.begin(), SIGNAL_ID_STR.end()) + L"\nBitmask = " + std::wstring(bitmask.begin(), bitmask.end()));
+	logger.debug(L"Signal = " + std::wstring(SIGNAL_ID_STR.begin(), SIGNAL_ID_STR.end()) + L", Bitmask = " + std::wstring(bitmask.begin(), bitmask.end()));
 
 	HRESULT result = configuration ? S_OK : E_FAIL;
 	if (result == S_OK)
@@ -199,11 +204,15 @@ HRESULT MaskingFilterUnitTester::infoEventMaskingTest()
 			if (raw_event->event_code != scgms::NDevice_Event_Code::Information)
 			{
 				logger.error(L"Info event was incorrectly masked!");
+				logger.error(L"expected code: " + (int)scgms::NDevice_Event_Code::Information);
+				logger.error(L"expected code: " + (int)raw_event->event_code);
 				test_result = E_FAIL;
 			}
 		}
 		else {
 			logger.error(L"Error while executing event!");
+			logger.error(L"expected result: " + Widen_Char(std::system_category().message(S_OK).c_str()));
+			logger.error(L"actual result: " + Widen_Char(std::system_category().message(result).c_str()));
 			test_result = E_FAIL;
 		}
 		

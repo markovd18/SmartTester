@@ -25,3 +25,4 @@ logs
 /windows_64/config.ini
 /windows_64/test.csv
 /windows_64/fda_sc_nobolus.csv
+/windows_64/log.csv

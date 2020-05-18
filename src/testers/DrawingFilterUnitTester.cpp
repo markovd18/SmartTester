@@ -1,5 +1,6 @@
 #include <iostream>
 #include <rtl/FilterLib.h>
+#include <utils/string_utils.h>
 #include "DrawingFilterUnitTester.h"
 
 DrawingFilterUnitTester::DrawingFilterUnitTester(CDynamic_Library* library, TestFilter* testFilter, const GUID* guid) : GenericUnitTester(library, testFilter, guid) {
@@ -48,13 +49,18 @@ HRESULT DrawingFilterUnitTester::emptyCanvasSizeTest()
 	logger.info(L"Configuring filter...");
 
 	if (!SUCCEEDED(result)) {	// test shouldn't succeed, we don't want to configure canvas without size
-		return S_OK;
+		result = S_OK;
 	}
 	else {
 		logger.error(L"Filter was configured successfully, but shouldn't be!\n"
 		L"(" + std::wstring(memory.begin(), memory.end()) + L")");
-		return E_FAIL;
+		logger.error(L"expected result: " + Widen_Char(std::system_category().message(E_FAIL).c_str()));
+		logger.error(L"actual result: " + Widen_Char(std::system_category().message(result).c_str()));
+		result = E_FAIL;
 	}
+
+	shutDownTest();
+	return result;
 }
 
 /**
@@ -90,10 +96,15 @@ HRESULT DrawingFilterUnitTester::correctCanvasSizeTest()
 	logger.info(L"Configuring filter...");
 
 	if (SUCCEEDED(result)) {	
-		return S_OK;
+		result = S_OK;
 	}
 	else {
 		logger.error(L"Failed to configure filter!");
-		return E_FAIL;
+		logger.error(L"expected result: " + Widen_Char(std::system_category().message(S_OK).c_str()));
+		logger.error(L"actual result: " + Widen_Char(std::system_category().message(result).c_str()));
+		result = E_FAIL;
 	}
+
+	shutDownTest();
+	return result;
 }

@@ -6,6 +6,7 @@
 #include <rtl/guid.h>
 #include <rtl/hresult.h>
 #include <utils/string_utils.h>
+#include <rtl/FilesystemLib.h>
 #include "../utils/UnitTestExecutor.h"
 #include "../utils/constants.h"
 #include "../testers/RegressionTester.h"
@@ -113,6 +114,11 @@ void execute_unit_testing(std::string guid_string) {
     Loads filter configuration and executes regression tests.
 */
 int execute_regression_testing(std::wstring config_filepath) {
+    if (config_filepath.empty())
+    {
+        std::wcerr << L"Inserted empty file path!\n";
+        return 1;
+    }
 
     RegressionTester regTester = RegressionTester(config_filepath);
     std::string log_filepath = Narrow_WString(config_filepath);
@@ -121,6 +127,17 @@ int execute_regression_testing(std::wstring config_filepath) {
     log_filepath += Narrow_WChar(LOG_FILE);
 
     auto result = regTester.compareLogs(Narrow_WChar(LOG_FILE), log_filepath);
+
+    std::filesystem::create_directory("tmp");
+    std::ifstream file("tmp/log.csv");
+    if (file.good())
+    {
+        file.close();
+        std::remove("tmp/log.csv");
+    }
+    file.close();
+    std::rename(Narrow_WChar(LOG_FILE).c_str(), "tmp/log.csv");
+
     logger.info(L"Shutting down.");
     std::wcerr << L"For detailed information see generated log.\n";
     return result;
