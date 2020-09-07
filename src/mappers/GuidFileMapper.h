@@ -22,4 +22,4 @@ public:
 	void operator=(GuidFileMapper const&) = delete;
 
 };
-#endif _GUID_FILE_MAPPER_H_
+#endif //_GUID_FILE_MAPPER_H_

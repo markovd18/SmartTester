@@ -48,7 +48,7 @@ GenericUnitTester* GuidTesterMapper::getTesterInstance(CDynamic_Library* library
 	try{
 		return guidTesterMap[*guid](library, testFilter, guid);
 	}
-	catch (std::exception) {
+	catch (std::exception&) {
 		std::wcerr << L"No filter is matching given guid!\n";
 		logger.error(L"No filter is matching given guid!");
 		return nullptr;

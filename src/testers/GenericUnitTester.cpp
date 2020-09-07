@@ -187,7 +187,7 @@ HRESULT GenericUnitTester::shutDownTest()
     scgms::IDevice_Event* shutDown;
 
     auto creator = scgmsLibrary->Resolve<scgms::TCreate_Device_Event>("create_device_event");
-    auto result = creator(scgms::NDevice_Event_Code::Shut_Down, &shutDown);
+    creator(scgms::NDevice_Event_Code::Shut_Down, &shutDown);
     return testedFilter->Execute(shutDown);
 }
 

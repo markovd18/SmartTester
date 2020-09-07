@@ -22,4 +22,4 @@ public:
     virtual HRESULT IfaceCalling Execute(scgms::IDevice_Event *event) override final;
     virtual HRESULT IfaceCalling Configure(IFilter_Configuration* configuration, refcnt::wstr_list *error_description) override final;
 };
-#endif SMARTTESTER_TESTFILTER_H
+#endif //SMARTTESTER_TESTFILTER_H

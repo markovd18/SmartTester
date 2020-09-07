@@ -5,7 +5,16 @@
 #include <rtl/guid.h>
 #include <rtl/hresult.h>
 
-constexpr long MAX_EXEC_TIME = 1000; //ms
+//maximum execution time of each test in milliseconds
+constexpr long MAX_EXEC_TIME = 1000;
+//expected name of tested log file
+constexpr wchar_t* LOG_FILE = L"log.csv";
+//expected name of imported configuration file
+constexpr wchar_t* CONFIG_FILE = L"config.ini";
+
+constexpr int firstComparedIndex = 2;
+constexpr int firstNumberValueIndex = 4;
+constexpr int lastNumberValueIndex = 6;
 
 //C0E942B9-3928-4B81-9B43-A347668200BA
 constexpr GUID LOG_GUID = { 0xc0e942b9, 0x3928, 0x4b81, {0x9b, 0x43, 0xa3, 0x47, 0x66, 0x82, 0x00, 0xba} };
@@ -25,12 +34,7 @@ constexpr wchar_t* SCGMS_LIB = L"scgms";
 constexpr wchar_t* LOG_LIBRARY = L"filters/log";
 constexpr wchar_t* DRAWING_LIBRARY = L"filters/drawing";
 constexpr wchar_t* SIGNAL_LIBRARY = L"filters/signal";
-constexpr wchar_t* LOG_FILE = L"log.csv";
-constexpr wchar_t* CONFIG_FILE = L"config.ini";
 
-constexpr int firstComparedIndex = 2;
-constexpr int firstNumberValueIndex = 4;
-constexpr int lastNumberValueIndex = 6;
 #else
 
 #ifdef __APPLE__
@@ -45,4 +49,4 @@ constexpr wchar_t* DRAWING_LIBRARY = L"filters/libdrawing";
 constexpr wchar_t* SIGNAL_LIBRARY = L"filters/libsignal";
 
 #endif //_WIN32
-#endif _CONSTANTS_H_
+#endif //_CONSTANTS_H_
