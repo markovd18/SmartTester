@@ -1,17 +1,14 @@
 //
 // Created by David on 31.03.2020.
 //
-#include <iostream>
 #include "TestFilter.h"
 #include "constants.h"
 
 TestFilter::TestFilter(){
-    //
+    recievedEvent = nullptr;
 }
 
-TestFilter::~TestFilter() {
-    //
-}
+TestFilter::~TestFilter() = default;
 
 HRESULT IfaceCalling TestFilter::Configure(IFilter_Configuration* configuration, refcnt::wstr_list *error_description){
     //TODO
@@ -25,7 +22,6 @@ HRESULT IfaceCalling TestFilter::Execute(scgms::IDevice_Event *event) {
         return E_FAIL;
     }
     event->Raw(&recievedEvent);
-    event->Release();
     return S_OK;
 }
 

@@ -9,7 +9,7 @@
 class DrawingFilterUnitTester : public GenericUnitTester {
 public:
 	DrawingFilterUnitTester(CDynamic_Library* library, TestFilter* testFilter, const GUID* guid);
-	virtual void executeSpecificTests();
+	void executeSpecificTests() override;
 	HRESULT emptyCanvasSizeTest();
 	HRESULT correctCanvasSizeTest();
 };

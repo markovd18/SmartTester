@@ -14,7 +14,7 @@ private:
 	HRESULT configureFilterCorrectly();
 public:
 	MappingFilterUnitTester(CDynamic_Library* library, TestFilter* testFilter, const GUID* guid);
-	virtual void executeSpecificTests();
+	void executeSpecificTests() override;
 	HRESULT emptySourceIdTest();
 	HRESULT emptyDestIdTest();
 	HRESULT correctIdsTest();

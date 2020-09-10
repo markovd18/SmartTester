@@ -43,10 +43,10 @@ constexpr wchar_t* LIB_EXTENSION = L".dylib";
 constexpr wchar_t* LIB_EXTENSION = L".so";
 #endif
 
-constexpr wchar_t* SCGMS_LIB = L"libscgms";
-constexpr wchar_t* LOG_LIBRARY = L"filters/liblog";
-constexpr wchar_t* DRAWING_LIBRARY = L"filters/libdrawing";
-constexpr wchar_t* SIGNAL_LIBRARY = L"filters/libsignal";
+constexpr wchar_t* SCGMS_LIB = L"./libscgms";
+constexpr wchar_t* LOG_LIBRARY = L"./filters/liblog";
+constexpr wchar_t* DRAWING_LIBRARY = L"./filters/libdrawing";
+constexpr wchar_t* SIGNAL_LIBRARY = L"./filters/libsignal";
 
 #endif //_WIN32
 #endif //_CONSTANTS_H_

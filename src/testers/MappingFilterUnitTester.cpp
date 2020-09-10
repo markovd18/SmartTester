@@ -185,7 +185,7 @@ HRESULT MappingFilterUnitTester::levelEventMappingTest()
 		scgms::IDevice_Event* event;
 
 		auto creator = scgmsLibrary->Resolve<scgms::TCreate_Device_Event>("create_device_event");
-		auto result = creator(scgms::NDevice_Event_Code::Level, &event);
+		result = creator(scgms::NDevice_Event_Code::Level, &event);
 		if (FAILED(result))
 		{
 			std::wcerr << L"Error while creating \"Level\" IDevice_event!\n";
@@ -208,7 +208,7 @@ HRESULT MappingFilterUnitTester::levelEventMappingTest()
 				&& (src_event.device_id == raw_event->device_id)
 				&& (src_event.event_code == raw_event->event_code)
 				&& (src_event.info == raw_event->info)
-				//&& (src_event.level == raw_event->level) //pouze tady padá?? nan
+				//&& (src_event.level == raw_event->level) //pouze tady padï¿½?? nan
 				&& (src_event.logical_time == raw_event->logical_time)
 				&& (src_event.parameters == raw_event->parameters)
 				&& (src_event.segment_id == raw_event->segment_id))
@@ -251,7 +251,7 @@ HRESULT MappingFilterUnitTester::infoEventMappingTest()
 		scgms::IDevice_Event* event;
 
 		auto creator = scgmsLibrary->Resolve<scgms::TCreate_Device_Event>("create_device_event");
-		auto result = creator(scgms::NDevice_Event_Code::Information, &event);
+		result = creator(scgms::NDevice_Event_Code::Information, &event);
 		if (FAILED(result))
 		{
 			std::wcerr << L"Error while creating \"Info\" IDevice_event!\n";
@@ -317,7 +317,7 @@ HRESULT MappingFilterUnitTester::parametersEventMappingTest()
 		scgms::IDevice_Event* event;
 
 		auto creator = scgmsLibrary->Resolve<scgms::TCreate_Device_Event>("create_device_event");
-		auto result = creator(scgms::NDevice_Event_Code::Parameters, &event);
+		result = creator(scgms::NDevice_Event_Code::Parameters, &event);
 		if (FAILED(result))
 		{
 			std::wcerr << L"Error while creating \"Parameters\" IDevice_event!\n";

@@ -9,7 +9,7 @@
 #include <fstream>
 
 /**
-	Class Logger is used to simplify logging of runtime informations into a file.
+	Class Logger is used to simplify logging of runtime information into a file.
 */
 class Logger {
 public:
@@ -19,12 +19,11 @@ public:
 		stream.close();
 	}
 
-	void fatal(std::wstring text);
-	void error(std::wstring text);
-	void warn(std::wstring text);
-	void info(std::wstring text);
-	void debug(std::wstring text);
-	void trace(std::wstring text);
+	void error(const std::wstring& text);
+	void warn(const std::wstring& text);
+	void info(const std::wstring& text);
+	void debug(const std::wstring& text);
+	void trace(const std::wstring& text);
 	static Logger& GetInstance();
 private:
 	std::wofstream stream;

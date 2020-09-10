@@ -5,7 +5,6 @@
 #include "../utils/constants.h"
 #include <iface/DeviceIface.h>
 #include <rtl/FilterLib.h>
-#include <rtl/scgmsLib.h>
 #include <rtl/referencedImpl.h>
 #include <rtl/hresult.h>
 #include <utils/string_utils.h>
@@ -16,7 +15,7 @@
 #include <vector>
 #include<algorithm>
 
-void RegressionTester::printAndEmptyErrors(refcnt::Swstr_list errors) {
+void RegressionTester::printAndEmptyErrors(const refcnt::Swstr_list& errors) {
     refcnt::wstr_container* wstr;
     if (errors->empty() != S_OK) {
         std::wcerr << "Error description: " << std::endl;
@@ -28,7 +27,7 @@ void RegressionTester::printAndEmptyErrors(refcnt::Swstr_list errors) {
     }
 }
 
-RegressionTester::RegressionTester(std::wstring config_filepath) {
+RegressionTester::RegressionTester(const std::wstring& config_filepath) {
     this->config_filepath = config_filepath;
 	this->loadConfig();
 }

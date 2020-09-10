@@ -3,15 +3,10 @@
 #include <rtl/guid.h>
 #include <rtl/hresult.h>
 #include "UnitTestExecutor.h"
-#include "../testers/LogFilterUnitTester.h"
 #include "../mappers/GuidTesterMapper.h"
 #include "../mappers/GuidFileMapper.h"
-#include "constants.h"
-#include "Logger.h"
 
-UnitTestExecutor::UnitTestExecutor() {
-	//
-}
+UnitTestExecutor::UnitTestExecutor() = default;
 
 /**
 	Executes all tests on a filter represented by given GUID.
@@ -50,8 +45,8 @@ void UnitTestExecutor::executeAllTests() {
 	Returns instance of derived unit tester class based on given guid.
 */
 GenericUnitTester* UnitTestExecutor::getUnitTester(const GUID& guid) {
-	CDynamic_Library *library = new CDynamic_Library;
-	TestFilter *testFilter = new TestFilter;
+	auto *library = new CDynamic_Library;
+	auto *testFilter = new TestFilter;
 	GenericUnitTester* unitTester = GuidTesterMapper::GetInstance().getTesterInstance(library, testFilter, &guid);
 	return unitTester;
 }

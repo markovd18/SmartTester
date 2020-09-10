@@ -25,6 +25,6 @@ const wchar_t* GuidFileMapper::getFileName(const GUID& guid) {
 	return guidFileMap[guid];
 }
 
-const std::map<GUID, const wchar_t*> GuidFileMapper::getMap() {
+std::map<GUID, const wchar_t*> GuidFileMapper::getMap() {
 	return guidFileMap;
 }

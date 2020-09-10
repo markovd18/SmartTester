@@ -17,7 +17,7 @@ private:
 public:
 	static GuidFileMapper& GetInstance();
 	const wchar_t* getFileName(const GUID& guid);
-	const std::map<GUID, const wchar_t*> getMap();
+	std::map<GUID, const wchar_t*> getMap();
 	GuidFileMapper(GuidFileMapper const&) = delete;
 	void operator=(GuidFileMapper const&) = delete;
 

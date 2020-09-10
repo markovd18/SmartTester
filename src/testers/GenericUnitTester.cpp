@@ -23,7 +23,7 @@ GenericUnitTester::GenericUnitTester(CDynamic_Library* library, TestFilter* test
     this->filterLibrary = library;
     this->testFilter = testFilter;
     this->tested_guid = guid;
-    //CDynamic_Library::Set_Library_Base(LIB_DIR);
+    this->lastTestResult = S_OK;
     loadFilter();
     if (isFilterLoaded())
     {
@@ -87,7 +87,7 @@ void GenericUnitTester::loadFilter() {
 */
 void GenericUnitTester::loadScgmsLibrary() {
     logger.debug(L"Loading dynamic library scgms...");
-    CDynamic_Library *scgms = new CDynamic_Library;
+    auto *scgms = new CDynamic_Library;
 
     std::wstring file = SCGMS_LIB;
     file.append(LIB_EXTENSION);
@@ -128,18 +128,6 @@ const wchar_t* GenericUnitTester::getFilterName()
     return nullptr;
 }
 
-void GenericUnitTester::printAndEmptyErrors(refcnt::Swstr_list errors) {
-    refcnt::wstr_container* wstr;
-    if (errors->empty() != S_OK) {
-        std::wcerr << "Error description: " << std::endl;
-        while (errors->pop(&wstr) == S_OK) {
-            std::wcerr << refcnt::WChar_Container_To_WString(wstr) << std::endl;
-            logger.error(refcnt::WChar_Container_To_WString(wstr));
-            wstr->Release();
-        }
-    }
-}
-
 /**
     Executes all generic and specific tests for given filter.
 */
@@ -170,7 +158,7 @@ void GenericUnitTester::executeGenericTests() {
 /**
     Executes test method passed as a parameter.
 */
-void GenericUnitTester::executeTest(std::wstring testName, std::function<HRESULT(void)> test) {
+void GenericUnitTester::executeTest(const std::wstring& testName, const std::function<HRESULT(void)>& test) {
     logger.info(L"----------------------------------------");
     logger.info(L"Executing " + testName + L"...");
     logger.info(L"----------------------------------------");
@@ -194,10 +182,10 @@ HRESULT GenericUnitTester::shutDownTest()
 /**
     Runs test method passed as a parameter in a separate thread.
 */
-HRESULT GenericUnitTester::runTestInThread(std::function<HRESULT(void)> test) {
+HRESULT GenericUnitTester::runTestInThread(const std::function<HRESULT(void)>& test) {
     logger.debug(L"Running test in thread...");
     std::cv_status status;
-    HRESULT result = S_FALSE;
+    HRESULT result;
 
     {
         std::unique_lock<std::mutex> lock(testMutex);
@@ -232,7 +220,7 @@ HRESULT GenericUnitTester::runTestInThread(std::function<HRESULT(void)> test) {
 /**
     Runs passed test and notifies all other threads.
 */
-void GenericUnitTester::runTest(std::function<HRESULT(void)> test) {
+void GenericUnitTester::runTest(const std::function<HRESULT(void)>& test) {
     lastTestResult = test();
     testCv.notify_all();
 }
@@ -308,8 +296,8 @@ HRESULT GenericUnitTester::infoEventTest() {
         }
         else {
             logger.error(L"Event was modified during execution!");
-            logger.error(L"expected code: " + (int)scgms::NDevice_Event_Code::Information);
-            logger.error(L"expected code: " + (int)recievedEvent->event_code);
+            logger.error(&L"expected code: " [ (int)scgms::NDevice_Event_Code::Information]);
+            logger.error(&L"expected code: " [ (int)recievedEvent->event_code]);
             result = E_FAIL;
         }
     }

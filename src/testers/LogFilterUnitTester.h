@@ -8,7 +8,7 @@
 class LogFilterUnitTester : public GenericUnitTester{
 public:
 	LogFilterUnitTester(CDynamic_Library* library, TestFilter* testFilter,const GUID* guid);
-	virtual void executeSpecificTests();
+	void executeSpecificTests() override;
 	HRESULT emptyLogFileNameTest();
 	HRESULT correctLogFileNameTest();
 	HRESULT logFileGenerationTest();

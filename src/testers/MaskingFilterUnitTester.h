@@ -13,7 +13,7 @@ private:
 	HRESULT configureFilterCorrectly(std::string &bitmask);
 public:
 	MaskingFilterUnitTester(CDynamic_Library* library, TestFilter* testFilter, const GUID* guid);
-	virtual void executeSpecificTests();
+	void executeSpecificTests() override;
 	HRESULT completeBitmaskMappingTest();
 	HRESULT bitmaskMappingTest(std::string &bitmask);
 	HRESULT infoEventMaskingTest();

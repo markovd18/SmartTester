@@ -1,7 +1,5 @@
 #include <iostream>
-#include <fstream>
 #include <rtl/FilterLib.h>
-#include <rtl/FilesystemLib.h>
 #include <rtl/hresult.h>
 #include <utils/string_utils.h>
 #include "LogFilterUnitTester.h"

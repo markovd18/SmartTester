@@ -87,12 +87,12 @@ HRESULT MaskingFilterUnitTester::bitmaskMappingTest(std::string &bitmask)
 	}
 
 	HRESULT test_result = S_OK;
-	for (int i = 0; i < bitmask.size(); i++)
+	for (char i : bitmask)
 	{
 		scgms::IDevice_Event* event;
 
 		auto creator = scgmsLibrary->Resolve<scgms::TCreate_Device_Event>("create_device_event");
-		auto result = creator(scgms::NDevice_Event_Code::Level, &event);
+		result = creator(scgms::NDevice_Event_Code::Level, &event);
 		if (FAILED(result))
 		{
 			std::wcerr << L"Error while creating \"Level\" IDevice_event!\n";
@@ -108,12 +108,12 @@ HRESULT MaskingFilterUnitTester::bitmaskMappingTest(std::string &bitmask)
 		logger.info(L"Executing \"Level\" event...");
 
 		if (SUCCEEDED(result)){
-			if (bitmask.at(i) == '0') {
+			if (i == '0') {
 				if (raw_event->event_code != scgms::NDevice_Event_Code::Masked_Level)
 				{
 					logger.error(L"Event wasn't correctly masked!");
-					logger.error(L"expected code: " + (int)scgms::NDevice_Event_Code::Masked_Level);
-					logger.error(L"expected code: " + (int)raw_event->event_code);
+					logger.error(&L"expected code: " [ (int)scgms::NDevice_Event_Code::Masked_Level]);
+					logger.error(&L"expected code: " [ (int)raw_event->event_code]);
 					test_result = E_FAIL;
 				}
 				logger.debug(L"Event correctly masked!");
@@ -122,8 +122,8 @@ HRESULT MaskingFilterUnitTester::bitmaskMappingTest(std::string &bitmask)
 				if (raw_event->event_code != scgms::NDevice_Event_Code::Level)
 				{
 					logger.error(L"Event shouldn't have been masked!");
-					logger.error(L"expected code: " + (int)scgms::NDevice_Event_Code::Level);
-					logger.error(L"expected code: " + (int)raw_event->event_code);
+					logger.error(&L"expected code: " [ (int)scgms::NDevice_Event_Code::Level]);
+					logger.error(&L"expected code: " [ (int)raw_event->event_code]);
 					test_result = E_FAIL;
 				}
 			}
@@ -179,7 +179,7 @@ HRESULT MaskingFilterUnitTester::infoEventMaskingTest()
 	}
 
 	HRESULT test_result = S_OK;
-	for (int i = 0; i < bitmask.size(); i++)
+	for (size_t i = 0; i < bitmask.size(); i++)
 	{
 		scgms::IDevice_Event* event;
 
@@ -204,8 +204,8 @@ HRESULT MaskingFilterUnitTester::infoEventMaskingTest()
 			if (raw_event->event_code != scgms::NDevice_Event_Code::Information)
 			{
 				logger.error(L"Info event was incorrectly masked!");
-				logger.error(L"expected code: " + (int)scgms::NDevice_Event_Code::Information);
-				logger.error(L"expected code: " + (int)raw_event->event_code);
+				logger.error(&L"expected code: " [ (int)scgms::NDevice_Event_Code::Information]);
+				logger.error(&L"expected code: " [ (int)raw_event->event_code]);
 				test_result = E_FAIL;
 			}
 		}

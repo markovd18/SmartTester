@@ -4,14 +4,12 @@
 #include <iostream>
 #include <string>
 #include <rtl/guid.h>
-#include <rtl/hresult.h>
 #include <utils/string_utils.h>
 #include <rtl/FilesystemLib.h>
 #include "../utils/UnitTestExecutor.h"
 #include "../utils/constants.h"
 #include "../testers/RegressionTester.h"
 
-Logger& logger = Logger::GetInstance();
 
 /**
     Prints few tips on how to use the application and which parameters to specify.
@@ -33,15 +31,15 @@ GUID parse_guid(std::string guid_string) {
 
     GUID guid{};
     if (!guid_string.empty()) {
-        logger.debug(L"Parsing GUID: " + std::wstring(guid_string.begin(), guid_string.end()) + L"...");
-        std::string delimeter = "-";
+        Logger::GetInstance().debug(L"Parsing GUID: " + std::wstring(guid_string.begin(), guid_string.end()) + L"...");
+        std::string delimiter = "-";
         std::string token;
         std::string sub_token;
-        size_t position = 0;
+        size_t position;
         int counter = 0;
-        
+
         try {
-            while ((position = guid_string.find(delimeter)) != std::string::npos) {
+            while ((position = guid_string.find(delimiter)) != std::string::npos) {
                 token = guid_string.substr(0, position);
 
                 switch (counter) {
@@ -64,11 +62,11 @@ GUID parse_guid(std::string guid_string) {
                 default:
                     std::wcerr << L"Invalid format of GUID passed!\n"
                         << "Expected format: " << GUID_FORMAT << "\n";
-                    logger.error(L"Invalid format of GUID passed!");
+                    Logger::GetInstance().error(L"Invalid format of GUID passed!");
                     exit(2);
                 }
 
-                guid_string.erase(0, position + delimeter.length());
+                guid_string.erase(0, position + delimiter.length());
                 counter++;
             }
 
@@ -78,15 +76,15 @@ GUID parse_guid(std::string guid_string) {
                 guid_string.erase(0, 2 * sizeof(char));
             }
         }
-        catch (std::exception) {
+        catch (std::exception&) {
             std::wcerr << L"Invalid format of GUID passed!\n"
                 << L"Expected format: " << GUID_FORMAT << "\n";
-            logger.error(L"Invalid format of GUID passed!");
+            Logger::GetInstance().error(L"Invalid format of GUID passed!");
             exit(2);
         }
     }
     else {
-        logger.info(L"No GUID passed...");
+        Logger::GetInstance().info(L"No GUID passed...");
     }
     return guid;
 }
@@ -94,7 +92,7 @@ GUID parse_guid(std::string guid_string) {
 /**
     Executes unit testing on all filters or on specific filter with given GUID.
 */
-void execute_unit_testing(std::string guid_string) {
+void execute_unit_testing(std::string& guid_string) {
 
     GUID guid = parse_guid(guid_string);
 
@@ -113,7 +111,7 @@ void execute_unit_testing(std::string guid_string) {
 /**
     Loads filter configuration and executes regression tests.
 */
-int execute_regression_testing(std::wstring config_filepath) {
+int execute_regression_testing(std::wstring& config_filepath) {
     if (config_filepath.empty())
     {
         std::wcerr << L"Inserted empty file path!\n";
@@ -138,7 +136,7 @@ int execute_regression_testing(std::wstring config_filepath) {
     file.close();
     std::rename(Narrow_WChar(LOG_FILE).c_str(), "tmp/log.csv");
 
-    logger.info(L"Shutting down.");
+    Logger::GetInstance().info(L"Shutting down.");
     std::wcerr << L"For detailed information see generated log.\n";
     return result;
 }
@@ -147,48 +145,48 @@ int execute_regression_testing(std::wstring config_filepath) {
     Entry point of application.
 */
 int main(int argc, char* argv[]) {
-    logger.info(L"Starting SmartTester application...");
+    Logger::GetInstance().info(L"Starting SmartTester application...");
     std::wcout << L"Starting SmartTester application...\n";
 
     if (argc < 2) {
         std::wcerr << L"Wrong parameter count!\n";
-        logger.error(L"Wrong parameter count passed!");
+        Logger::GetInstance().error(L"Wrong parameter count passed!");
         print_help();
         return 1;
     }
-   
+
     if (argv[1][0] == '-') {
-        std::string parameter = "";
+        std::string parameter;
         std::wstring config_filepath;
         switch (argv[1][1]) {
         case 'u':   // unit testing
-            if (argv[2] != NULL) {
+            if (argv[2] != nullptr) {
                 parameter = argv[2];
             }
-            logger.info(L"Unit tests will be executed.");
+            Logger::GetInstance().info(L"Unit tests will be executed.");
             std::wcout << L"Executing unit tests.\n";
             execute_unit_testing(parameter);
             break;
         case 'r':   // regression testing
-            logger.info(L"Regression tests will be executed.");
+            Logger::GetInstance().info(L"Regression tests will be executed.");
             std::wcout << L"Executing regression tests.\n";
             config_filepath = argc > 2 ? std::wstring{ argv[2], argv[2] + strlen(argv[2]) } : std::wstring{};
             return execute_regression_testing(config_filepath);
         default:
             std::wcerr << L"Unknown type of testing requested!\n";
-            logger.error(L"Unknown type of testing requested!");
+            Logger::GetInstance().error(L"Unknown type of testing requested!");
             print_help();
             return 2;
         }
     }
     else {
         std::wcerr << L"Unsupported command: " << argv[1] << "\n";
-        logger.error(L"Unsupported command passed!");
+        Logger::GetInstance().error(L"Unsupported command passed!");
         print_help();
         return 2;
     }
 
-    logger.info(L"Shutting down.");
+    Logger::GetInstance().info(L"Shutting down.");
     std::wcout << L"For detailed information see generated log.\n";
     return 0;
 }

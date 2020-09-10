@@ -43,27 +43,23 @@ std::wstring Logger::timeFormat() {
 	return std::wstring(buffer);
 }
 
-void Logger::fatal(std::wstring text) {
-	stream << "[FATAL - " << timeFormat() << "] " << text << "\n";
-}
-
-void Logger::error(std::wstring text) {
+void Logger::error(const std::wstring& text) {
 	stream << "[ERROR - " << timeFormat() << "] " << text << "\n";
 }
 
-void Logger::warn(std::wstring text) {
+void Logger::warn(const std::wstring& text) {
 	stream << "[WARN - " << timeFormat() << "] " << text << "\n";
 }
 
-void Logger::info(std::wstring text) {
+void Logger::info(const std::wstring& text) {
 	stream << "[INFO - " << timeFormat() << "] " << text << "\n";
 }
 
-void Logger::debug(std::wstring text) {
+void Logger::debug(const std::wstring& text) {
 	stream << "[DEBUG - " << timeFormat() << "] " << text << "\n";
 }
 
-void Logger::trace(std::wstring text) {
+void Logger::trace(const std::wstring& text) {
 	stream << "[TRACE - " << timeFormat() << "] " << text << "\n";
 }
 

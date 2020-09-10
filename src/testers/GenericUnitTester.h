@@ -23,8 +23,8 @@ private:
     void loadFilter();
     void loadScgmsLibrary();
     const wchar_t* getFilterName();
-    HRESULT runTestInThread(std::function<HRESULT(void)> test);
-    void runTest(std::function<HRESULT(void)> test);
+    HRESULT runTestInThread(const std::function<HRESULT(void)>& test);
+    void runTest(const std::function<HRESULT(void)>& test);
     void printResult(HRESULT result);
 
 protected:
@@ -34,14 +34,13 @@ protected:
     const GUID* tested_guid;
     scgms::IFilter* testedFilter;
 
-    void executeTest(std::wstring testName, std::function<HRESULT(void)> test);
+    void executeTest(const std::wstring& testName, const std::function<HRESULT(void)>& test);
     HRESULT shutDownTest();
-    void printAndEmptyErrors(refcnt::Swstr_list errors);
 
 public:
     Logger& logger = Logger::GetInstance();
     GenericUnitTester(CDynamic_Library* library, TestFilter* testFilter,const GUID* guid);
-    ~GenericUnitTester();
+    virtual ~GenericUnitTester();
     HRESULT infoEventTest();
     bool isFilterLoaded();
     void executeAllTests();
