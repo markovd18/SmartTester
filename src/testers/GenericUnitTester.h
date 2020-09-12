@@ -24,7 +24,9 @@ private:
     void loadScgmsLibrary();
     const wchar_t* getFilterName();
     HRESULT runTestInThread(const std::function<HRESULT(void)>& test);
+    HRESULT runConfigTestInThread(const std::string& configuration, HRESULT expectedResult);
     void runTest(const std::function<HRESULT(void)>& test);
+    void runConfigTest(const std::string& configuration, HRESULT expectedResult);
     void printResult(HRESULT result);
 
 protected:
@@ -35,6 +37,7 @@ protected:
     scgms::IFilter* testedFilter;
 
     void executeTest(const std::wstring& testName, const std::function<HRESULT(void)>& test);
+    void executeConfigTest(const std::wstring& testName, const std::string& configuration, HRESULT expectedResult);
     HRESULT shutDownTest();
 
 public:
@@ -42,6 +45,7 @@ public:
     GenericUnitTester(CDynamic_Library* library, TestFilter* testFilter,const GUID* guid);
     virtual ~GenericUnitTester();
     HRESULT infoEventTest();
+    HRESULT configurationTest(const std::string& memory, HRESULT expectedResult);
     bool isFilterLoaded();
     void executeAllTests();
     void executeGenericTests();

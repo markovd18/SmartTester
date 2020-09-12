@@ -1,8 +1,8 @@
 //
 // Created by David on 31.03.2020.
 //
-#include "TestFilter.h"
-#include "constants.h"
+#include "../TestFilter.h"
+#include "../constants.h"
 
 TestFilter::TestFilter(){
     recievedEvent = nullptr;
@@ -22,6 +22,11 @@ HRESULT IfaceCalling TestFilter::Execute(scgms::IDevice_Event *event) {
         return E_FAIL;
     }
     event->Raw(&recievedEvent);
+
+    if (recievedEvent->event_code == scgms::NDevice_Event_Code::Shut_Down) {
+        event->Release();
+    }
+
     return S_OK;
 }
 

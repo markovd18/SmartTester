@@ -2,7 +2,7 @@
 // Created by Martin on 08.05.2020.
 //
 
-#include "Logger.h"
+#include "../Logger.h"
 #include <fstream>
 #include <ctime>
 

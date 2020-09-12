@@ -1,8 +1,8 @@
 //
 // Created by Martin on 22.4.2020.
 //
-#include "RegressionTester.h"
-#include "../utils/constants.h"
+#include "../RegressionTester.h"
+#include "../../utils/constants.h"
 #include <iface/DeviceIface.h>
 #include <rtl/FilterLib.h>
 #include <rtl/referencedImpl.h>
@@ -10,10 +10,10 @@
 #include <utils/string_utils.h>
 #include <iostream>
 #include <string>
-#include <fstream>
 #include <cstdlib>
 #include <vector>
-#include<algorithm>
+#include <algorithm>
+#include <csignal>
 
 void RegressionTester::printAndEmptyErrors(const refcnt::Swstr_list& errors) {
     refcnt::wstr_container* wstr;
@@ -32,7 +32,7 @@ RegressionTester::RegressionTester(const std::wstring& config_filepath) {
 	this->loadConfig();
 }
 
-std::vector<std::vector<std::string>> RegressionTester::setLogVector(std::string cLog) {
+std::vector<std::vector<std::string>> RegressionTester::setLogVector(const std::string& cLog) {
     std::string line;
     std::string divideBy = ";";
     
@@ -62,7 +62,7 @@ std::vector<std::vector<std::string>> RegressionTester::setLogVector(std::string
 }
 
 bool RegressionTester::compareLines(std::vector<std::string> log, std::vector<std::string> result) {
-    for (int i = firstComparedIndex; i < result.size(); i++) {
+    for (size_t i = firstComparedIndex; i < result.size(); i++) {
 
         if ((i >= firstNumberValueIndex) && (i <= lastNumberValueIndex))
         {
@@ -86,7 +86,7 @@ bool RegressionTester::compareLines(std::vector<std::string> log, std::vector<st
             }
         }
         else {
-            if (result.at(i).compare(log.at(i)) != 0) {
+            if (result.at(i) != log.at(i)) {
                 return false;
             }
         }
@@ -95,7 +95,7 @@ bool RegressionTester::compareLines(std::vector<std::string> log, std::vector<st
     return true;
 }
 
-HRESULT RegressionTester::compareLogs(std::string cLog, std::string rLog) {
+HRESULT RegressionTester::compareLogs(const std::string& cLog, const std::string& rLog) {
 
     if (config_filepath.empty())
     {
@@ -104,12 +104,12 @@ HRESULT RegressionTester::compareLogs(std::string cLog, std::string rLog) {
         return E_FAIL;
     }
 
-    std::vector<std::vector<std::string>> logArr = setLogVector(cLog.c_str());
+    std::vector<std::vector<std::string>> logArr = setLogVector(cLog);
     sort(logArr.begin() + 1, logArr.end(), [](const std::vector<std::string>& lhs, const std::vector<std::string>& rhs) {
         return std::stoi(lhs.at(0)) < std::stoi(rhs.at(0));
         });
 
-    std::vector<std::vector<std::string>> resultArr = setLogVector(rLog.c_str());
+    std::vector<std::vector<std::string>> resultArr = setLogVector(rLog);
     sort(resultArr.begin() + 1, resultArr.end(), [](const std::vector<std::string>& lhs, const std::vector<std::string>& rhs) {
         return std::stoi(lhs.at(0)) < std::stoi(rhs.at(0));
         });
@@ -122,12 +122,8 @@ HRESULT RegressionTester::compareLogs(std::string cLog, std::string rLog) {
     bool firstMismatch = true;
     int iterator = 1;
     if (logArr[0].size() == resultArr[0].size()) {
-        for (int y1 = 1; y1 < resultArr.size(); y1++) {
-            if (y1 == 2463)
-            {
-                int ddfsff = 0;
-            }
-            for (int y2 = iterator; y2 < logArr.size(); y2++) {
+        for (size_t y1 = 1; y1 < resultArr.size(); y1++) {
+            for (size_t y2 = iterator; y2 < logArr.size(); y2++) {
                 if (compareLines(logArr.at(y2), resultArr.at(y1))) {
                     logArr.erase(logArr.begin() + y2);
                     iterator = y2;
@@ -136,7 +132,7 @@ HRESULT RegressionTester::compareLogs(std::string cLog, std::string rLog) {
                 }
             }
 
-            if (errorFlag == false) {
+            if (!errorFlag) {
                 errorResult.push_back(resultArr.at(y1));
                 if (firstMismatch)
                 {
@@ -183,8 +179,21 @@ HRESULT RegressionTester::compareLogs(std::string cLog, std::string rLog) {
         return E_FAIL;
     }
 }
+scgms::SFilter_Executor gFilter_Executor;
+
+void MainCalling sighandler(int signo) {
+    // SIGINT should terminate filters; this will eventually terminate whole app
+    if (signo == SIGINT) {
+        if (gFilter_Executor) {
+            scgms::UDevice_Event shut_down_event{ scgms::NDevice_Event_Code::Shut_Down };
+            gFilter_Executor.Execute(std::move(shut_down_event));
+        }
+    }
+}
 
 void RegressionTester::loadConfig() {
+
+    signal(SIGINT, sighandler);
 
 	scgms::SPersistent_Filter_Chain_Configuration configuration;
 
@@ -203,8 +212,10 @@ void RegressionTester::loadConfig() {
 		std::wcerr << L"Warning: some filters were not loaded!" << std::endl;
         printAndEmptyErrors(errors);
 	}
-	scgms::SFilter_Executor gFilter_Executor;
+
 	gFilter_Executor = scgms::SFilter_Executor{ configuration.get(), nullptr, nullptr, errors };
+
+	printAndEmptyErrors(errors);
 
 	if (!gFilter_Executor)
 	{
@@ -218,22 +229,22 @@ void RegressionTester::loadConfig() {
 	gFilter_Executor->Wait_For_Shutdown_and_Terminate();
 }
 
-void RegressionTester::printOneLine(std::vector<std::string> line)
+void RegressionTester::printOneLine(const std::vector<std::string>& line)
 {
-    std::string printedLine = "";
-    for (int i = 0; i < line.size(); i++)
+    std::string printedLine;
+    for (auto & i : line)
     {
-        printedLine.append(line.at(i) + "; ");
+        printedLine.append(i + "; ");
     }
     logger.error(Widen_Char(printedLine.c_str()));
 }
 
-void RegressionTester::printLines(std::vector<std::vector<std::string>> errorResult)
+void RegressionTester::printLines(const std::vector<std::vector<std::string>>& errorResult)
 {
-    for (int y = 0; y < errorResult.size(); y++) {
+    for (auto & y : errorResult) {
         std::string line;
-        for (int x = 0; x < errorResult[y].size(); x++) {
-            line += errorResult[y][x] + "; ";
+        for (auto & x : y) {
+            line += x + "; ";
         }
         logger.trace(Widen_Char(line.c_str()));
     }

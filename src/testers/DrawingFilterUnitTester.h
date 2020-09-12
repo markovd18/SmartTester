@@ -8,9 +8,9 @@
 
 class DrawingFilterUnitTester : public GenericUnitTester {
 public:
+    static const std::string FILTER_CONFIG;
+
 	DrawingFilterUnitTester(CDynamic_Library* library, TestFilter* testFilter, const GUID* guid);
 	void executeSpecificTests() override;
-	HRESULT emptyCanvasSizeTest();
-	HRESULT correctCanvasSizeTest();
 };
 #endif // !_DRAWING_FILTER_UNIT_TESTER_H_

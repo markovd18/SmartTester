@@ -7,17 +7,16 @@
 
 class MappingFilterUnitTester : public GenericUnitTester {
 private:
-	std::string SIGNAL_SRC_ID_STR;
-	GUID SIGNAL_SRC_ID_GUID;
-	std::string SIGNAL_DST_ID_STR;
-	GUID SIGNAL_DST_ID_GUID;
 	HRESULT configureFilterCorrectly();
 public:
+    static const std::string FILTER_CONFIG;
+    static const std::string SIGNAL_SRC_ID_STR;
+    static const GUID SIGNAL_SRC_ID_GUID;
+    static const std::string SIGNAL_DST_ID_STR;
+    static const GUID SIGNAL_DST_ID_GUID;
+
 	MappingFilterUnitTester(CDynamic_Library* library, TestFilter* testFilter, const GUID* guid);
 	void executeSpecificTests() override;
-	HRESULT emptySourceIdTest();
-	HRESULT emptyDestIdTest();
-	HRESULT correctIdsTest();
 	HRESULT levelEventMappingTest();
 	HRESULT infoEventMappingTest();
 	HRESULT parametersEventMappingTest();

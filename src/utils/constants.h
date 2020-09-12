@@ -11,6 +11,10 @@ constexpr long MAX_EXEC_TIME = 1000;
 constexpr wchar_t* LOG_FILE = L"log.csv";
 //expected name of imported configuration file
 constexpr wchar_t* CONFIG_FILE = L"config.ini";
+//temp directory name
+constexpr wchar_t* TMP_DIR = L"tmp";
+//regression log in temp directory
+constexpr wchar_t* TMP_LOG_FILE = L"tmp/log.csv";
 
 constexpr int firstComparedIndex = 2;
 constexpr int firstNumberValueIndex = 4;

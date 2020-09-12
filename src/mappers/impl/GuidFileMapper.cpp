@@ -1,7 +1,7 @@
 #pragma once
 
-#include "GuidFileMapper.h"
-#include "../utils/constants.h"
+#include "../GuidFileMapper.h"
+#include "../../utils/constants.h"
 
 GuidFileMapper::GuidFileMapper() {
 	guidFileMap.insert(std::pair<GUID, const wchar_t*>(LOG_GUID, LOG_LIBRARY));

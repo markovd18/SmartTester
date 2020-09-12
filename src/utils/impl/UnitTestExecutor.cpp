@@ -2,9 +2,9 @@
 #include <rtl/Dynamic_Library.h>
 #include <rtl/guid.h>
 #include <rtl/hresult.h>
-#include "UnitTestExecutor.h"
-#include "../mappers/GuidTesterMapper.h"
-#include "../mappers/GuidFileMapper.h"
+#include "../UnitTestExecutor.h"
+#include "../../mappers/GuidTesterMapper.h"
+#include "../../mappers/GuidFileMapper.h"
 
 UnitTestExecutor::UnitTestExecutor() = default;
 

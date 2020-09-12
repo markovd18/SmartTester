@@ -1,12 +1,16 @@
 #include <iostream>
 #include <rtl/FilterLib.h>
 #include <utils/string_utils.h>
-#include "MaskingFilterUnitTester.h"
+#include "../MaskingFilterUnitTester.h"
 
-MaskingFilterUnitTester::MaskingFilterUnitTester(CDynamic_Library* library, TestFilter* testFilter, const GUID* guid) : GenericUnitTester(library, testFilter, guid)
+const std::string MaskingFilterUnitTester::FILTER_CONFIG = "[Filter_001_{A1124C89-18A4-F4C1-28E8-A9471A58021E}]";
+const GUID MaskingFilterUnitTester::SIGNAL_ID_GUID = { 0xe1cd07ef, 0xb079, 0x4911, {0xb7, 0x9b, 0xd2, 0x03, 0x48, 0x61, 0x01, 0xc8} };
+const std::string MaskingFilterUnitTester::SIGNAL_ID_STR = "{E1CD07EF-B079-4911-B79B-D203486101C8}";
+
+MaskingFilterUnitTester::MaskingFilterUnitTester(CDynamic_Library* library, TestFilter* testFilter, const GUID* guid)
+                : GenericUnitTester(library, testFilter, guid)
 {
-	SIGNAL_ID_GUID = { 0xe1cd07ef, 0xb079, 0x4911, {0xb7, 0x9b, 0xd2, 0x03, 0x48, 0x61, 0x01, 0xc8} };
-	SIGNAL_ID_STR = "{E1CD07EF-B079-4911-B79B-D203486101C8}";
+    //
 }
 
 /**
@@ -33,7 +37,7 @@ HRESULT MaskingFilterUnitTester::configureFilterCorrectly(std::string &bitmask)
 
 	scgms::SPersistent_Filter_Chain_Configuration configuration;
 	refcnt::Swstr_list errors;
-	std::string memory = "[Filter_001_{A1124C89-18A4-F4C1-28E8-A9471A58021E}]\n\nSignal = " + SIGNAL_ID_STR + "\n\nBitmask = " + bitmask;
+	std::string memory = FILTER_CONFIG + "\n\nSignal = " + SIGNAL_ID_STR + "\n\nBitmask = " + bitmask;
 	logger.debug(L"Signal = " + std::wstring(SIGNAL_ID_STR.begin(), SIGNAL_ID_STR.end()) + L", Bitmask = " + std::wstring(bitmask.begin(), bitmask.end()));
 
 	HRESULT result = configuration ? S_OK : E_FAIL;
@@ -132,6 +136,8 @@ HRESULT MaskingFilterUnitTester::bitmaskMappingTest(std::string &bitmask)
 			logger.error(L"Error while executing \"Level\" event!");
 			test_result = E_FAIL;
 		}
+
+		event->Release();
 	}
 
 	shutDownTest();
@@ -150,7 +156,7 @@ HRESULT MaskingFilterUnitTester::infoEventMaskingTest()
 	scgms::SPersistent_Filter_Chain_Configuration configuration;
 	refcnt::Swstr_list errors;
 	std::string bitmask = "00101111";
-	std::string memory = "[Filter_001_{A1124C89-18A4-F4C1-28E8-A9471A58021E}]\n\nSignal = " + SIGNAL_ID_STR + "\n\nBitmask = " + bitmask;
+	std::string memory = FILTER_CONFIG + "\n\nSignal = " + SIGNAL_ID_STR + "\n\nBitmask = " + bitmask;
 	logger.debug(L"Signal = " + std::wstring(SIGNAL_ID_STR.begin(), SIGNAL_ID_STR.end()) + L", Bitmask = " + std::wstring(bitmask.begin(), bitmask.end()));
 
 	HRESULT result = configuration ? S_OK : E_FAIL;
@@ -215,7 +221,8 @@ HRESULT MaskingFilterUnitTester::infoEventMaskingTest()
 			logger.error(L"actual result: " + Widen_Char(std::system_category().message(result).c_str()));
 			test_result = E_FAIL;
 		}
-		
+
+		event->Release();
 	}
 
 	shutDownTest();

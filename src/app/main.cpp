@@ -25,8 +25,13 @@ void print_help() {
 }
 
 /**
-    Parses guid in string from command-line into hexadecimal numbers and creates GUID structure.
-*/
+ * Parses guid in string from command-line into hexadecimal numbers and creates GUID structure.
+ * If invalid format of guid is passed as parameter, throws an exception and system will shut down.
+ * If no guid is passed as parameter, "invalid" guid is returned.
+ *
+ * @param guid_string command-line parameter to be parsed into GUID
+ * @return parsed GUID if correct format is passed as parameter, else "invalid" GUID
+ */
 GUID parse_guid(std::string guid_string) {
 
     GUID guid{};
@@ -90,8 +95,10 @@ GUID parse_guid(std::string guid_string) {
 }
 
 /**
-    Executes unit testing on all filters or on specific filter with given GUID.
-*/
+ * Executes unit testing on all filters or on specific filter with given GUID.
+ *
+ * @param guid_string guid passed as command-line argument in string format
+ */
 void execute_unit_testing(std::string& guid_string) {
 
     GUID guid = parse_guid(guid_string);
@@ -109,8 +116,11 @@ void execute_unit_testing(std::string& guid_string) {
 }
 
 /**
-    Loads filter configuration and executes regression tests.
-*/
+ * Loads filter configuration from given path and executes regression tests.
+ *
+ * @param config_filepath path to configuration file
+ * @return result of regression testing
+ */
 int execute_regression_testing(std::wstring& config_filepath) {
     if (config_filepath.empty())
     {
@@ -126,15 +136,15 @@ int execute_regression_testing(std::wstring& config_filepath) {
 
     auto result = regTester.compareLogs(Narrow_WChar(LOG_FILE), log_filepath);
 
-    std::filesystem::create_directory("tmp");
-    std::ifstream file("tmp/log.csv");
+    std::filesystem::create_directory(TMP_DIR);
+    std::ifstream file(Narrow_WChar(TMP_LOG_FILE));
     if (file.good())
     {
         file.close();
-        std::remove("tmp/log.csv");
+        std::remove(Narrow_WChar(TMP_LOG_FILE).c_str());
     }
     file.close();
-    std::rename(Narrow_WChar(LOG_FILE).c_str(), "tmp/log.csv");
+    std::rename(Narrow_WChar(LOG_FILE).c_str(), Narrow_WChar(TMP_LOG_FILE).c_str());
 
     Logger::GetInstance().info(L"Shutting down.");
     std::wcerr << L"For detailed information see generated log.\n";
@@ -158,6 +168,7 @@ int main(int argc, char* argv[]) {
     if (argv[1][0] == '-') {
         std::string parameter;
         std::wstring config_filepath;
+
         switch (argv[1][1]) {
         case 'u':   // unit testing
             if (argv[2] != nullptr) {

@@ -50,9 +50,9 @@ add_library(winapi_mapping "${SMARTCGMS_COMMON_DIR}/utils/winapi_mapping.cpp")
 
 
 file(GLOB APP ${PROJECT_SOURCE_DIR}/src/app/*.cpp)
-file(GLOB MAPPERS ${PROJECT_SOURCE_DIR}/src/mappers/*.cpp ${PROJECT_SOURCE_DIR}/src/mappers/*.h)
-file(GLOB TESTERS ${PROJECT_SOURCE_DIR}/src/testers/*.cpp ${PROJECT_SOURCE_DIR}/src/testers/*.h)
-file(GLOB UTILS ${PROJECT_SOURCE_DIR}/src/utils/*.cpp ${PROJECT_SOURCE_DIR}/src/utils/*.h)
+file(GLOB MAPPERS ${PROJECT_SOURCE_DIR}/src/mappers/impl/*.cpp ${PROJECT_SOURCE_DIR}/src/mappers/*.h)
+file(GLOB TESTERS ${PROJECT_SOURCE_DIR}/src/testers/impl/*.cpp ${PROJECT_SOURCE_DIR}/src/testers/*.h)
+file(GLOB UTILS ${PROJECT_SOURCE_DIR}/src/utils/impl/*.cpp ${PROJECT_SOURCE_DIR}/src/utils/*.h)
 add_executable (SmartTester ${APP} ${MAPPERS} ${TESTERS} ${UTILS})
         
 target_link_libraries(SmartTester PUBLIC Dynamic_Library referencedImpl FilterLib scgmsLib DeviceLib string_utils winapi_mapping)

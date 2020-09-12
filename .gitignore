@@ -9,9 +9,11 @@ out
 SmartTester.exe
 SmartTester.ilk
 SmartTester.pdb
+SmartTester
 bin
 Debug
 logs
+debian_64/SmartTester
 
 #.idea files
 /.idea/vcs.xml

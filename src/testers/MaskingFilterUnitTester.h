@@ -7,11 +7,12 @@
 
 class MaskingFilterUnitTester : public GenericUnitTester {
 private:
-	GUID SIGNAL_ID_GUID;
-	std::string SIGNAL_ID_STR;
-
 	HRESULT configureFilterCorrectly(std::string &bitmask);
 public:
+    static const std::string FILTER_CONFIG;
+    static const GUID SIGNAL_ID_GUID;
+    static const std::string SIGNAL_ID_STR;
+
 	MaskingFilterUnitTester(CDynamic_Library* library, TestFilter* testFilter, const GUID* guid);
 	void executeSpecificTests() override;
 	HRESULT completeBitmaskMappingTest();

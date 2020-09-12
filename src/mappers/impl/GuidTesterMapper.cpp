@@ -1,10 +1,10 @@
 #include <rtl/guid.h>
-#include "GuidTesterMapper.h"
-#include "../utils/constants.h"
-#include "../testers/LogFilterUnitTester.h"
-#include "../testers/DrawingFilterUnitTester.h"
-#include "../testers/MappingFilterUnitTester.h"
-#include "../testers/MaskingFilterUnitTester.h"
+#include "../GuidTesterMapper.h"
+#include "../../utils/constants.h"
+#include "../../testers/LogFilterUnitTester.h"
+#include "../../testers/DrawingFilterUnitTester.h"
+#include "../../testers/MappingFilterUnitTester.h"
+#include "../../testers/MaskingFilterUnitTester.h"
 
 GuidTesterMapper::GuidTesterMapper() {
 	//inserting LogFilterUnitTester factory

@@ -7,9 +7,9 @@
 #include <rtl/hresult.h>
 #include <rtl/FilterLib.h>
 #include <utils/string_utils.h>
-#include "../mappers/GuidFileMapper.h"
-#include "../utils/constants.h"
-#include "GenericUnitTester.h"
+#include "../../mappers/GuidFileMapper.h"
+#include "../../utils/constants.h"
+#include "../GenericUnitTester.h"
 
 /**
     Creates an instance of GenericUnitTesterClass.
@@ -156,7 +156,9 @@ void GenericUnitTester::executeGenericTests() {
 }
 
 /**
-    Executes test method passed as a parameter.
+    Invokes test method passed as a parameter. Invoked method has to take in zero parameters and return HRESULT as a return value.
+    @param testName name of the test which will be displayed in logs
+    @param test method to be invoked by this method
 */
 void GenericUnitTester::executeTest(const std::wstring& testName, const std::function<HRESULT(void)>& test) {
     logger.info(L"----------------------------------------");
@@ -168,6 +170,22 @@ void GenericUnitTester::executeTest(const std::wstring& testName, const std::fun
 }
 
 /**
+ * Invokes test method passed as a parameter. Invoked method has to take in two parameters and return HRESULT as a return value.
+ * The first parameter of invoked method is string and second one is HRESULT. Main purpose of this method is to invoke
+ * configuration test method which takes in configuration string as first parameter and expected result as second parameter.
+ * @param testName name of the test which will be displayed in logs
+ * @param test method to be invoked by this method
+ */
+void GenericUnitTester::executeConfigTest(const std::wstring& testName, const std::string& configuration, const HRESULT expectedResult) {
+    logger.info(L"----------------------------------------");
+    logger.info(L"Executing " + testName + L"...");
+    logger.info(L"----------------------------------------");
+    std::wcout << "Executing " << testName << "... ";
+    HRESULT result = runConfigTestInThread(configuration, expectedResult);
+    printResult(result);
+}
+
+/**
     Creates Shut_Down event and executes it.
 */
 HRESULT GenericUnitTester::shutDownTest()
@@ -175,12 +193,22 @@ HRESULT GenericUnitTester::shutDownTest()
     scgms::IDevice_Event* shutDown;
 
     auto creator = scgmsLibrary->Resolve<scgms::TCreate_Device_Event>("create_device_event");
-    creator(scgms::NDevice_Event_Code::Shut_Down, &shutDown);
+    HRESULT result = creator(scgms::NDevice_Event_Code::Shut_Down, &shutDown);
+    if (FAILED(result))
+    {
+        std::wcerr << L"Error while creating \"Shut_Down\" IDevice_event!\n";
+        logger.error(L"Error while creating \"Shut_Down\" IDevice_event!");
+        return E_FAIL;
+    }
+
     return testedFilter->Execute(shutDown);
 }
 
 /**
     Runs test method passed as a parameter in a separate thread.
+    Passed method has to take in zero parameters and return HRESULT as a return value.
+    @param test method to be run in a separate thread
+    @return result of invoked test method
 */
 HRESULT GenericUnitTester::runTestInThread(const std::function<HRESULT(void)>& test) {
     logger.debug(L"Running test in thread...");
@@ -218,10 +246,63 @@ HRESULT GenericUnitTester::runTestInThread(const std::function<HRESULT(void)>& t
 }
 
 /**
+ * Runs test method passed as a parameter in a separate thread.
+   Passed method has to take in two parameters and return HRESULT as a return value.
+   The first parameter of invoked test method has to be std::string and the second one HRESULT. The main purpose of this
+   method is to run configuration test methods in a separate thread which take in configuration string as the first parameter
+   and expected result as the second one.
+   @param test method to be run in a separate thread
+ * @return result of invoked test method
+ */
+HRESULT GenericUnitTester::runConfigTestInThread(const std::string& configuration, const HRESULT expectedResult) {
+    logger.debug(L"Running test in thread...");
+    std::cv_status status;
+    HRESULT result;
+
+    {
+        std::unique_lock<std::mutex> lock(testMutex);
+
+        std::thread thread(&GenericUnitTester::runConfigTest, this, configuration, expectedResult);
+
+        status = testCv.wait_for(lock, std::chrono::milliseconds(MAX_EXEC_TIME));
+        lock.unlock();
+
+        if (status == std::cv_status::timeout) {
+            shutDownTest();
+        }
+
+        if (thread.joinable())
+        {
+            thread.join();
+        }
+    }
+
+    if (status == std::cv_status::timeout) {
+        std::wcerr << L"TIMEOUT ";
+        logger.error(L"Test in thread timed out!");
+        result = E_FAIL;
+    }
+    else {
+        result = lastTestResult;
+    }
+
+    return result;
+}
+
+/**
     Runs passed test and notifies all other threads.
 */
 void GenericUnitTester::runTest(const std::function<HRESULT(void)>& test) {
     lastTestResult = test();
+    testCv.notify_all();
+}
+
+/**
+ * Runs passed configuration test and notifies all other threads.
+ * @param test configuration test to be run
+ */
+void GenericUnitTester::runConfigTest(const std::string& configuration, HRESULT expectedResult) {
+    lastTestResult = configurationTest(configuration, expectedResult);
     testCv.notify_all();
 }
 
@@ -307,6 +388,50 @@ HRESULT GenericUnitTester::infoEventTest() {
         result = E_FAIL;
     }
 
+    event->Release();
     shutDownTest();
     return result;
+}
+
+HRESULT GenericUnitTester::configurationTest(const std::string &memory, const HRESULT expectedResult) {
+    if (!isFilterLoaded())
+    {
+        std::wcerr << L"No filter loaded! Can't execute test.\n";
+        logger.error(L"No filter loaded! Can't execute test.");
+        return E_FAIL;
+    }
+
+    scgms::SPersistent_Filter_Chain_Configuration configuration;
+    refcnt::Swstr_list errors;
+
+    HRESULT result = configuration ? S_OK : E_FAIL;
+    if (result == S_OK)
+    {
+        configuration->Load_From_Memory(memory.c_str(), memory.size(), errors.get());
+        logger.info(L"Loading configuration from memory...");
+    }
+    else {
+        logger.error(L"Error while creating configuration!");
+        return E_FAIL;
+    }
+
+    scgms::IFilter_Configuration_Link** begin, ** end;
+    configuration->get(&begin, &end);
+
+    logger.info(L"Configuring filter...");
+    result = testedFilter->Configure(begin[0], errors.get());
+
+    HRESULT testResult;
+    if (result == expectedResult) {
+        testResult = S_OK;
+    } else {
+        logger.error(L"Provided configuration:\n"
+                     L"(" + std::wstring(memory.begin(), memory.end()) + L")");
+        logger.error(L"expected configuration result: " + Widen_Char(std::system_category().message(expectedResult).c_str()));
+        logger.error(L"actual configuration result: " + Widen_Char(std::system_category().message(result).c_str()));
+        testResult = E_FAIL;
+    }
+
+    shutDownTest();
+    return testResult;
 }
