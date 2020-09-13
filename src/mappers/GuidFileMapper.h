@@ -6,7 +6,9 @@
 #include <rtl/guid.h>
 
 /**
-	Singleton class used for mapping GUID to propper dynamic library file name.
+	Singleton class used for mapping GUID to proper dynamic library file name.
+    GuidFileMapper provides method to retrieve the map which you can pass GUID of filter to get the name of shared library
+    that contains the implementation of that filter.
 */
 class GuidFileMapper {
 	

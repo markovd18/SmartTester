@@ -8,6 +8,12 @@
 #include "../testers/GenericUnitTester.h"
 #include "../utils/Logger.h"
 
+/**
+ * Singleton class used to map GUID to appropriate instance of derived GenericUnitTester class.
+ * GuidTesterMapper provides method to retrieve this instance but it requires CDynamic_Library helper class pointer
+ * that will be used to load shared libraries of that filter, TestFilter class pointer that will be appended to tested filter
+ * to collect the event passed to filter during testing and GUID of wanted filter.
+ */
 class GuidTesterMapper {
 
 private:

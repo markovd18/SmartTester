@@ -144,6 +144,11 @@ HRESULT MaskingFilterUnitTester::bitmaskMappingTest(std::string &bitmask)
 	return test_result;
 }
 
+/**
+ * Tests if Info event is correctly not masked by this filter.
+ *
+ * @return S_OK if Info ivent is not masked by this filter, otherwise E_FAIL
+ */
 HRESULT MaskingFilterUnitTester::infoEventMaskingTest()
 {
 	if (!isFilterLoaded())

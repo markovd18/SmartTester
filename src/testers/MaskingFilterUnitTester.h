@@ -5,6 +5,9 @@
 #include "../testers/GenericUnitTester.h"
 #include <rtl/hresult.h>
 
+/**
+ * * Derived class from GenericUnitTester responsible for testing of Masking filter.
+ */
 class MaskingFilterUnitTester : public GenericUnitTester {
 private:
 	HRESULT configureFilterCorrectly(std::string &bitmask);

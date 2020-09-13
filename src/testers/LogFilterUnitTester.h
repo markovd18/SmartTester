@@ -5,6 +5,9 @@
 #include <rtl/hresult.h>
 #include "GenericUnitTester.h"
 
+/**
+ * Derived class from GenericUnitTester responsible for testing of Log filter.
+ */
 class LogFilterUnitTester : public GenericUnitTester{
 public:
     static const std::string FILTER_CONFIG;

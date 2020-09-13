@@ -5,6 +5,9 @@
 #include <rtl/hresult.h>
 #include "../testers/GenericUnitTester.h"
 
+/**
+ * Derived class from GenericUnitTester responsible for testing of Mapping filter.
+ */
 class MappingFilterUnitTester : public GenericUnitTester {
 private:
 	HRESULT configureFilterCorrectly();

@@ -6,6 +6,9 @@
 #include "GenericUnitTester.h"
 #include <rtl/hresult.h>
 
+/**
+ * Derived class from GenericUnitTester responsible for unit testing of Drawing filter.
+ */
 class DrawingFilterUnitTester : public GenericUnitTester {
 public:
     static const std::string FILTER_CONFIG;

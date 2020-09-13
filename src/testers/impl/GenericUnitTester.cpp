@@ -12,11 +12,15 @@
 #include "../GenericUnitTester.h"
 
 /**
-    Creates an instance of GenericUnitTesterClass.
+ *     Creates an instance of GenericUnitTesterClass.
     Pass initialized instance of CDynamic_Library, initialized instance of TestFilter
-    and GUID of filter that you want to be tested. If default invalid GUID is passed, 
+    and GUID of filter that you want to be tested. If default invalid GUID is passed,
     all tests across all filters will be executed.
-*/
+
+ * @param library pointer to CDynamic_Library helper class
+ * @param testFilter pointer to TestFilter helper class
+ * @param guid guid of tested filter
+ */
 GenericUnitTester::GenericUnitTester(CDynamic_Library* library, TestFilter* testFilter,const GUID* guid) {
     this->testedFilter = nullptr;
     this->scgmsLibrary = nullptr;
@@ -32,6 +36,10 @@ GenericUnitTester::GenericUnitTester(CDynamic_Library* library, TestFilter* test
     
 }
 
+/**
+ * Virtual destructor.
+ * Returns all allocated memory and loaded libraries by this instance.
+ */
 GenericUnitTester::~GenericUnitTester() {
     if (isFilterLoaded())
     {
@@ -44,9 +52,9 @@ GenericUnitTester::~GenericUnitTester() {
     delete testFilter;
 }
 
-///     **************************************************
-///                     Helper methods
-///     **************************************************
+//     **************************************************
+//                     Helper methods
+//     **************************************************
 
 /**
     Loads filter from dynamic library based on given GUID in constructor.
@@ -105,8 +113,10 @@ void GenericUnitTester::loadScgmsLibrary() {
 }
 
 /**
-    Returns name of the tested filter.
-*/
+ * Returns the name of tested filter.
+ *
+ * @return name of tested filter
+ */
 const wchar_t* GenericUnitTester::getFilterName()
 {
     if (!filterLibrary->Is_Loaded())
@@ -314,8 +324,10 @@ bool GenericUnitTester::isFilterLoaded() {
 }
 
 /**
-    Prints information based on given HRESULT.
-*/
+ * Prints information based on given HRESULT.
+ *
+ * @param result test result to be printed out
+ */
 void GenericUnitTester::printResult(HRESULT result) {
     switch (result)
     {
@@ -393,6 +405,15 @@ HRESULT GenericUnitTester::infoEventTest() {
     return result;
 }
 
+/**
+ * Executes configuration test based on given parameters. Every filter should be successfully configured only if all parts
+ * of the configuration are provided. Configuration test will be evaluated as successful and return S_OK only if the result of configuration
+ * is identical with given expectedResult parameter, otherwise will return E_FAIL.
+ *
+ * @param memory configuration string
+ * @param expectedResult expected result of this configuration
+ * @return S_OK only if the result of given configuration is identical with given expectedResult parameter, otherwise E_FAIL
+ */
 HRESULT GenericUnitTester::configurationTest(const std::string &memory, const HRESULT expectedResult) {
     if (!isFilterLoaded())
     {
