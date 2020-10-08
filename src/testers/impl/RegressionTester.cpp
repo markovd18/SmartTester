@@ -29,19 +29,20 @@ void RegressionTester::printAndEmptyErrors(const refcnt::Swstr_list& errors) {
 
 RegressionTester::RegressionTester(const std::wstring& config_filepath) {
     this->config_filepath = config_filepath;
+    this->resultLog = Narrow_WChar(LOG_FILE);
 	this->loadConfig();
 }
 
-std::vector<std::vector<std::string>> RegressionTester::setLogVector(const std::string& cLog) {
+std::vector<std::vector<std::string>> RegressionTester::readLogFile(const std::string& logPath) {
     std::string line;
     std::string divideBy = ";";
     
     std::ifstream myfile;
-    myfile.open(cLog.c_str());
+    myfile.open(logPath.c_str());
     if (!myfile.is_open())
     {
-        std::wcerr << "Couldn't open the file \"" << Widen_Char(cLog.c_str()) << "\"\n";
-        logger.error(L"Couldn't open the file \"" + Widen_Char(cLog.c_str()) + L"\"");
+        std::wcerr << "Couldn't open the file \"" << Widen_Char(logPath.c_str()) << "\"\n";
+        logger.error(L"Couldn't open the file \"" + Widen_Char(logPath.c_str()) + L"\"");
         exit(EXIT_FAILURE);
     }
 
@@ -61,13 +62,13 @@ std::vector<std::vector<std::string>> RegressionTester::setLogVector(const std::
     return logArr;
 }
 
-bool RegressionTester::compareLines(std::vector<std::string> log, std::vector<std::string> result) {
-    for (size_t i = firstComparedIndex; i < result.size(); i++) {
+bool RegressionTester::compareLines(std::vector<std::string> resultLogLine, std::vector<std::string> referenceLogLine) {
+    for (size_t i = firstComparedIndex; i < referenceLogLine.size(); i++) {
 
         if ((i >= firstNumberValueIndex) && (i <= lastNumberValueIndex))
         {
-            std::string expectedField = result.at(i);
-            std::string actualField = log.at(i);
+            std::string expectedField = referenceLogLine.at(i);
+            std::string actualField = resultLogLine.at(i);
             if (expectedField.empty() && actualField.empty())
             {
                 continue;
@@ -76,8 +77,8 @@ bool RegressionTester::compareLines(std::vector<std::string> log, std::vector<st
                 return false;
             }
 
-            double expected = std::stod(result.at(i));
-            double actual = std::stod(log.at(i));
+            double expected = std::stod(referenceLogLine.at(i));
+            double actual = std::stod(resultLogLine.at(i));
             double lambda = 0.0001;
 
             if (abs(expected - actual) > lambda)
@@ -86,7 +87,7 @@ bool RegressionTester::compareLines(std::vector<std::string> log, std::vector<st
             }
         }
         else {
-            if (result.at(i) != log.at(i)) {
+            if (referenceLogLine.at(i) != resultLogLine.at(i)) {
                 return false;
             }
         }
@@ -95,7 +96,7 @@ bool RegressionTester::compareLines(std::vector<std::string> log, std::vector<st
     return true;
 }
 
-HRESULT RegressionTester::compareLogs(const std::string& cLog, const std::string& rLog) {
+HRESULT RegressionTester::compareLogs(const std::string& referenceLog) {
 
     if (config_filepath.empty())
     {
@@ -104,78 +105,81 @@ HRESULT RegressionTester::compareLogs(const std::string& cLog, const std::string
         return E_FAIL;
     }
 
-    std::vector<std::vector<std::string>> logArr = setLogVector(cLog);
-    sort(logArr.begin() + 1, logArr.end(), [](const std::vector<std::string>& lhs, const std::vector<std::string>& rhs) {
-        return std::stoi(lhs.at(0)) < std::stoi(rhs.at(0));
+    std::vector<std::vector<std::string>> resultLogLinesVector = readLogFile(this->resultLog);
+    std::sort(resultLogLinesVector.begin() + 1, resultLogLinesVector.end(), 
+        [](const std::vector<std::string>& first, const std::vector<std::string>& second) {
+        return std::stoi(first.at(0)) < std::stoi(second.at(0));
         });
 
-    std::vector<std::vector<std::string>> resultArr = setLogVector(rLog);
-    sort(resultArr.begin() + 1, resultArr.end(), [](const std::vector<std::string>& lhs, const std::vector<std::string>& rhs) {
-        return std::stoi(lhs.at(0)) < std::stoi(rhs.at(0));
+    std::vector<std::vector<std::string>> referenceLogLinesVector = readLogFile(referenceLog);
+    std::sort(referenceLogLinesVector.begin() + 1, referenceLogLinesVector.end(), 
+        [](const std::vector<std::string>& first, const std::vector<std::string>& second) {
+        return std::stoi(first.at(0)) < std::stoi(second.at(0));
         });
 
-    std::vector<std::vector<std::string>> errorResult;
+    std::vector<std::vector<std::string>> missingLines;
     std::vector<std::string> mismatchLine;
     std::vector<std::string> expectedLine;
-    bool errorFlag = false;
-    bool mainErrorFlag = true;
+    bool logsAreEqual = true;
+    bool match = false;
     bool firstMismatch = true;
-    int iterator = 1;
-    if (logArr[0].size() == resultArr[0].size()) {
-        for (size_t y1 = 1; y1 < resultArr.size(); y1++) {
-            for (size_t y2 = iterator; y2 < logArr.size(); y2++) {
-                if (compareLines(logArr.at(y2), resultArr.at(y1))) {
-                    logArr.erase(logArr.begin() + y2);
-                    iterator = y2;
-                    errorFlag = true;
-                    break;
-                }
-            }
-
-            if (!errorFlag) {
-                errorResult.push_back(resultArr.at(y1));
-                if (firstMismatch)
-                {
-                    expectedLine = errorResult.at(0);
-                    mismatchLine = logArr.at(iterator);
-                    firstMismatch = false;
-                }
-                mainErrorFlag = false;
-                
-            }
-            errorFlag = false;
-        }
-        if (mainErrorFlag) {
-            std::wcout << "Test result is OK!\n";
-            logger.info(L"Test result is OK!");
-            if (logArr.size() > 1)
-            {
-                logger.info(L"There were reduntant lines found:");
-                std::wcout << L"There were redundant lines found!\n";
-                logArr.erase(logArr.begin());
-                printLines(logArr);
-            }
-
-            return S_OK;
-        }
-        else {
-            logger.error(L"Test failed!");
-            logger.error(L"First mismatch:");
-            logger.error(L"Expected line:");
-            printOneLine(expectedLine);
-            logger.error(L"Actual line:");
-            printOneLine(mismatchLine);
-            logger.error(L"Lines that were not found:");
-            printLines(errorResult);
-
-            std::wcout << L"There were lines missing in log file!\n";
-            std::wcout << L"Test failed!\n";
-            return E_FAIL;
-        }
-    }
-    else {  // different number of parametes in line is not correct
+    int lastComparedLine = 1;
+    if (resultLogLinesVector[0].size() != referenceLogLinesVector[0].size()) {
+        // different number of parametes in line is not correct
         std::wcerr << L"There is different number of parameters in first line!\n";
         logger.error(L"There is different number of parameters in first line!");
+        return E_FAIL;
+    }
+
+    for (size_t i = 1; i < referenceLogLinesVector.size(); i++) {
+        for (size_t j = lastComparedLine; j < resultLogLinesVector.size(); j++) {
+            if (compareLines(resultLogLinesVector.at(j), referenceLogLinesVector.at(i))) {
+                resultLogLinesVector.erase(resultLogLinesVector.begin() + j);
+                lastComparedLine = j;
+                match = true;
+                break;
+            }
+        }
+
+        if (!match) {
+            missingLines.push_back(referenceLogLinesVector.at(i));
+            if (firstMismatch)
+            {
+                expectedLine = missingLines.at(0);
+                mismatchLine = resultLogLinesVector.at(lastComparedLine);
+                firstMismatch = false;
+            }
+            logsAreEqual = false;
+                
+        }
+        match = false;
+    }
+
+    if (logsAreEqual) {
+        std::wcout << "Test result is OK!\n";
+        logger.info(L"Test result is OK!");
+        if (resultLogLinesVector.size() > 1)
+        {
+            logger.info(L"There were reduntant lines found:");
+            std::wcout << L"There were redundant lines found!\n";
+            resultLogLinesVector.erase(resultLogLinesVector.begin());
+            printLines(resultLogLinesVector);
+        }
+
+        return S_OK;
+    }
+    else {
+        logger.error(L"Test failed!");
+        logger.error(L"First mismatch:");
+        logger.error(L"Expected line:");
+        printOneLine(expectedLine);
+        logger.error(L"Actual line:");
+        printOneLine(mismatchLine);
+        logger.error(L"Lines that were not found:");
+        printLines(missingLines);
+
+        std::wcout << L"There were lines missing in log file!\n";
+        std::wcout << L"Test failed!\n";
         return E_FAIL;
     }
 }
@@ -191,7 +195,7 @@ void MainCalling sighandler(int signo) {
     }
 }
 
-void RegressionTester::loadConfig() {
+void MainCalling RegressionTester::loadConfig() {
 
     signal(SIGINT, sighandler);
 

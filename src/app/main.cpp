@@ -134,7 +134,7 @@ int execute_regression_testing(std::wstring& config_filepath) {
     log_filepath.erase(log_filepath.size() - Narrow_WChar(CONFIG_FILE).size());
     log_filepath += Narrow_WChar(LOG_FILE);
 
-    auto result = regTester.compareLogs(Narrow_WChar(LOG_FILE), log_filepath);
+    auto result = regTester.compareLogs(log_filepath);
 
     std::filesystem::create_directory(TMP_DIR);
     std::ifstream file(Narrow_WChar(TMP_LOG_FILE));
