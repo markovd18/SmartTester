@@ -14,6 +14,10 @@ bin
 Debug
 logs
 debian_64/SmartTester
+CMakeFiles
+CMakeCache.txt
+Makefile
+cmake_install.cmake
 
 #.idea files
 /.idea/vcs.xml
