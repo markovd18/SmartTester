@@ -6,7 +6,8 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                echo 'Building...'
+                echo 'Building with cmake...'
+                sh 'cmake CMakeLists.txt'
             }
         }
     }
