@@ -105,7 +105,7 @@ void GenericUnitTester::loadScgmsLibrary() {
     {
         std::wcerr << L"Couldn't load scgms library!\n";
         logger.error(L"Couldn't load scgms library!");
-        exit(E_FAIL);
+        exit(EXIT_FAILURE);
     }
 
     logger.debug(L"Dynamic library scgms loaded.");
@@ -204,7 +204,7 @@ HRESULT GenericUnitTester::shutDownTest()
 
     auto creator = scgmsLibrary->Resolve<scgms::TCreate_Device_Event>("create_device_event");
     HRESULT result = creator(scgms::NDevice_Event_Code::Shut_Down, &shutDown);
-    if (FAILED(result))
+    if (!Succeeded(result))
     {
         std::wcerr << L"Error while creating \"Shut_Down\" IDevice_event!\n";
         logger.error(L"Error while creating \"Shut_Down\" IDevice_event!");
@@ -370,7 +370,7 @@ HRESULT GenericUnitTester::infoEventTest() {
     
     auto creator = scgmsLibrary->Resolve<scgms::TCreate_Device_Event>("create_device_event");
     auto result = creator(scgms::NDevice_Event_Code::Information, &event);
-    if (FAILED(result))
+    if (!Succeeded(result))
     {
         std::wcerr << L"Error while creating \"Information\" IDevice_event!\n";
         logger.error(L"Error while creating \"Information\" IDevice_event!");
@@ -381,7 +381,7 @@ HRESULT GenericUnitTester::infoEventTest() {
     logger.info(L"Executing event...");
     result = testedFilter->Execute(event);
 
-    if (SUCCEEDED(result)) {
+    if (Succeeded(result)) {
         scgms::TDevice_Event* recievedEvent = testFilter->getRecievedEvent();
         if (recievedEvent->event_code == scgms::NDevice_Event_Code::Information)
         {

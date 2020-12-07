@@ -46,7 +46,8 @@ add_library(FilterLib "${SMARTCGMS_COMMON_DIR}/rtl/FilterLib.cpp")
 add_library(scgmsLib "${SMARTCGMS_COMMON_DIR}/rtl/scgmsLib.cpp")
 add_library(DeviceLib "${SMARTCGMS_COMMON_DIR}/rtl/DeviceLib.cpp")
 add_library(string_utils "${SMARTCGMS_COMMON_DIR}/utils/string_utils.cpp")
-add_library(winapi_mapping "${SMARTCGMS_COMMON_DIR}/utils/winapi_mapping.cpp")
+add_library(winapi_mapping "${SMARTCGMS_COMMON_DIR}/utils/winapi_mapping.c")
+add_library(HRESULT "${SMARTCGMS_COMMON_DIR}/rtl/hresult.c")
 
 
 file(GLOB APP ${PROJECT_SOURCE_DIR}/src/app/*.cpp)
@@ -55,7 +56,7 @@ file(GLOB TESTERS ${PROJECT_SOURCE_DIR}/src/testers/impl/*.cpp ${PROJECT_SOURCE_
 file(GLOB UTILS ${PROJECT_SOURCE_DIR}/src/utils/impl/*.cpp ${PROJECT_SOURCE_DIR}/src/utils/*.h)
 add_executable (SmartTester ${APP} ${MAPPERS} ${TESTERS} ${UTILS})
         
-target_link_libraries(SmartTester PUBLIC Dynamic_Library referencedImpl FilterLib scgmsLib DeviceLib string_utils winapi_mapping)
+target_link_libraries(SmartTester PUBLIC Dynamic_Library referencedImpl FilterLib scgmsLib DeviceLib string_utils winapi_mapping HRESULT)
 
 IF(WIN32)
     set_target_properties( SmartTester PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/windows_64 )

@@ -84,7 +84,7 @@ HRESULT MaskingFilterUnitTester::bitmaskMappingTest(std::string &bitmask)
 	
 	logger.info(L"Configuring filter...");
 	HRESULT result = configureFilterCorrectly(bitmask);
-	if (FAILED(result))
+	if (!Succeeded(result))
 	{
 		logger.error(L"Failed to configure filter!");
 		return E_FAIL;
@@ -97,7 +97,7 @@ HRESULT MaskingFilterUnitTester::bitmaskMappingTest(std::string &bitmask)
 
 		auto creator = scgmsLibrary->Resolve<scgms::TCreate_Device_Event>("create_device_event");
 		result = creator(scgms::NDevice_Event_Code::Level, &event);
-		if (FAILED(result))
+		if (!Succeeded(result))
 		{
 			std::wcerr << L"Error while creating \"Level\" IDevice_event!\n";
 			logger.error(L"Error while creating \"Level\" IDevice_event!");
@@ -111,7 +111,7 @@ HRESULT MaskingFilterUnitTester::bitmaskMappingTest(std::string &bitmask)
 		result = testedFilter->Execute(event);
 		logger.info(L"Executing \"Level\" event...");
 
-		if (SUCCEEDED(result)){
+		if (Succeeded(result)){
 			if (i == '0') {
 				if (raw_event->event_code != scgms::NDevice_Event_Code::Masked_Level)
 				{
@@ -182,7 +182,7 @@ HRESULT MaskingFilterUnitTester::infoEventMaskingTest()
 	result = testedFilter->Configure(begin[0], errors.get());
 	logger.info(L"Configuring filter...");
 
-	if (FAILED(result))
+	if (!Succeeded(result))
 	{
 		logger.error(L"Failed to configure filter!");
 		shutDownTest();
@@ -196,7 +196,7 @@ HRESULT MaskingFilterUnitTester::infoEventMaskingTest()
 
 		auto creator = scgmsLibrary->Resolve<scgms::TCreate_Device_Event>("create_device_event");
 		result = creator(scgms::NDevice_Event_Code::Information, &event);
-		if (FAILED(result))
+		if (!Succeeded(result))
 		{
 			std::wcerr << L"Error while creating \"Info\" IDevice_event!\n";
 			logger.error(L"Error while creating \"Info\" IDevice_event!");
@@ -210,7 +210,7 @@ HRESULT MaskingFilterUnitTester::infoEventMaskingTest()
 		result = testedFilter->Execute(event);
 		logger.info(L"Executing \"Info\" event...");
 
-		if (SUCCEEDED(result))
+		if (Succeeded(result))
 		{
 			if (raw_event->event_code != scgms::NDevice_Event_Code::Information)
 			{

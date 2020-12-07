@@ -1,0 +1,1 @@
+tento config by mel vytvorit log, ktery je shodny se vstupnim - nijak ho nemodifikuje!

@@ -17,7 +17,7 @@ private:
     void printOneLine(const std::vector<std::string>& line);
 public:
     Logger& logger = Logger::GetInstance();
-    explicit RegressionTester(const std::wstring& config_filepath);
+    explicit RegressionTester(std::wstring  config_filepath);
     HRESULT compareLogs(const std::string& referenceLog);
 };
 #endif //SMARTTESTER_UNITTESTER_H

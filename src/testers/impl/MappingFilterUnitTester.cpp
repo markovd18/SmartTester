@@ -71,12 +71,12 @@ HRESULT MappingFilterUnitTester::levelEventMappingTest()
 {
 	HRESULT result = configureFilterCorrectly();
 
-	if (SUCCEEDED(result)) {	
+	if (Succeeded(result)) {
 		scgms::IDevice_Event* event;
 
 		auto creator = scgmsLibrary->Resolve<scgms::TCreate_Device_Event>("create_device_event");
 		result = creator(scgms::NDevice_Event_Code::Level, &event);
-		if (FAILED(result))
+		if (!Succeeded(result))
 		{
 			std::wcerr << L"Error while creating \"Level\" IDevice_event!\n";
 			logger.error(L"Error while creating \"Level\" IDevice_event!");
@@ -92,7 +92,7 @@ HRESULT MappingFilterUnitTester::levelEventMappingTest()
 		logger.info(L"Executing \"Level\" event...");
 
 		GUID dst_id = testFilter->getRecievedEvent()->signal_id;
-		if (SUCCEEDED(result) && (dst_id == SIGNAL_DST_ID_GUID))
+		if (Succeeded(result) && (dst_id == SIGNAL_DST_ID_GUID))
 		{
 			if ((src_event.device_time == raw_event->device_time)
 				&& (src_event.device_id == raw_event->device_id)
@@ -138,12 +138,12 @@ HRESULT MappingFilterUnitTester::infoEventMappingTest()
 {
 	HRESULT result = configureFilterCorrectly();
 
-	if (SUCCEEDED(result)) {
+	if (Succeeded(result)) {
 		scgms::IDevice_Event* event;
 
 		auto creator = scgmsLibrary->Resolve<scgms::TCreate_Device_Event>("create_device_event");
 		result = creator(scgms::NDevice_Event_Code::Information, &event);
-		if (FAILED(result))
+		if (!Succeeded(result))
 		{
 			std::wcerr << L"Error while creating \"Info\" IDevice_event!\n";
 			logger.error(L"Error while creating \"Info\" IDevice_event!");
@@ -160,7 +160,7 @@ HRESULT MappingFilterUnitTester::infoEventMappingTest()
 		logger.info(L"Executing \"Info\" event...");
 
 		GUID dst_id = testFilter->getRecievedEvent()->signal_id;
-		if (SUCCEEDED(result) && (dst_id == SIGNAL_DST_ID_GUID))
+		if (Succeeded(result) && (dst_id == SIGNAL_DST_ID_GUID))
 		{
 			if ((src_event.device_time == raw_event->device_time)
 				&& (src_event.device_id == raw_event->device_id)
@@ -206,12 +206,12 @@ HRESULT MappingFilterUnitTester::parametersEventMappingTest()
 {
 	HRESULT result = configureFilterCorrectly();
 
-	if (SUCCEEDED(result)) {
+	if (Succeeded(result)) {
 		scgms::IDevice_Event* event;
 
 		auto creator = scgmsLibrary->Resolve<scgms::TCreate_Device_Event>("create_device_event");
 		result = creator(scgms::NDevice_Event_Code::Parameters, &event);
-		if (FAILED(result))
+		if (!Succeeded(result))
 		{
 			std::wcerr << L"Error while creating \"Parameters\" IDevice_event!\n";
 			logger.error(L"Error while creating \"Parameters\" IDevice_event!");
@@ -227,7 +227,7 @@ HRESULT MappingFilterUnitTester::parametersEventMappingTest()
 		logger.info(L"Executing \"Parameters\" event...");
 
 		GUID dst_id = testFilter->getRecievedEvent()->signal_id;
-		if (SUCCEEDED(result) && (dst_id == SIGNAL_DST_ID_GUID))
+		if (Succeeded(result) && (dst_id == SIGNAL_DST_ID_GUID))
 		{
 			if ((src_event.device_time == raw_event->device_time)
 				&& (src_event.device_id == raw_event->device_id)

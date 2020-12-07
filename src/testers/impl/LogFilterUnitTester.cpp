@@ -63,7 +63,7 @@ HRESULT LogFilterUnitTester::logFileGenerationTest()
 	result = testedFilter->Configure(begin[0], errors.get());
 	logger.info(L"Configuring filter...");
 
-	if (SUCCEEDED(result)) {
+	if (Succeeded(result)) {
 		scgms::SFilter_Executor filterExecutor = { configuration.get(), nullptr, nullptr, errors };
 		if (!filterExecutor)
 		{
@@ -72,7 +72,7 @@ HRESULT LogFilterUnitTester::logFileGenerationTest()
 			result = E_FAIL;
 		}
 		else {
-			filterExecutor->Terminate();
+			filterExecutor->Terminate(false);
 			std::ifstream file(LOG_FILE_GENERATION_TEST_LOG);
 			if (file.good())
 			{

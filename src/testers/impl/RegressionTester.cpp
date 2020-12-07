@@ -11,6 +11,7 @@
 #include <iostream>
 #include <string>
 #include <cstdlib>
+#include <utility>
 #include <vector>
 #include <algorithm>
 #include <csignal>
@@ -27,19 +28,17 @@ void RegressionTester::printAndEmptyErrors(const refcnt::Swstr_list& errors) {
     }
 }
 
-RegressionTester::RegressionTester(const std::wstring& config_filepath) {
-    this->config_filepath = config_filepath;
-    this->resultLog = Narrow_WChar(LOG_FILE);
-	this->loadConfig();
+RegressionTester::RegressionTester(std::wstring config_filepath) : config_filepath(std::move(config_filepath)),
+                                                            resultLog(Narrow_WChar(LOG_FILE)){
+	loadConfig();
 }
 
 std::vector<std::vector<std::string>> RegressionTester::readLogFile(const std::string& logPath) {
     std::string line;
     std::string divideBy = ";";
     
-    std::ifstream myfile;
-    myfile.open(logPath.c_str());
-    if (!myfile.is_open())
+    std::ifstream logFile(logPath);
+    if (!logFile)
     {
         std::wcerr << "Couldn't open the file \"" << Widen_Char(logPath.c_str()) << "\"\n";
         logger.error(L"Couldn't open the file \"" + Widen_Char(logPath.c_str()) + L"\"");
@@ -48,7 +47,7 @@ std::vector<std::vector<std::string>> RegressionTester::readLogFile(const std::s
 
     std::vector<std::vector<std::string>> logArr;
 
-    while (getline(myfile, line)) {
+    while (getline(logFile, line)) {
         std::string token;
         size_t pos = 0;
         std::vector<std::string> tmpVec;
@@ -98,8 +97,7 @@ bool RegressionTester::compareLines(std::vector<std::string> resultLogLine, std:
 
 HRESULT RegressionTester::compareLogs(const std::string& referenceLog) {
 
-    if (config_filepath.empty())
-    {
+    if (config_filepath.empty()) {
         std::wcerr << L"Can't compare logs without configuration!\n";
         logger.error(L"Can't compare logs without configuration!");
         return E_FAIL;
@@ -197,6 +195,11 @@ void MainCalling sighandler(int signo) {
 
 void MainCalling RegressionTester::loadConfig() {
 
+    if (config_filepath.empty()) {
+        logger.error(L"Cannot load configuration from empty path!");
+        return;
+    }
+
     signal(SIGINT, sighandler);
 
 	scgms::SPersistent_Filter_Chain_Configuration configuration;
@@ -207,9 +210,11 @@ void MainCalling RegressionTester::loadConfig() {
 	HRESULT rc = configuration ? S_OK : E_FAIL;
 	if (rc == S_OK) configuration->Load_From_File(this->config_filepath.c_str(), errors.get());
 
-	if (!SUCCEEDED(rc)) {
+	printAndEmptyErrors(errors);
+
+	if (!Succeeded(rc)) {
 		std::wcerr << L"Cannot load the configuration file " << this->config_filepath << std::endl << L"Error code: " << rc << std::endl;
-        exit(E_FAIL);
+        exit(EXIT_FAILURE);
 	}
 
 	if (rc == S_FALSE) {
@@ -230,7 +235,7 @@ void MainCalling RegressionTester::loadConfig() {
 
 	
 	// wait for filters to finish, or user to close the app
-	gFilter_Executor->Wait_For_Shutdown_and_Terminate();
+	gFilter_Executor->Terminate(true);
 }
 
 void RegressionTester::printOneLine(const std::vector<std::string>& line)
