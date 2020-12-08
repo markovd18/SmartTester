@@ -8,19 +8,19 @@
 
 GuidTesterMapper::GuidTesterMapper() {
 	//inserting LogFilterUnitTester factory
-	guidTesterMap[LOG_GUID] = std::bind<GenericUnitTester*>(&GuidTesterMapper::createInstance<LogFilterUnitTester>, this,
+	guidTesterMap[st::LOG_GUID] = std::bind<GenericUnitTester*>(&GuidTesterMapper::createInstance<LogFilterUnitTester>, this,
 		std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
 
 	//inserting DrawingFilterUnitTester factory
-	guidTesterMap[DRAWING_GUID] = std::bind<GenericUnitTester*>(&GuidTesterMapper::createInstance<DrawingFilterUnitTester>, this,
+	guidTesterMap[st::DRAWING_GUID] = std::bind<GenericUnitTester*>(&GuidTesterMapper::createInstance<DrawingFilterUnitTester>, this,
 		std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
 
 	//inserting MappingFilterUnitTester factory
-	guidTesterMap[MAPPING_GUID] = std::bind<GenericUnitTester*>(&GuidTesterMapper::createInstance<MappingFilterUnitTester>, this,
+	guidTesterMap[st::MAPPING_GUID] = std::bind<GenericUnitTester*>(&GuidTesterMapper::createInstance<MappingFilterUnitTester>, this,
 		std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
 
 	//inserting MaskingFilterUnitTester factory
-	guidTesterMap[MASKING_GUID] = std::bind<GenericUnitTester*>(&GuidTesterMapper::createInstance<MaskingFilterUnitTester>, this,
+	guidTesterMap[st::MASKING_GUID] = std::bind<GenericUnitTester*>(&GuidTesterMapper::createInstance<MaskingFilterUnitTester>, this,
 		std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
 }
 

@@ -64,9 +64,9 @@ void GenericUnitTester::loadFilter() {
 
     const wchar_t* file_name = GuidFileMapper::GetInstance().getFileName(*(this->tested_guid));
     std::wstring file = file_name;
-    file.append(LIB_EXTENSION);
+    file.append(st::LIB_EXTENSION);
 
-    filterLibrary->Load(file.c_str());
+    filterLibrary->Load(file);
 
 
     if (!filterLibrary->Is_Loaded()) {
@@ -97,8 +97,8 @@ void GenericUnitTester::loadScgmsLibrary() {
     logger.debug(L"Loading dynamic library scgms...");
     auto *scgms = new CDynamic_Library;
 
-    std::wstring file = SCGMS_LIB;
-    file.append(LIB_EXTENSION);
+    std::wstring file = st::SCGMS_LIB;
+    file.append(st::LIB_EXTENSION);
 
     scgms->Load(file.c_str());
     if (!scgms->Is_Loaded())
@@ -230,7 +230,7 @@ HRESULT GenericUnitTester::runTestInThread(const std::function<HRESULT(void)>& t
 
         std::thread thread(&GenericUnitTester::runTest, this, test);
 
-        status = testCv.wait_for(lock, std::chrono::milliseconds(MAX_EXEC_TIME));
+        status = testCv.wait_for(lock, std::chrono::milliseconds(st::MAX_EXEC_TIME));
         lock.unlock();
 
         if (status == std::cv_status::timeout) {
@@ -274,7 +274,7 @@ HRESULT GenericUnitTester::runConfigTestInThread(const std::string& configuratio
 
         std::thread thread(&GenericUnitTester::runConfigTest, this, configuration, expectedResult);
 
-        status = testCv.wait_for(lock, std::chrono::milliseconds(MAX_EXEC_TIME));
+        status = testCv.wait_for(lock, std::chrono::milliseconds(st::MAX_EXEC_TIME));
         lock.unlock();
 
         if (status == std::cv_status::timeout) {

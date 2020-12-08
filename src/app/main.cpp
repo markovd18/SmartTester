@@ -66,7 +66,7 @@ GUID parse_guid(std::string guid_string) {
                     break;
                 default:
                     std::wcerr << L"Invalid format of GUID passed!\n"
-                        << "Expected format: " << GUID_FORMAT << "\n";
+                        << "Expected format: " << st::GUID_FORMAT << "\n";
                     Logger::GetInstance().error(L"Invalid format of GUID passed!");
                     exit(2);
                 }
@@ -83,7 +83,7 @@ GUID parse_guid(std::string guid_string) {
         }
         catch (std::exception&) {
             std::wcerr << L"Invalid format of GUID passed!\n"
-                << L"Expected format: " << GUID_FORMAT << "\n";
+                << L"Expected format: " << st::GUID_FORMAT << "\n";
             Logger::GetInstance().error(L"Invalid format of GUID passed!");
             exit(2);
         }
@@ -131,20 +131,20 @@ int execute_regression_testing(std::wstring& config_filepath) {
     RegressionTester regTester = RegressionTester(config_filepath);
     std::string log_filepath = Narrow_WString(config_filepath);
 
-    log_filepath.erase(log_filepath.size() - Narrow_WChar(CONFIG_FILE).size());
-    log_filepath += Narrow_WChar(LOG_FILE);
+    log_filepath.erase(log_filepath.size() - Narrow_WChar(st::CONFIG_FILE).size());
+    log_filepath += Narrow_WChar(st::LOG_FILE);
 
     auto result = regTester.compareLogs(log_filepath);
 
-    std::filesystem::create_directory(TMP_DIR);
-    std::ifstream file(Narrow_WChar(TMP_LOG_FILE));
+    std::filesystem::create_directory(st::TMP_DIR);
+    std::ifstream file(Narrow_WChar(st::TMP_LOG_FILE));
     if (file.good())
     {
         file.close();
-        std::remove(Narrow_WChar(TMP_LOG_FILE).c_str());
+        std::remove(Narrow_WChar(st::TMP_LOG_FILE).c_str());
     }
     file.close();
-    std::rename(Narrow_WChar(LOG_FILE).c_str(), Narrow_WChar(TMP_LOG_FILE).c_str());
+    std::rename(Narrow_WChar(st::LOG_FILE).c_str(), Narrow_WChar(st::TMP_LOG_FILE).c_str());
 
     Logger::GetInstance().info(L"Shutting down.");
     std::wcerr << L"For detailed information see generated log.\n";

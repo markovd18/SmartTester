@@ -29,7 +29,7 @@ void RegressionTester::printAndEmptyErrors(const refcnt::Swstr_list& errors) {
 }
 
 RegressionTester::RegressionTester(std::wstring config_filepath) : config_filepath(std::move(config_filepath)),
-                                                            resultLog(Narrow_WChar(LOG_FILE)){
+                                                            resultLog(Narrow_WChar(st::LOG_FILE)){
 	loadConfig();
 }
 
@@ -62,9 +62,9 @@ std::vector<std::vector<std::string>> RegressionTester::readLogFile(const std::s
 }
 
 bool RegressionTester::compareLines(std::vector<std::string> resultLogLine, std::vector<std::string> referenceLogLine) {
-    for (size_t i = firstComparedIndex; i < referenceLogLine.size(); i++) {
+    for (size_t i = st::firstComparedIndex; i < referenceLogLine.size(); i++) {
 
-        if ((i >= firstNumberValueIndex) && (i <= lastNumberValueIndex))
+        if ((i >= st::firstNumberValueIndex) && (i <= st::lastNumberValueIndex))
         {
             std::string expectedField = referenceLogLine.at(i);
             std::string actualField = resultLogLine.at(i);
@@ -197,7 +197,7 @@ void MainCalling RegressionTester::loadConfig() {
 
     if (config_filepath.empty()) {
         logger.error(L"Cannot load configuration from empty path!");
-        return;
+        throw std::invalid_argument("Cannot load configuration from empty path!");
     }
 
     signal(SIGINT, sighandler);
@@ -207,18 +207,22 @@ void MainCalling RegressionTester::loadConfig() {
 	refcnt::Swstr_list errors;
 
 
-	HRESULT rc = configuration ? S_OK : E_FAIL;
-	if (rc == S_OK) configuration->Load_From_File(this->config_filepath.c_str(), errors.get());
+    HRESULT rc = configuration ? S_OK : E_FAIL;
+    if (rc == E_FAIL) {
+        throw std::runtime_error("Error creating configuration instance");
+    }
 
-	printAndEmptyErrors(errors);
+    configuration->Load_From_File(this->config_filepath.c_str(), errors.get());
+    errors.for_each([](auto str) { std::wcerr << str << std::endl; });
 
 	if (!Succeeded(rc)) {
-		std::wcerr << L"Cannot load the configuration file " << this->config_filepath << std::endl << L"Error code: " << rc << std::endl;
-        exit(EXIT_FAILURE);
+		std::wcerr << L"Cannot load the configuration file " << this->config_filepath << std::endl << std::endl;
+        throw std::ios_base::failure("Cannot load the configuration file");
 	}
 
 	if (rc == S_FALSE) {
 		std::wcerr << L"Warning: some filters were not loaded!" << std::endl;
+		logger.warn(L"Warning: some filters were not loaded!");
         printAndEmptyErrors(errors);
 	}
 
@@ -229,8 +233,7 @@ void MainCalling RegressionTester::loadConfig() {
 	if (!gFilter_Executor)
 	{
 		std::wcerr << L"Could not execute the filters!" << std::endl;
-        printAndEmptyErrors(errors);
-        exit(EXIT_FAILURE);
+        throw std::runtime_error("Could not execute the filters!");
 	}
 
 	

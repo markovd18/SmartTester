@@ -59,10 +59,10 @@ add_executable (SmartTester ${APP} ${MAPPERS} ${TESTERS} ${UTILS})
 target_link_libraries(SmartTester PUBLIC Dynamic_Library referencedImpl FilterLib scgmsLib DeviceLib string_utils winapi_mapping HRESULT)
 
 IF(WIN32)
-    set_target_properties( SmartTester PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/windows_64 )
+    set_target_properties( SmartTester PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/windows_64/x86_64 )
 ELSEIF(APPLE)
-    set_target_properties( SmartTester PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/macos_64 )
+    set_target_properties( SmartTester PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/macos_64/x86_64 )
 ELSE()
-    set_target_properties( SmartTester PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/debian_64 )
+    set_target_properties( SmartTester PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/debian_64/x86_64 )
 ENDIF()
 

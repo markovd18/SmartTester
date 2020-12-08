@@ -15,8 +15,8 @@
 #endif
 
 Logger::Logger() {
-	fs::create_directory("../logs");
-	stream.open("../logs/" + fileNameByDate() + ".log", std::ios::app);
+	fs::create_directory("../../logs");
+	stream.open("../../logs/" + fileNameByDate() + ".log", std::ios::app);
 }
 
 std::string Logger::fileNameByDate() {
