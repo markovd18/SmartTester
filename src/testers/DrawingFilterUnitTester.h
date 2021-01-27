@@ -1,3 +1,7 @@
+//
+// Author: markovd@students.zcu.cz
+//
+
 #pragma once
 
 #ifndef _DRAWING_FILTER_UNIT_TESTER_H_
@@ -13,7 +17,7 @@ class DrawingFilterUnitTester : public GenericUnitTester {
 public:
     static const std::string FILTER_CONFIG;
 
-	DrawingFilterUnitTester(CDynamic_Library* library, TestFilter* testFilter, const GUID* guid);
+	DrawingFilterUnitTester(const GUID& guid);
 	void executeSpecificTests() override;
 };
 #endif // !_DRAWING_FILTER_UNIT_TESTER_H_

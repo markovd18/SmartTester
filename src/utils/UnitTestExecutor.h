@@ -1,5 +1,5 @@
 //
-// Created by David on 11.04.2020.
+// Author: markovd@students.zcu.cz
 //
 
 #ifndef SMARTTESTER_UNITTESTER_H
@@ -15,12 +15,19 @@
 class UnitTestExecutor {
 
 public:
-	Logger& logger = Logger::GetInstance();
-	UnitTestExecutor();
+	UnitTestExecutor() = default;
+	/**
+	 * Executes all defined unit tests upon a filter with given GUID.
+	 * @param guid guid of a filter that is to be dested
+	 */
 	void executeFilterTests(const GUID &guid);
+	/**
+	 * Executes all defined unit tests across all filters.
+	 */
 	void executeAllTests();
 
 private:
+	/// Helper method for retrieving a unit tester instance based on given filter GUID.
 	GenericUnitTester* getUnitTester(const GUID& guid);
 };
 

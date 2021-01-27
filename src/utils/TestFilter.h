@@ -1,5 +1,5 @@
 //
-// Created by David on 31.03.2020.
+// Author: markovd@students.zcu.cz
 //
 
 #ifndef SMARTTESTER_TESTFILTER_H
@@ -8,15 +8,21 @@
 #include <iface/FilterIface.h>
 #include <rtl/referencedImpl.h>
 
+/**
+ * Class representing our custom test filter. This filter is appended to the tested filter and it's only function
+ * is to "catch" executed event and store it in attribute, so we can check it in the test function later.
+ */
 class TestFilter : public virtual scgms::IFilter, public virtual refcnt::CNotReferenced {
 
     using IFilter_Configuration = refcnt::IVector_Container<scgms::IFilter_Parameter*>;
 private:
-    scgms::TDevice_Event* recievedEvent;
+    /// Event that the filter we are appended to executed
+    scgms::TDevice_Event* m_receivedEvent;
 public:
-    explicit TestFilter();
-    ~TestFilter() override;
+    TestFilter();
+    ~TestFilter() override = default;
 
+    /// Returns a pointer to the event we got from the tested filter.
     scgms::TDevice_Event* getRecievedEvent();
 
     HRESULT IfaceCalling Execute(scgms::IDevice_Event *event) final;

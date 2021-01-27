@@ -16,7 +16,6 @@ private:
     void printAndEmptyErrors(const refcnt::Swstr_list& errors);
     void printOneLine(const std::vector<std::string>& line);
 public:
-    Logger& logger = Logger::GetInstance();
     explicit RegressionTester(std::wstring  config_filepath);
     HRESULT compareLogs(const std::string& referenceLog);
 };

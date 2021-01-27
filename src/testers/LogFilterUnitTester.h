@@ -14,7 +14,7 @@ public:
     static const std::string LOG_FILE_GENERATION_TEST_LOG;
     static const std::string CORRECT_LOG_FILE_NAME_TEST_LOG;
 
-	LogFilterUnitTester(CDynamic_Library* library, TestFilter* testFilter,const GUID* guid);
+	LogFilterUnitTester(const GUID& guid);
 	void executeSpecificTests() override;
 	HRESULT logFileGenerationTest();
 };

@@ -22,7 +22,7 @@ void RegressionTester::printAndEmptyErrors(const refcnt::Swstr_list& errors) {
         std::wcerr << "Error description: " << std::endl;
         while (errors->pop(&wstr) == S_OK) {
             std::wcerr << refcnt::WChar_Container_To_WString(wstr) << std::endl;
-            logger.error(refcnt::WChar_Container_To_WString(wstr));
+            Logger::getInstance().error(refcnt::WChar_Container_To_WString(wstr));
             wstr->Release();
         }
     }
@@ -41,7 +41,7 @@ std::vector<std::vector<std::string>> RegressionTester::readLogFile(const std::s
     if (!logFile)
     {
         std::wcerr << "Couldn't open the file \"" << Widen_Char(logPath.c_str()) << "\"\n";
-        logger.error(L"Couldn't open the file \"" + Widen_Char(logPath.c_str()) + L"\"");
+        Logger::getInstance().error(L"Couldn't open the file \"" + Widen_Char(logPath.c_str()) + L"\"");
         exit(EXIT_FAILURE);
     }
 
@@ -99,7 +99,7 @@ HRESULT RegressionTester::compareLogs(const std::string& referenceLog) {
 
     if (config_filepath.empty()) {
         std::wcerr << L"Can't compare logs without configuration!\n";
-        logger.error(L"Can't compare logs without configuration!");
+        Logger::getInstance().error(L"Can't compare logs without configuration!");
         return E_FAIL;
     }
 
@@ -125,7 +125,7 @@ HRESULT RegressionTester::compareLogs(const std::string& referenceLog) {
     if (resultLogLinesVector[0].size() != referenceLogLinesVector[0].size()) {
         // different number of parametes in line is not correct
         std::wcerr << L"There is different number of parameters in first line!\n";
-        logger.error(L"There is different number of parameters in first line!");
+        Logger::getInstance().error(L"There is different number of parameters in first line!");
         return E_FAIL;
     }
 
@@ -155,25 +155,23 @@ HRESULT RegressionTester::compareLogs(const std::string& referenceLog) {
 
     if (logsAreEqual) {
         std::wcout << "Test result is OK!\n";
-        logger.info(L"Test result is OK!");
-        if (resultLogLinesVector.size() > 1)
-        {
-            logger.info(L"There were reduntant lines found:");
+        Logger::getInstance().info(L"Test result is OK!");
+        if (resultLogLinesVector.size() > 1) {
+            Logger::getInstance().info(L"There were reduntant lines found:");
             std::wcout << L"There were redundant lines found!\n";
             resultLogLinesVector.erase(resultLogLinesVector.begin());
             printLines(resultLogLinesVector);
         }
 
         return S_OK;
-    }
-    else {
-        logger.error(L"Test failed!");
-        logger.error(L"First mismatch:");
-        logger.error(L"Expected line:");
+    } else {
+        Logger::getInstance().error(L"Test failed!");
+        Logger::getInstance().error(L"First mismatch:");
+        Logger::getInstance().error(L"Expected line:");
         printOneLine(expectedLine);
-        logger.error(L"Actual line:");
+        Logger::getInstance().error(L"Actual line:");
         printOneLine(mismatchLine);
-        logger.error(L"Lines that were not found:");
+        Logger::getInstance().error(L"Lines that were not found:");
         printLines(missingLines);
 
         std::wcout << L"There were lines missing in log file!\n";
@@ -196,7 +194,7 @@ void MainCalling sighandler(int signo) {
 void MainCalling RegressionTester::loadConfig() {
 
     if (config_filepath.empty()) {
-        logger.error(L"Cannot load configuration from empty path!");
+        Logger::getInstance().error(L"Cannot load configuration from empty path!");
         throw std::invalid_argument("Cannot load configuration from empty path!");
     }
 
@@ -222,7 +220,7 @@ void MainCalling RegressionTester::loadConfig() {
 
 	if (rc == S_FALSE) {
 		std::wcerr << L"Warning: some filters were not loaded!" << std::endl;
-		logger.warn(L"Warning: some filters were not loaded!");
+		Logger::getInstance().warn(L"Warning: some filters were not loaded!");
         printAndEmptyErrors(errors);
 	}
 
@@ -248,7 +246,7 @@ void RegressionTester::printOneLine(const std::vector<std::string>& line)
     {
         printedLine.append(i + "; ");
     }
-    logger.error(Widen_Char(printedLine.c_str()));
+    Logger::getInstance().error(Widen_Char(printedLine.c_str()));
 }
 
 void RegressionTester::printLines(const std::vector<std::vector<std::string>>& errorResult)
@@ -258,7 +256,7 @@ void RegressionTester::printLines(const std::vector<std::vector<std::string>>& e
         for (auto & x : y) {
             line += x + "; ";
         }
-        logger.trace(Widen_Char(line.c_str()));
+        Logger::getInstance().info(Widen_Char(line.c_str()));
     }
 }
 
