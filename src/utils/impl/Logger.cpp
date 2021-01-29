@@ -4,7 +4,14 @@
 
 #include <fstream>
 #include <ctime>
+
+#if __has_include(<filesystem>)
+
 #include <filesystem>
+#else
+#include <experimental/filesystem>
+#endif
+
 #include <string>
 #include <utils/string_utils.h>
 #include "../Logger.h"
