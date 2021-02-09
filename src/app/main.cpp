@@ -105,11 +105,9 @@ void execute_unit_testing(std::string& guid_string) {
 
     UnitTestExecutor executor;
     
-    if (Is_Invalid_GUID(guid))  //invalid means 00000000-0000-0000-0000-000000000000, which will only be, if no guid is given
-    {                           //if guid was invalid in a sense that given guid doesn't belong to any filter, the app will end later on
+    if (Is_Invalid_GUID(guid)) {
         executor.executeAllTests();
-    }
-    else {
+    } else {
         executor.executeFilterTests(guid);
     }
 
@@ -121,25 +119,29 @@ void execute_unit_testing(std::string& guid_string) {
  * @param config_filepath path to configuration file
  * @return result of regression testing
  */
-int execute_regression_testing(std::wstring& config_filepath) {
-    if (config_filepath.empty())
-    {
+HRESULT execute_regression_testing(const std::wstring& config_filepath) {
+    if (config_filepath.empty()) {
         std::wcerr << L"Inserted empty file path!\n";
         return 1;
     }
 
-    RegressionTester regTester = RegressionTester(config_filepath);
-    std::string log_filepath = Narrow_WString(config_filepath);
+    HRESULT result;
+    try {
+        RegressionTester regTester(config_filepath);
+        std::string log_filepath = Narrow_WString(config_filepath);
 
-    log_filepath.erase(log_filepath.size() - Narrow_WChar(st::CONFIG_FILE).size());
-    log_filepath += Narrow_WChar(st::LOG_FILE);
+        log_filepath.erase(log_filepath.size() - Narrow_WChar(st::CONFIG_FILE).size());
+        log_filepath += Narrow_WChar(st::LOG_FILE);
 
-    auto result = regTester.compareLogs(log_filepath);
+        result = regTester.compareLogs(log_filepath);
+    } catch (const std::exception& ex) {
+        std::wcerr << L"Error while executing configuration!\n" << ex.what() << std::endl;
+        return E_FAIL;
+    }
 
     std::filesystem::create_directory(st::TMP_DIR);
     std::ifstream file(Narrow_WChar(st::TMP_LOG_FILE));
-    if (file.good())
-    {
+    if (file.good()) {
         file.close();
         std::remove(Narrow_WChar(st::TMP_LOG_FILE).c_str());
     }
@@ -152,7 +154,7 @@ int execute_regression_testing(std::wstring& config_filepath) {
 }
 
 /**
-    Entry point of application.
+    Entry point of the application.
 */
 int main(int argc, char* argv[]) {
     Logger::getInstance().info(L"Starting SmartTester application...");
