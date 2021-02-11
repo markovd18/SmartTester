@@ -35,10 +35,10 @@ namespace st {
 
 #ifdef _WIN32
     constexpr wchar_t* LIB_EXTENSION = L".dll";
-constexpr wchar_t* SCGMS_LIB = L"scgms";
-constexpr wchar_t* LOG_LIBRARY = L"filters/log";
-constexpr wchar_t* DRAWING_LIBRARY = L"filters/drawing";
-constexpr wchar_t* SIGNAL_LIBRARY = L"filters/signal";
+    constexpr wchar_t* SCGMS_LIB = L"scgms";
+    constexpr wchar_t* LOG_LIBRARY = L"filters/log";
+    constexpr wchar_t* DRAWING_LIBRARY = L"filters/drawing";
+    constexpr wchar_t* SIGNAL_LIBRARY = L"filters/signal";
 
 #else
 
@@ -53,7 +53,9 @@ constexpr wchar_t* SIGNAL_LIBRARY = L"filters/signal";
     static const wchar_t* DRAWING_LIBRARY = L"./filters/libdrawing";
     static const wchar_t* SIGNAL_LIBRARY = L"./filters/libsignal";
 
-}
+
 
 #endif //_WIN32
 #endif //_CONSTANTS_H_
+
+}
