@@ -3,10 +3,10 @@
 #include "../../utils/constants.h"
 
 GuidFileMapper::GuidFileMapper() {
-	guidFileMap.insert(std::pair<GUID, const wchar_t*>(st::LOG_GUID, st::LOG_LIBRARY));
-	guidFileMap.insert(std::pair<GUID, const wchar_t*>(st::DRAWING_GUID, st::DRAWING_LIBRARY));
-	guidFileMap.insert(std::pair<GUID, const wchar_t*>(st::MAPPING_GUID, st::SIGNAL_LIBRARY));
-	guidFileMap.insert(std::pair<GUID, const wchar_t*>(st::MASKING_GUID, st::SIGNAL_LIBRARY));
+	guidFileMap.insert(std::pair<GUID, const wchar_t*>(cnst::LOG_GUID, cnst::LOG_LIBRARY));
+	guidFileMap.insert(std::pair<GUID, const wchar_t*>(cnst::DRAWING_GUID, cnst::DRAWING_LIBRARY));
+	guidFileMap.insert(std::pair<GUID, const wchar_t*>(cnst::MAPPING_GUID, cnst::SIGNAL_LIBRARY));
+	guidFileMap.insert(std::pair<GUID, const wchar_t*>(cnst::MASKING_GUID, cnst::SIGNAL_LIBRARY));
 }
 
 /**

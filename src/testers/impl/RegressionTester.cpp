@@ -1,8 +1,6 @@
 //
 // Created by Martin on 22.4.2020.
 //
-#include "../RegressionTester.h"
-#include "../../utils/constants.h"
 #include <iface/DeviceIface.h>
 #include <rtl/FilterLib.h>
 #include <rtl/referencedImpl.h>
@@ -10,34 +8,38 @@
 #include <utils/string_utils.h>
 #include <iostream>
 #include <string>
-#include <cstdlib>
 #include <utility>
 #include <vector>
 #include <algorithm>
+#include <rtl/scgmsLib.h>
+#include "../RegressionTester.h"
+#include "../../utils/constants.h"
+#include "../../utils/LogUtils.h"
 
-RegressionTester::RegressionTester(std::wstring config_filepath) : config_filepath(std::move(config_filepath)),
-                                                                   resultLog(Narrow_WChar(st::LOG_FILE)){
+tester::RegressionTester::RegressionTester(std::wstring config_filepath) : config_filepath(std::move(config_filepath)),
+                                                                   resultLog(Narrow_WChar(cnst::LOG_FILE)){
     loadConfig();
 }
 
-void MainCalling RegressionTester::loadConfig() {
+void MainCalling tester::RegressionTester::loadConfig() {
 
     if (config_filepath.empty()) {
         Logger::getInstance().error(L"Cannot load configuration from empty path!");
         throw std::invalid_argument("Cannot load configuration from empty path!");
     }
 
-    scgms::SPersistent_Filter_Chain_Configuration configuration;
-
+    scgms::IPersistent_Filter_Chain_Configuration *iconfig;
+    auto configFactory = scgms::factory::resolve_symbol<scgms::TCreate_Persistent_Filter_Chain_Configuration>("create_persistent_filter_chain_configuration");
+    configFactory(&iconfig);
     refcnt::Swstr_list errors;
 
 
-    HRESULT rc = configuration ? S_OK : E_FAIL;
+    HRESULT rc = iconfig ? S_OK : E_FAIL;
     if (rc == E_FAIL) {
         throw std::runtime_error("Error creating configuration instance");
     }
 
-    configuration->Load_From_File(this->config_filepath.c_str(), errors.get());
+    iconfig->Load_From_File(this->config_filepath.c_str(), errors.get());
     errors.for_each([](auto str) { std::wcerr << str << std::endl; });
 
     if (!Succeeded(rc)) {
@@ -48,93 +50,27 @@ void MainCalling RegressionTester::loadConfig() {
     if (rc == S_FALSE) {
         std::wcerr << L"Warning: some filters were not loaded!" << std::endl;
         Logger::getInstance().warn(L"Warning: some filters were not loaded!");
-        printAndEmptyErrors(errors);
+        log::printAndEmptyErrors(errors);
     }
 
-    scgms::SFilter_Executor gFilter_Executor { configuration.get(), nullptr, nullptr, errors };
+    scgms::IFilter_Executor *executor;
+    auto executorFactory = scgms::factory::resolve_symbol<scgms::TExecute_Filter_Configuration>("execute_filter_configuration");
+    executorFactory(iconfig, nullptr, nullptr, nullptr, &executor, errors.get());
+    scgms::SFilter_Executor gFilter_Executor { iconfig, nullptr, nullptr, errors };
 
-    printAndEmptyErrors(errors);
+    log::printAndEmptyErrors(errors);
 
-    if (!gFilter_Executor) {
+    if (!executor) {
         std::wcerr << L"Could not execute the filters!" << std::endl;
         throw std::runtime_error("Could not execute the filters!");
     }
 
 
     // wait for filters to finish, or user to close the app
-    gFilter_Executor->Terminate(true);
+    executor->Terminate(TRUE);
 }
 
-void RegressionTester::printAndEmptyErrors(const refcnt::Swstr_list& errors) {
-    refcnt::wstr_container* wstr;
-    if (errors->empty() != S_OK) {
-        std::wcerr << "Error description: " << std::endl;
-        while (errors->pop(&wstr) == S_OK) {
-            std::wcerr << refcnt::WChar_Container_To_WString(wstr) << std::endl;
-            Logger::getInstance().error(refcnt::WChar_Container_To_WString(wstr));
-            wstr->Release();
-        }
-    }
-}
-
-std::vector<std::vector<std::string>> RegressionTester::readLogFile(const std::string& logPath) {
-    std::string line;
-    std::string delimiter = ";";
-
-    std::ifstream logFile(logPath);
-    if (!logFile) {
-        std::wcerr << "Couldn't open the file \"" << Widen_Char(logPath.c_str()) << "\"\n";
-        Logger::getInstance().error(L"Couldn't open the file \"" + Widen_Char(logPath.c_str()) + L"\"");
-        exit(EXIT_FAILURE);
-    }
-
-    std::vector<std::vector<std::string>> loggedData;
-
-    while (getline(logFile, line)) {
-        std::string token;
-        size_t pos = 0;
-        std::vector<std::string> tmpVec;
-        while ((pos = line.find(delimiter)) != std::string::npos) {
-            tmpVec.push_back(line.substr(0, pos));
-            line.erase(0, pos + delimiter.length() + 1);
-        }
-        loggedData.push_back(tmpVec);
-    }
-
-    return loggedData;
-}
-
-bool RegressionTester::compareLines(const std::vector<std::string>& resultLogLine, const std::vector<std::string>& referenceLogLine) {
-    for (size_t i = st::firstComparedIndex; i < referenceLogLine.size(); i++) {
-
-        if ((i >= st::firstNumberValueIndex) && (i <= st::lastNumberValueIndex)) {
-            std::string expectedField = referenceLogLine.at(i);
-            std::string actualField = resultLogLine.at(i);
-
-            if (expectedField.empty() && actualField.empty()) {
-                continue;
-            } else if (expectedField.empty() || actualField.empty()) {
-                return false;
-            }
-
-            double expected = std::stod(referenceLogLine.at(i));
-            double actual = std::stod(resultLogLine.at(i));
-            double lambda = 0.0001;
-
-            if (abs(expected - actual) > lambda) {
-                return false;
-            }
-        } else {
-            if (referenceLogLine.at(i) != resultLogLine.at(i)) {
-                return false;
-            }
-        }
-    }
-
-    return true;
-}
-
-HRESULT RegressionTester::compareLogs(const std::string& referenceLog) {
+HRESULT tester::RegressionTester::compareLogs(const std::string& referenceLog) {
 
     if (config_filepath.empty()) {
         std::wcerr << L"Can't compare logs without configuration!\n";
@@ -142,13 +78,13 @@ HRESULT RegressionTester::compareLogs(const std::string& referenceLog) {
         return E_FAIL;
     }
 
-    std::vector<std::vector<std::string>> resultLogLinesVector = readLogFile(this->resultLog);
+    std::vector<std::vector<std::string>> resultLogLinesVector = log::readLogFile(this->resultLog);
     std::sort(resultLogLinesVector.begin() + 1, resultLogLinesVector.end(),
         [](const std::vector<std::string>& first, const std::vector<std::string>& second) {
         return std::stoi(first.at(0)) < std::stoi(second.at(0));
         });
 
-    std::vector<std::vector<std::string>> referenceLogLinesVector = readLogFile(referenceLog);
+    std::vector<std::vector<std::string>> referenceLogLinesVector = log::readLogFile(referenceLog);
     std::sort(referenceLogLinesVector.begin() + 1, referenceLogLinesVector.end(),
         [](const std::vector<std::string>& first, const std::vector<std::string>& second) {
         return std::stoi(first.at(0)) < std::stoi(second.at(0));
@@ -170,7 +106,7 @@ HRESULT RegressionTester::compareLogs(const std::string& referenceLog) {
 
     for (size_t i = 1; i < referenceLogLinesVector.size(); i++) {
         for (size_t j = lastComparedLine; j < resultLogLinesVector.size(); j++) {
-            if (compareLines(resultLogLinesVector.at(j), referenceLogLinesVector.at(i))) {
+            if (log::compareLines(resultLogLinesVector.at(j), referenceLogLinesVector.at(i))) {
                 resultLogLinesVector.erase(resultLogLinesVector.begin() + j);
                 lastComparedLine = j;
                 match = true;
@@ -198,7 +134,7 @@ HRESULT RegressionTester::compareLogs(const std::string& referenceLog) {
             Logger::getInstance().info(L"There were reduntant lines found:");
             std::wcout << L"There were redundant lines found!\n";
             resultLogLinesVector.erase(resultLogLinesVector.begin());
-            printLines(resultLogLinesVector);
+            log::infoLogLines(resultLogLinesVector);
         }
 
         return S_OK;
@@ -206,33 +142,15 @@ HRESULT RegressionTester::compareLogs(const std::string& referenceLog) {
         Logger::getInstance().error(L"Test failed!");
         Logger::getInstance().error(L"First mismatch:");
         Logger::getInstance().error(L"Expected line:");
-        printOneLine(expectedLine);
+        log::errorLogLine(expectedLine);
         Logger::getInstance().error(L"Actual line:");
-        printOneLine(mismatchLine);
+        log::errorLogLine(mismatchLine);
         Logger::getInstance().error(L"Lines that were not found:");
-        printLines(missingLines);
+        log::infoLogLines(missingLines);
 
         std::wcout << L"There were lines missing in log file!\n";
         std::wcout << L"Test failed!\n";
         return E_FAIL;
-    }
-}
-
-void RegressionTester::printOneLine(const std::vector<std::string>& line) {
-    std::string printedLine;
-    for (auto & i : line) {
-        printedLine.append(i + "; ");
-    }
-    Logger::getInstance().error(Widen_Char(printedLine.c_str()));
-}
-
-void RegressionTester::printLines(const std::vector<std::vector<std::string>>& errorResult) {
-    for (auto & y : errorResult) {
-        std::string line;
-        for (auto & x : y) {
-            line += x + "; ";
-        }
-        Logger::getInstance().info(Widen_Char(line.c_str()));
     }
 }
 

@@ -7,11 +7,10 @@
 #include "../../testers/MaskingFilterUnitTester.h"
 
 GuidTesterMapper::GuidTesterMapper() {
-
-	m_guidTesterMap[st::LOG_GUID] = new LogFilterUnitTester(st::LOG_GUID);
-	m_guidTesterMap[st::DRAWING_GUID] = new DrawingFilterUnitTester(st::DRAWING_GUID);
-	m_guidTesterMap[st::MAPPING_GUID] = new MappingFilterUnitTester(st::MAPPING_GUID);
-	m_guidTesterMap[st::MASKING_GUID] = new MaskingFilterUnitTester(st::MASKING_GUID);
+	m_guidTesterMap[cnst::LOG_GUID] = new tester::LogFilterUnitTester(cnst::LOG_GUID);
+	m_guidTesterMap[cnst::DRAWING_GUID] = new tester::DrawingFilterUnitTester(cnst::DRAWING_GUID);
+	m_guidTesterMap[cnst::MAPPING_GUID] = new tester::MappingFilterUnitTester(cnst::MAPPING_GUID);
+	m_guidTesterMap[cnst::MASKING_GUID] = new tester::MaskingFilterUnitTester(cnst::MASKING_GUID);
 }
 
 GuidTesterMapper& GuidTesterMapper::GetInstance() {
@@ -19,7 +18,7 @@ GuidTesterMapper& GuidTesterMapper::GetInstance() {
 	return instance;
 }
 
-GenericUnitTester* GuidTesterMapper::getTesterInstance(const GUID& guid) {
+tester::GenericUnitTester* GuidTesterMapper::getTesterInstance(const GUID& guid) {
 	logger.info(L"Getting unit tester instance..");
 	try{
 		return m_guidTesterMap[guid];

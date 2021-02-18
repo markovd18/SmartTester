@@ -5,7 +5,7 @@
 #include <rtl/guid.h>
 #include <rtl/hresult.h>
 
-namespace st {
+namespace cnst {
     //maximum execution time of each test in milliseconds
     constexpr long MAX_EXEC_TIME = 1000;
     //expected name of tested log file

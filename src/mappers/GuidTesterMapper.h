@@ -22,7 +22,7 @@ class GuidTesterMapper {
 
 private:
     /// Mapped derived class instance pointers to their representing GUID
-	std::map<GUID, GenericUnitTester*> m_guidTesterMap;
+	std::map<GUID, tester::GenericUnitTester*> m_guidTesterMap;
     /// Private constructor because of this class being a singleton
 	GuidTesterMapper();
     Logger& logger = Logger::getInstance();
@@ -39,7 +39,7 @@ public:
 	 * @param guid guid of a filter, that we want to test
 	 * @return non-owning pointer to a tester instance
 	 */
-	GenericUnitTester* getTesterInstance(const GUID& guid);
+	tester::GenericUnitTester* getTesterInstance(const GUID& guid);
 	GuidTesterMapper(GuidTesterMapper const&) = delete;
 	void operator=(GuidTesterMapper const&) = delete;
 	/// Since we are storing pointers to testers, we need to delete them in destructor
