@@ -28,18 +28,15 @@ void MainCalling tester::RegressionTester::loadConfig() {
         throw std::invalid_argument("Cannot load configuration from empty path!");
     }
 
-    scgms::IPersistent_Filter_Chain_Configuration *iconfig;
-    auto configFactory = scgms::factory::resolve_symbol<scgms::TCreate_Persistent_Filter_Chain_Configuration>("create_persistent_filter_chain_configuration");
-    configFactory(&iconfig);
     refcnt::Swstr_list errors;
+    scgms::SPersistent_Filter_Chain_Configuration configuration;
 
-
-    HRESULT rc = iconfig ? S_OK : E_FAIL;
+    HRESULT rc = configuration ? S_OK : E_FAIL;
     if (rc == E_FAIL) {
         throw std::runtime_error("Error creating configuration instance");
     }
 
-    iconfig->Load_From_File(this->config_filepath.c_str(), errors.get());
+    configuration->Load_From_File(this->config_filepath.c_str(), errors.get());
     errors.for_each([](auto str) { std::wcerr << str << std::endl; });
 
     if (!Succeeded(rc)) {
@@ -53,10 +50,7 @@ void MainCalling tester::RegressionTester::loadConfig() {
         log::printAndEmptyErrors(errors);
     }
 
-    scgms::IFilter_Executor *executor;
-    auto executorFactory = scgms::factory::resolve_symbol<scgms::TExecute_Filter_Configuration>("execute_filter_configuration");
-    executorFactory(iconfig, nullptr, nullptr, nullptr, &executor, errors.get());
-    scgms::SFilter_Executor gFilter_Executor { iconfig, nullptr, nullptr, errors };
+    scgms::SFilter_Executor executor { configuration.get(), nullptr, nullptr, errors };
 
     log::printAndEmptyErrors(errors);
 
