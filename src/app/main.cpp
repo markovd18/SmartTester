@@ -137,7 +137,7 @@ HRESULT execute_regression_testing(const std::wstring& config_filepath) {
         return E_FAIL;
     }
 
-    std::filesystem::create_directory(cnst::TMP_DIR);
+    filesystem::create_directory(Narrow_WChar(cnst::TMP_DIR));
     std::ifstream file(Narrow_WChar(cnst::TMP_LOG_FILE));
     if (file.good()) {
         file.close();

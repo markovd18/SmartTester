@@ -9,6 +9,9 @@ FIND_PACKAGE(Threads REQUIRED)
 SET(REQUIRED_LIBRARIES ${CMAKE_THREAD_LIBS_INIT})
 
 SET(LINK_STDCPPFS FALSE)
+# setting this macro, so compiler uses external filesystem library
+# used, because of linker issues with stdc++fs on gcc and clang between SmartCGMS and SmartTester binaries
+ADD_DEFINITIONS(-DSTDCPP_FS_DISABLED)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
     SET(LINK_STDCPPFS TRUE)
@@ -40,14 +43,15 @@ LINK_LIBRARIES(${REQUIRED_LIBRARIES})
 SET(SMARTCGMS_COMMON_DIR "../smartcgms/src/common/" CACHE PATH "SmartCGMS 'common' directory location")
 INCLUDE_DIRECTORIES("${SMARTCGMS_COMMON_DIR}")
 
-add_library(Dynamic_Library "${SMARTCGMS_COMMON_DIR}/rtl/Dynamic_Library.cpp")
-add_library(referencedImpl "${SMARTCGMS_COMMON_DIR}/rtl/referencedImpl.cpp")
-add_library(FilterLib "${SMARTCGMS_COMMON_DIR}/rtl/FilterLib.cpp")
-add_library(scgmsLib "${SMARTCGMS_COMMON_DIR}/rtl/scgmsLib.cpp")
-add_library(DeviceLib "${SMARTCGMS_COMMON_DIR}/rtl/DeviceLib.cpp")
-add_library(string_utils "${SMARTCGMS_COMMON_DIR}/utils/string_utils.cpp")
-add_library(winapi_mapping "${SMARTCGMS_COMMON_DIR}/utils/winapi_mapping.c")
-add_library(HRESULT "${SMARTCGMS_COMMON_DIR}/rtl/hresult.c")
+add_library(scgms_common "${SMARTCGMS_COMMON_DIR}/rtl/Dynamic_Library.cpp"
+        "${SMARTCGMS_COMMON_DIR}/rtl/referencedImpl.cpp"
+        "${SMARTCGMS_COMMON_DIR}/rtl/FilterLib.cpp"
+        "${SMARTCGMS_COMMON_DIR}/rtl/scgmsLib.cpp"
+        "${SMARTCGMS_COMMON_DIR}/rtl/DeviceLib.cpp"
+        "${SMARTCGMS_COMMON_DIR}/utils/string_utils.cpp"
+        "${SMARTCGMS_COMMON_DIR}/utils/winapi_mapping.c"
+        "${SMARTCGMS_COMMON_DIR}/rtl/hresult.c"
+        "${SMARTCGMS_COMMON_DIR}/rtl/FilesystemLib.cpp")
 
 
 file(GLOB APP ${PROJECT_SOURCE_DIR}/src/app/*.cpp)
@@ -56,7 +60,7 @@ file(GLOB TESTERS ${PROJECT_SOURCE_DIR}/src/testers/impl/*.cpp ${PROJECT_SOURCE_
 file(GLOB UTILS ${PROJECT_SOURCE_DIR}/src/utils/impl/*.cpp ${PROJECT_SOURCE_DIR}/src/utils/*.h)
 add_executable (SmartTester ${APP} ${MAPPERS} ${TESTERS} ${UTILS})
         
-target_link_libraries(SmartTester PUBLIC Dynamic_Library referencedImpl FilterLib scgmsLib DeviceLib string_utils winapi_mapping HRESULT)
+target_link_libraries(SmartTester PUBLIC scgms_common)
 
 IF(WIN32)
     set_target_properties( SmartTester PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/windows_64/x86_64 )

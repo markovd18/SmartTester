@@ -1,23 +1,17 @@
 //
-// Author: markovd@students.zcu.cz
+// Author: markovd@students.zcu.cz, marstr@students.zcu.cz
 //
 
 #include <fstream>
 #include <ctime>
 
-#if __has_include(<filesystem>)
-
-#include <filesystem>
-#else
-#include <experimental/filesystem>
-#endif
-
+#include <rtl/FilesystemLib.h>
 #include <string>
 #include <utils/string_utils.h>
 #include "../Logger.h"
 
     Logger::Logger() {
-        std::filesystem::create_directory("../../logs");
+        filesystem::create_directory("../../logs");
         m_stream.open("../../logs/" + currentDate() + ".log", std::ios::app);
     }
 

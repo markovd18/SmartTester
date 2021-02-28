@@ -70,8 +70,7 @@ namespace tester {
         file.append(cnst::LIB_EXTENSION);
 
         m_scgmsLibrary.Load(file);
-        if (!m_scgmsLibrary.Is_Loaded())
-        {
+        if (!m_scgmsLibrary.Is_Loaded()) {
             std::wcerr << L"Couldn't load scgms library!\n";
             Logger::getInstance().error(L"Couldn't load scgms library!");
             exit(EXIT_FAILURE);
