@@ -1,13 +1,12 @@
-#pragma once
 
 #include "../GuidFileMapper.h"
 #include "../../utils/constants.h"
 
 GuidFileMapper::GuidFileMapper() {
-	guidFileMap.insert(std::pair<GUID, const wchar_t*>(LOG_GUID, LOG_LIBRARY));
-	guidFileMap.insert(std::pair<GUID, const wchar_t*>(DRAWING_GUID, DRAWING_LIBRARY));
-	guidFileMap.insert(std::pair<GUID, const wchar_t*>(MAPPING_GUID, SIGNAL_LIBRARY));
-	guidFileMap.insert(std::pair<GUID, const wchar_t*>(MASKING_GUID, SIGNAL_LIBRARY));
+	guidFileMap.insert(std::pair<GUID, const wchar_t*>(cnst::LOG_GUID, cnst::LOG_LIBRARY));
+	guidFileMap.insert(std::pair<GUID, const wchar_t*>(cnst::DRAWING_GUID, cnst::DRAWING_LIBRARY));
+	guidFileMap.insert(std::pair<GUID, const wchar_t*>(cnst::MAPPING_GUID, cnst::SIGNAL_LIBRARY));
+	guidFileMap.insert(std::pair<GUID, const wchar_t*>(cnst::MASKING_GUID, cnst::SIGNAL_LIBRARY));
 }
 
 /**

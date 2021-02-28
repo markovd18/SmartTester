@@ -1,3 +1,7 @@
+//
+// Author: markovd@students.zcu.cz
+//
+
 #pragma once
 #ifndef _FILE_TESTER_MAPPER_H_
 #define _FILE_TESTER_MAPPER_H_
@@ -17,16 +21,29 @@
 class GuidTesterMapper {
 
 private:
-	std::map<GUID, std::function<GenericUnitTester*(CDynamic_Library*, TestFilter*, const GUID*)>> guidTesterMap;
+    /// Mapped derived class instance pointers to their representing GUID
+	std::map<GUID, tester::GenericUnitTester*> m_guidTesterMap;
+    /// Private constructor because of this class being a singleton
 	GuidTesterMapper();
-	template<typename T>
-	GenericUnitTester* createInstance(CDynamic_Library* library, TestFilter* testFilter, const GUID* testedGuid);
+    Logger& logger = Logger::getInstance();
 public:
-	Logger& logger = Logger::GetInstance();
+    /**
+    * Returns the instance of FileTesterMapper.
+    *
+    * @return instance of FileTesterMapper singleton class
+    */
 	static GuidTesterMapper& GetInstance();
-	GenericUnitTester* getTesterInstance(CDynamic_Library* library, TestFilter* testFilter,const GUID* guid);
+	/**
+	 * Returns a pointer to a tester instance based on given guid.
+	 *
+	 * @param guid guid of a filter, that we want to test
+	 * @return non-owning pointer to a tester instance
+	 */
+	tester::GenericUnitTester* getTesterInstance(const GUID& guid);
 	GuidTesterMapper(GuidTesterMapper const&) = delete;
 	void operator=(GuidTesterMapper const&) = delete;
+	/// Since we are storing pointers to testers, we need to delete them in destructor
+	~GuidTesterMapper();
 
 };
 #endif // !_FILE_TESTER_MAPPER_H_

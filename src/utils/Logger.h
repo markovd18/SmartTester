@@ -7,28 +7,38 @@
 
 #include <iostream>
 #include <fstream>
+#include <string>
 
-/**
+    /**
 	Class Logger is used to simplify logging of runtime information into a file.
-*/
-class Logger {
-public:
-	Logger();
+    */
+    class Logger {
+    public:
+        ~Logger() {
+            m_stream.close();
+        }
 
-	~Logger() {
-		stream.close();
-	}
+        void error(const std::wstring &text);
 
-	void error(const std::wstring& text);
-	void warn(const std::wstring& text);
-	void info(const std::wstring& text);
-	void debug(const std::wstring& text);
-	void trace(const std::wstring& text);
-	static Logger& GetInstance();
-private:
-	std::wofstream stream;
-	std::string fileNameByDate();
-	std::wstring timeFormat();
-};
+        void warn(const std::wstring &text);
 
+        void info(const std::wstring &text);
+
+        void debug(const std::wstring &text);
+
+        static Logger &getInstance();
+
+    private:
+        Logger();
+
+        void log(const std::wstring& text, const std::wstring& level);
+
+        std::wofstream m_stream;
+    };
+
+    std::string currentTime();
+
+    std::string currentDate();
+
+    std::string dateTimeInFormat(const char* format);
 #endif //LOGGER_H

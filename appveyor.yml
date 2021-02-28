@@ -1,0 +1,17 @@
+version: 1.0.{build}
+
+skip_tags: true
+
+image: Ubuntu2004
+platform: x64
+configuration: Debug
+
+build_script:
+  - cmake . && make
+
+notifications:
+  - provider: Email
+    to:
+      - markovd@students.zcu.cz
+    subject: 'Build {{status}}'
+    on_build_status_changed: true

@@ -6,7 +6,7 @@
 #include <rtl/guid.h>
 #include <utils/string_utils.h>
 #include <rtl/FilesystemLib.h>
-#include "../utils/UnitTestExecutor.h"
+#include "../utils/UnitTestExecUtils.h"
 #include "../utils/constants.h"
 #include "../testers/RegressionTester.h"
 
@@ -36,7 +36,7 @@ GUID parse_guid(std::string guid_string) {
 
     GUID guid{};
     if (!guid_string.empty()) {
-        Logger::GetInstance().debug(L"Parsing GUID: " + std::wstring(guid_string.begin(), guid_string.end()) + L"...");
+        Logger::getInstance().debug(L"Parsing GUID: " + std::wstring(guid_string.begin(), guid_string.end()) + L"...");
         std::string delimiter = "-";
         std::string token;
         std::string sub_token;
@@ -66,8 +66,8 @@ GUID parse_guid(std::string guid_string) {
                     break;
                 default:
                     std::wcerr << L"Invalid format of GUID passed!\n"
-                        << "Expected format: " << GUID_FORMAT << "\n";
-                    Logger::GetInstance().error(L"Invalid format of GUID passed!");
+                               << "Expected format: " << cnst::GUID_FORMAT << "\n";
+                    Logger::getInstance().error(L"Invalid format of GUID passed!");
                     exit(2);
                 }
 
@@ -83,13 +83,13 @@ GUID parse_guid(std::string guid_string) {
         }
         catch (std::exception&) {
             std::wcerr << L"Invalid format of GUID passed!\n"
-                << L"Expected format: " << GUID_FORMAT << "\n";
-            Logger::GetInstance().error(L"Invalid format of GUID passed!");
+                       << L"Expected format: " << cnst::GUID_FORMAT << "\n";
+            Logger::getInstance().error(L"Invalid format of GUID passed!");
             exit(2);
         }
     }
     else {
-        Logger::GetInstance().info(L"No GUID passed...");
+        Logger::getInstance().info(L"No GUID passed...");
     }
     return guid;
 }
@@ -102,15 +102,11 @@ GUID parse_guid(std::string guid_string) {
 void execute_unit_testing(std::string& guid_string) {
 
     GUID guid = parse_guid(guid_string);
-
-    UnitTestExecutor executor = UnitTestExecutor();
     
-    if (Is_Invalid_GUID(guid))  //invalid means 00000000-0000-0000-0000-000000000000, which will only be, if no guid is given
-    {                           //if guid was invalid in a sense that given guid doesn't belong to any filter, the app will end later on
-        executor.executeAllTests();
-    }
-    else {
-        executor.executeFilterTests(guid);
+    if (Is_Invalid_GUID(guid)) {
+        tester::executeAllTests();
+    } else {
+        tester::executeFilterTests(guid);
     }
 
 }
@@ -121,46 +117,50 @@ void execute_unit_testing(std::string& guid_string) {
  * @param config_filepath path to configuration file
  * @return result of regression testing
  */
-int execute_regression_testing(std::wstring& config_filepath) {
-    if (config_filepath.empty())
-    {
+HRESULT execute_regression_testing(const std::wstring& config_filepath) {
+    if (config_filepath.empty()) {
         std::wcerr << L"Inserted empty file path!\n";
         return 1;
     }
 
-    RegressionTester regTester = RegressionTester(config_filepath);
-    std::string log_filepath = Narrow_WString(config_filepath);
+    HRESULT result;
+    try {
+        tester::RegressionTester regTester(config_filepath);
+        std::string log_filepath = Narrow_WString(config_filepath);
 
-    log_filepath.erase(log_filepath.size() - Narrow_WChar(CONFIG_FILE).size());
-    log_filepath += Narrow_WChar(LOG_FILE);
+        log_filepath.erase(log_filepath.size() - Narrow_WChar(cnst::CONFIG_FILE).size());
+        log_filepath += Narrow_WChar(cnst::LOG_FILE);
 
-    auto result = regTester.compareLogs(log_filepath);
+        result = regTester.compareLogs(log_filepath);
+    } catch (const std::exception& ex) {
+        std::wcerr << L"Error while executing configuration!\n" << ex.what() << std::endl;
+        return E_FAIL;
+    }
 
-    std::filesystem::create_directory(TMP_DIR);
-    std::ifstream file(Narrow_WChar(TMP_LOG_FILE));
-    if (file.good())
-    {
+    filesystem::create_directory(Narrow_WChar(cnst::TMP_DIR));
+    std::ifstream file(Narrow_WChar(cnst::TMP_LOG_FILE));
+    if (file.good()) {
         file.close();
-        std::remove(Narrow_WChar(TMP_LOG_FILE).c_str());
+        std::remove(Narrow_WChar(cnst::TMP_LOG_FILE).c_str());
     }
     file.close();
-    std::rename(Narrow_WChar(LOG_FILE).c_str(), Narrow_WChar(TMP_LOG_FILE).c_str());
+    std::rename(Narrow_WChar(cnst::LOG_FILE).c_str(), Narrow_WChar(cnst::TMP_LOG_FILE).c_str());
 
-    Logger::GetInstance().info(L"Shutting down.");
+    Logger::getInstance().info(L"Shutting down.");
     std::wcerr << L"For detailed information see generated log.\n";
     return result;
 }
 
 /**
-    Entry point of application.
+    Entry point of the application.
 */
 int main(int argc, char* argv[]) {
-    Logger::GetInstance().info(L"Starting SmartTester application...");
+    Logger::getInstance().info(L"Starting SmartTester application...");
     std::wcout << L"Starting SmartTester application...\n";
 
     if (argc < 2) {
         std::wcerr << L"Wrong parameter count!\n";
-        Logger::GetInstance().error(L"Wrong parameter count passed!");
+        Logger::getInstance().error(L"Wrong parameter count passed!");
         print_help();
         return 1;
     }
@@ -174,30 +174,30 @@ int main(int argc, char* argv[]) {
             if (argv[2] != nullptr) {
                 parameter = argv[2];
             }
-            Logger::GetInstance().info(L"Unit tests will be executed.");
+            Logger::getInstance().info(L"Unit tests will be executed.");
             std::wcout << L"Executing unit tests.\n";
             execute_unit_testing(parameter);
             break;
         case 'r':   // regression testing
-            Logger::GetInstance().info(L"Regression tests will be executed.");
+            Logger::getInstance().info(L"Regression tests will be executed.");
             std::wcout << L"Executing regression tests.\n";
             config_filepath = argc > 2 ? std::wstring{ argv[2], argv[2] + strlen(argv[2]) } : std::wstring{};
             return execute_regression_testing(config_filepath);
         default:
             std::wcerr << L"Unknown type of testing requested!\n";
-            Logger::GetInstance().error(L"Unknown type of testing requested!");
+            Logger::getInstance().error(L"Unknown type of testing requested!");
             print_help();
             return 2;
         }
     }
     else {
         std::wcerr << L"Unsupported command: " << argv[1] << "\n";
-        Logger::GetInstance().error(L"Unsupported command passed!");
+        Logger::getInstance().error(L"Unsupported command passed!");
         print_help();
         return 2;
     }
 
-    Logger::GetInstance().info(L"Shutting down.");
+    Logger::getInstance().info(L"Shutting down.");
     std::wcout << L"For detailed information see generated log.\n";
     return 0;
 }

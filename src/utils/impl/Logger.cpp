@@ -1,69 +1,65 @@
 //
-// Created by Martin on 08.05.2020.
+// Author: markovd@students.zcu.cz, marstr@students.zcu.cz
 //
 
-#include "../Logger.h"
 #include <fstream>
 #include <ctime>
 
-#if __has_include(<filesystem>)
-	#include <filesystem>
-	namespace fs = std::filesystem;
-#else
-	#include <experimental/filesystem>
-	namespace fs = std::experimental::filesystem;
+#include <rtl/FilesystemLib.h>
+#include <string>
+#include <utils/string_utils.h>
+#include "../Logger.h"
+
+    Logger::Logger() {
+        filesystem::create_directory("../../logs");
+        m_stream.open("../../logs/" + currentDate() + ".log", std::ios::app);
+    }
+
+    void Logger::error(const std::wstring &text) {
+        log(text, L"ERROR");
+    }
+
+    void Logger::warn(const std::wstring &text) {
+        log(text, L"WARN");
+    }
+
+    void Logger::info(const std::wstring &text) {
+        log(text, L"INFO");
+    }
+
+    void Logger::debug(const std::wstring &text) {
+#ifndef NDEBUG
+        log(text, L"DEBUG");
 #endif
+    }
 
-Logger::Logger() {
-	fs::create_directory("../logs");
-	stream.open("../logs/" + fileNameByDate() + ".log", std::ios::app);
-}
+    void Logger::log(const std::wstring &text, const std::wstring &level) {
+        std::wstring logText = Widen_Char(currentTime().c_str()) + L" " + level + L"\t" + text + L'\n';
+        m_stream << logText;
+        m_stream.flush();
+    }
 
-std::string Logger::fileNameByDate() {
-	time_t rawTime;
-	struct tm* timeInfo;
-	char buffer[80];
+    Logger &Logger::getInstance() {
+        static Logger instance;
+        return instance;
+    }
 
-	time(&rawTime);
-	timeInfo = localtime(&rawTime);
+    std::string currentTime() {
+        return dateTimeInFormat("%Y-%m-%d %H:%M:%S");
+    }
 
-	strftime(buffer, 80, "%d-%m-%Y %H-%M-%S", timeInfo);
-	return std::string(buffer);
-}
+    std::string currentDate() {
+        return dateTimeInFormat("%Y-%m-%d");
+    }
 
-std::wstring Logger::timeFormat() {
-	time_t rawTime;
-	struct tm* timeInfo;
-	wchar_t buffer[80];
+    std::string dateTimeInFormat(const char* format) {
+        time_t rawTime;
+        struct tm *timeInfo;
+        char buffer[80];
 
-	time(&rawTime);
-	timeInfo = localtime(&rawTime);
+        time(&rawTime);
+        timeInfo = localtime(&rawTime);
 
-	wcsftime(buffer, 80, L"%d.%m.%Y %H:%M:%S", timeInfo);
-	return std::wstring(buffer);
-}
-
-void Logger::error(const std::wstring& text) {
-	stream << "[ERROR - " << timeFormat() << "] " << text << "\n";
-}
-
-void Logger::warn(const std::wstring& text) {
-	stream << "[WARN - " << timeFormat() << "] " << text << "\n";
-}
-
-void Logger::info(const std::wstring& text) {
-	stream << "[INFO - " << timeFormat() << "] " << text << "\n";
-}
-
-void Logger::debug(const std::wstring& text) {
-	stream << "[DEBUG - " << timeFormat() << "] " << text << "\n";
-}
-
-void Logger::trace(const std::wstring& text) {
-	stream << "[TRACE - " << timeFormat() << "] " << text << "\n";
-}
-
-Logger& Logger::GetInstance() {
-	static Logger instance;
-	return instance;
-}
+        strftime(buffer, 80, format, timeInfo);
+        return std::string(buffer);
+    }

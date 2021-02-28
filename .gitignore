@@ -6,6 +6,7 @@ cmake-build-debug
 out
 
 #build files
+SmartTester.cbp
 SmartTester.exe
 SmartTester.ilk
 SmartTester.pdb
@@ -32,3 +33,6 @@ cmake_install.cmake
 /windows_64/test.csv
 /windows_64/fda_sc_nobolus.csv
 /windows_64/log.csv
+
+/lib*.a
+Testing
