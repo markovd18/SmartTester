@@ -13,29 +13,12 @@
 #include "../GenericUnitTester.h"
 
 namespace tester {
-    /**
-     *     Creates an instance of GenericUnitTesterClass.
-        Pass initialized instance of CDynamic_Library, initialized instance of TestFilter
-        and GUID of filter that you want to be tested. If default invalid GUID is passed,
-        all tests across all filters will be executed.
 
-     * @param library pointer to CDynamic_Library helper class
-     * @param testFilter pointer to TestFilter helper class
-     * @param guid guid of tested filter
-     */
     GenericUnitTester::GenericUnitTester(const GUID guid)
             :  m_lastTestResult(S_OK), m_testedGuid(guid), m_testedFilter(loadFilter()) {
         loadScgmsLibrary();
     }
 
-    //     **************************************************
-    //                     Helper methods
-    //     **************************************************
-
-    /**
-        Loads filter from dynamic library based on given GUID in constructor.
-        If loading fails, exits the program.
-    */
     scgms::IFilter* GenericUnitTester::loadFilter() {
 
         const wchar_t* file_name = GuidFileMapper::GetInstance().getFileName(m_testedGuid);
