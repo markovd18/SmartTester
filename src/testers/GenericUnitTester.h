@@ -43,6 +43,28 @@ namespace tester {
          */
         HRESULT infoEventTest();
         /**
+         * If any filter is created, executes a warning event upon it. Tested filter should send the warning event to
+         * the output filter, which will be TestFilter. If the event is not received by TestFilter, test ends with an error.
+         */
+        HRESULT warningEventTest();
+        /**
+         * If any filter is created, executes an error event upon it. Tested filter should send the error event to
+         * the output filter, which will be TestFilter. If the event is not received by TestFilter, test ends with an error.
+         */
+        HRESULT errorEventTest();
+        /**
+         * If any filter is created, executes warm reset event upon it. Tested filter should send the warm reset event to
+         * the output filter, which will be TestFilter. If the event is not received by TestFilter, test ends with an error.
+         */
+        HRESULT warmResetEventTest();
+        /**
+         * If any filter is created, executes shut down event upon it. Tested filter should send the shut down event to
+         * the output filter, which will be TestFilter. If the event is not received by TestFilter, test ends with an error.
+         * Shut down event ends filter's execution routine and it should not accept any other event after shutting down - it's Execute
+         * method should return an error. If not, the test fails.
+         */
+        HRESULT shutDownEventTest();
+        /**
          * Executes configuration test based on given parameters. Every filter should be successfully configured only if all parts
          * of the configuration are provided. Configuration test will be evaluated as successful and return S_OK only if the result of configuration
          * is identical with given expectedResult parameter, otherwise will return E_FAIL.
@@ -82,6 +104,7 @@ namespace tester {
         scgms::IFilter* getTestedFilter();
 
     private: // private methods
+        HRESULT informativeEventsTest(scgms::NDevice_Event_Code eventCode);
         scgms::IFilter* loadFilter();
         const wchar_t* getFilterName();
         HRESULT runTestInThread(const std::function<HRESULT(void)>& test);

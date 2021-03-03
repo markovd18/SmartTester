@@ -18,7 +18,6 @@ namespace tester {
 
     GenericUnitTester::GenericUnitTester(const GUID guid)
             :  m_lastTestResult(S_OK), m_testedGuid(guid), m_testedFilter(loadFilter()) {
-        //loadScgmsLibrary();
     }
 
     scgms::IFilter* GenericUnitTester::loadFilter() {
@@ -86,7 +85,10 @@ namespace tester {
 
         Logger::getInstance().info(L"Executing generic tests...");
         executeTest(L"info event test", std::bind(&GenericUnitTester::infoEventTest, this));
-
+        executeTest(L"warning event test", std::bind(&GenericUnitTester::warningEventTest, this));
+        executeTest(L"error event test", std::bind(&GenericUnitTester::errorEventTest, this));
+        executeTest(L"warm reset event test", std::bind(&GenericUnitTester::warmResetEventTest, this));
+        executeTest(L"shut down event test", std::bind(&GenericUnitTester::shutDownEventTest, this));
     }
 
     void GenericUnitTester::executeTest(const std::wstring& testName, const std::function<HRESULT(void)>& test) {
@@ -108,10 +110,10 @@ namespace tester {
     }
 
     HRESULT GenericUnitTester::shutDownTest() {
-        scgms::IDevice_Event* shutDown = scgms::createEvent(scgms::NDevice_Event_Code::Shut_Down);
+        scgms::IDevice_Event* shutDown = createEvent(scgms::NDevice_Event_Code::Shut_Down);
         if (shutDown == nullptr) {
-            std::wcerr << L"Error while creating \"Shut_Down\" IDevice_event!\n";
-            Logger::getInstance().error(L"Error while creating \"Shut_Down\" IDevice_event!");
+            std::wcerr << L"Error while creating " << describeEvent(scgms::NDevice_Event_Code::Shut_Down) << std::endl;
+            Logger::getInstance().error(L"Error while creating " + describeEvent(scgms::NDevice_Event_Code::Shut_Down));
             return E_FAIL;
         }
 
@@ -205,40 +207,81 @@ namespace tester {
 
 
     HRESULT GenericUnitTester::infoEventTest() {
+        return informativeEventsTest(scgms::NDevice_Event_Code::Information);
+    }
+
+    HRESULT GenericUnitTester::warningEventTest() {
+        return informativeEventsTest(scgms::NDevice_Event_Code::Warning);
+    }
+
+    HRESULT GenericUnitTester::errorEventTest() {
+        return informativeEventsTest(scgms::NDevice_Event_Code::Error);
+    }
+
+    HRESULT GenericUnitTester::warmResetEventTest() {
+        return informativeEventsTest(scgms::NDevice_Event_Code::Warm_Reset);
+    }
+
+    HRESULT GenericUnitTester::shutDownEventTest() {
+        HRESULT eventFallthroughResult = informativeEventsTest(scgms::NDevice_Event_Code::Shut_Down);
+        if (!Succeeded(eventFallthroughResult)) {
+            return eventFallthroughResult;
+        }
+
+        Logger::getInstance().info(L"Executing " + describeEvent(scgms::NDevice_Event_Code::Information) + L" after shutting down...");
+        scgms::IDevice_Event *infoEvent = createEvent(scgms::NDevice_Event_Code::Information);
+        if (!infoEvent) {
+            return E_FAIL;
+        }
+
+        HRESULT afterShutDownEventResult = m_testedFilter->Execute(infoEvent);
+        infoEvent->Release();
+        if (Succeeded(afterShutDownEventResult)) {
+            Logger::getInstance().error(L"Execution of event after shutting down did not fail!");
+            Logger::getInstance().error(std::wstring(L"Actual result: ") + Describe_Error(afterShutDownEventResult));
+            return E_FAIL;
+        } else {
+            return S_OK;
+        }
+    }
+
+    HRESULT GenericUnitTester::informativeEventsTest(const scgms::NDevice_Event_Code eventCode) {
         if (!isFilterLoaded()) {
             std::wcerr << L"No filter created! Can't execute test.\n";
             Logger::getInstance().error(L"No filter created! Can't execute test...");
             return E_FAIL;
         }
 
-        scgms::IDevice_Event* event = scgms::createEvent(scgms::NDevice_Event_Code::Information);
+        scgms::IDevice_Event* event = createEvent(eventCode);
         if (event == nullptr) {
-            std::wcerr << L"Error while creating \"Information\" IDevice_event!\n";
-            Logger::getInstance().error(L"Error while creating \"Information\" IDevice_event!");
+            std::wcerr << L"Error while creating " << describeEvent(eventCode) << std::endl;
+            Logger::getInstance().error(L"Error while creating " + describeEvent(eventCode));
             return E_FAIL;
         }
 
-        Logger::getInstance().info(L"Executing event...");
+        Logger::getInstance().debug(L"Executing event...");
         HRESULT result = m_testedFilter->Execute(event);
 
         if (Succeeded(result)) {
-            scgms::TDevice_Event* recievedEvent = m_testFilter.getRecievedEvent();
-            if (recievedEvent->event_code == scgms::NDevice_Event_Code::Information) {
+            scgms::TDevice_Event* receivedEvent = m_testFilter.getRecievedEvent();
+            if (receivedEvent->event_code == eventCode) {
                 result = S_OK;
             } else {
                 Logger::getInstance().error(L"Event was modified during execution!");
-                Logger::getInstance().error(&L"expected code: " [ (int)scgms::NDevice_Event_Code::Information]);
-                Logger::getInstance().error(&L"expected code: " [ (int)recievedEvent->event_code]);
+                Logger::getInstance().error(L"expected code: " + describeEvent(eventCode));
+                Logger::getInstance().error(L"expected code: " + describeEvent(receivedEvent->event_code));
                 result = E_FAIL;
             }
         } else {
-            Logger::getInstance().error(L"expected result: " + Widen_Char(std::system_category().message(S_OK).c_str()));
-            Logger::getInstance().error(L"actual result: " + Widen_Char(std::system_category().message(result).c_str()));
+            Logger::getInstance().error(std::wstring(L"expected result: ") + Describe_Error(S_OK));
+            Logger::getInstance().error(std::wstring(L"actual result: ") + Describe_Error(result));
             result = E_FAIL;
         }
 
-        event->Release();
-        shutDownTest();
+        if (eventCode != scgms::NDevice_Event_Code::Shut_Down) {
+            event->Release();
+            shutDownTest();
+        }
         return result;
     }
 
