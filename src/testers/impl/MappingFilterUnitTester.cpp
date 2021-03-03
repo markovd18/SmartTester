@@ -2,6 +2,7 @@
 #include <rtl/FilterLib.h>
 #include <utils/string_utils.h>
 #include "../MappingFilterUnitTester.h"
+#include "../../utils/scgmsLibUtils.h"
 
 namespace tester {
 
@@ -80,7 +81,7 @@ namespace tester {
             return E_FAIL;
         }
 
-        scgms::IDevice_Event* event = createEvent(scgms::NDevice_Event_Code::Level);
+        scgms::IDevice_Event* event = scgms::createEvent(scgms::NDevice_Event_Code::Level);
         if (event == nullptr) {
             std::wcerr << L"Error while creating \"Level\" IDevice_event!\n";
             Logger::getInstance().error(L"Error while creating \"Level\" IDevice_event!");
@@ -138,7 +139,7 @@ namespace tester {
             return E_FAIL;
         }
 
-        scgms::IDevice_Event* event = createEvent(scgms::NDevice_Event_Code::Information);
+        scgms::IDevice_Event* event = scgms::createEvent(scgms::NDevice_Event_Code::Information);
         if (event == nullptr) {
             std::wcerr << L"Error while creating \"Info\" IDevice_event!\n";
             Logger::getInstance().error(L"Error while creating \"Info\" IDevice_event!");
@@ -192,7 +193,7 @@ namespace tester {
             return E_FAIL;
         }
 
-        scgms::IDevice_Event* event = createEvent(scgms::NDevice_Event_Code::Parameters);
+        scgms::IDevice_Event* event = scgms::createEvent(scgms::NDevice_Event_Code::Parameters);
         if (event == nullptr) {
             std::wcerr << L"Error while creating \"Parameters\" IDevice_event!\n";
             Logger::getInstance().error(L"Error while creating \"Parameters\" IDevice_event!");

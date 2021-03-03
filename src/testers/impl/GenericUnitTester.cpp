@@ -7,16 +7,18 @@
 #include <rtl/hresult.h>
 #include <rtl/FilterLib.h>
 #include <utils/string_utils.h>
+#include <rtl/scgmsLib.h>
 #include "../../mappers/GuidFileMapper.h"
 #include "../../utils/constants.h"
 #include "../../utils/LogUtils.h"
 #include "../GenericUnitTester.h"
+#include "../../utils/scgmsLibUtils.h"
 
 namespace tester {
 
     GenericUnitTester::GenericUnitTester(const GUID guid)
             :  m_lastTestResult(S_OK), m_testedGuid(guid), m_testedFilter(loadFilter()) {
-        loadScgmsLibrary();
+        //loadScgmsLibrary();
     }
 
     scgms::IFilter* GenericUnitTester::loadFilter() {
@@ -43,23 +45,6 @@ namespace tester {
 
         Logger::getInstance().info(L"Filter loaded from dynamic library.");
         return created_filter;
-    }
-
-
-    void GenericUnitTester::loadScgmsLibrary() {
-        Logger::getInstance().debug(L"Loading dynamic library scgms...");
-
-        std::wstring file = cnst::SCGMS_LIB;
-        file.append(cnst::LIB_EXTENSION);
-
-        m_scgmsLibrary.Load(file);
-        if (!m_scgmsLibrary.Is_Loaded()) {
-            std::wcerr << L"Couldn't load scgms library!\n";
-            Logger::getInstance().error(L"Couldn't load scgms library!");
-            exit(EXIT_FAILURE);
-        }
-
-        Logger::getInstance().debug(L"Dynamic library scgms loaded.");
     }
 
 
@@ -123,7 +108,7 @@ namespace tester {
     }
 
     HRESULT GenericUnitTester::shutDownTest() {
-        scgms::IDevice_Event* shutDown = createEvent(scgms::NDevice_Event_Code::Shut_Down);
+        scgms::IDevice_Event* shutDown = scgms::createEvent(scgms::NDevice_Event_Code::Shut_Down);
         if (shutDown == nullptr) {
             std::wcerr << L"Error while creating \"Shut_Down\" IDevice_event!\n";
             Logger::getInstance().error(L"Error while creating \"Shut_Down\" IDevice_event!");
@@ -226,7 +211,7 @@ namespace tester {
             return E_FAIL;
         }
 
-        scgms::IDevice_Event* event = createEvent(scgms::NDevice_Event_Code::Information);
+        scgms::IDevice_Event* event = scgms::createEvent(scgms::NDevice_Event_Code::Information);
         if (event == nullptr) {
             std::wcerr << L"Error while creating \"Information\" IDevice_event!\n";
             Logger::getInstance().error(L"Error while creating \"Information\" IDevice_event!");
@@ -288,29 +273,13 @@ namespace tester {
         } else {
             Logger::getInstance().error(L"Provided configuration:\n"
                                         L"(" + std::wstring(memory.begin(), memory.end()) + L")");
-            Logger::getInstance().error(L"expected configuration result: " + Widen_Char(std::system_category().message(expectedResult).c_str()));
-            Logger::getInstance().error(L"actual configuration result: " + Widen_Char(std::system_category().message(result).c_str()));
+            Logger::getInstance().error(std::wstring(L"expected configuration result: ") + Describe_Error(expectedResult));
+            Logger::getInstance().error(std::wstring(L"actual configuration result: ") + Describe_Error(result));
             testResult = E_FAIL;
         }
 
         shutDownTest();
         return testResult;
-    }
-
-    scgms::IDevice_Event *GenericUnitTester::createEvent(const scgms::NDevice_Event_Code eventCode) {
-        scgms::IDevice_Event* event;
-
-        auto creator = m_scgmsLibrary.Resolve<scgms::TCreate_Device_Event>("create_device_event");
-        HRESULT result = creator(eventCode, &event);
-        if (!Succeeded(result)) {
-            return nullptr;
-        }
-
-        return event;
-    }
-
-    CDynamic_Library &GenericUnitTester::getScgmsLib() {
-        return m_scgmsLibrary;
     }
 
     CDynamic_Library &GenericUnitTester::getFilterLib() {

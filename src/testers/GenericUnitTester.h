@@ -27,8 +27,6 @@ namespace tester {
 
         /// Dynamic library of the tested filter
         CDynamic_Library m_filterLibrary;
-        /// SCGMS dynamic library containing various functions needed for test execution
-        CDynamic_Library m_scgmsLibrary;
         /// Our custom filter for testing
         TestFilter m_testFilter;
         /// GUID of tested filter
@@ -60,15 +58,6 @@ namespace tester {
         /// Executes all tests for a specific filter. Needs to be implemented by derived class.
         virtual void executeSpecificTests() = 0;
 
-        /**
-         * Creates device event based on given event code. Returned pointer is non-owning and shouldn't be deleted.
-         * It will be deleted automatically during it's execution.
-         *
-         * @param eventCode event code describing
-         * @return non-owning pointer to created event
-         */
-        scgms::IDevice_Event* createEvent(scgms::NDevice_Event_Code eventCode);
-
     protected:
         /**
             Invokes test method passed as a parameter. Invoked method has to take in zero parameters and return HRESULT as a return value.
@@ -88,14 +77,12 @@ namespace tester {
         /// Creates shut down event and executes it with tested filter
         HRESULT shutDownTest();
 
-        CDynamic_Library& getScgmsLib();
         CDynamic_Library& getFilterLib();
         TestFilter& getTestFilter();
         scgms::IFilter* getTestedFilter();
 
     private: // private methods
         scgms::IFilter* loadFilter();
-        void loadScgmsLibrary();
         const wchar_t* getFilterName();
         HRESULT runTestInThread(const std::function<HRESULT(void)>& test);
         HRESULT runConfigTestInThread(const std::string& configuration, HRESULT expectedResult);
