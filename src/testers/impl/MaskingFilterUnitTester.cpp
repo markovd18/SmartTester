@@ -2,6 +2,7 @@
 #include <rtl/FilterLib.h>
 #include <utils/string_utils.h>
 #include "../MaskingFilterUnitTester.h"
+#include "../../utils/scgmsLibUtils.h"
 
 namespace tester {
 
@@ -76,7 +77,7 @@ namespace tester {
 
         HRESULT test_result = S_OK;
         for (const char &i : bitmask) {
-            scgms::IDevice_Event *event = createEvent(scgms::NDevice_Event_Code::Level);
+            scgms::IDevice_Event *event = scgms::createEvent(scgms::NDevice_Event_Code::Level);
             if (event == nullptr) {
                 std::wcerr << L"Error while creating \"Level\" IDevice_event!\n";
                 Logger::getInstance().error(L"Error while creating \"Level\" IDevice_event!");
@@ -95,16 +96,16 @@ namespace tester {
                 if (i == '0') {
                     if (raw_event->event_code != scgms::NDevice_Event_Code::Masked_Level) {
                         Logger::getInstance().error(L"Event wasn't correctly masked!");
-                        Logger::getInstance().error(&L"expected code: "[(int) scgms::NDevice_Event_Code::Masked_Level]);
-                        Logger::getInstance().error(&L"expected code: "[(int) raw_event->event_code]);
+                        Logger::getInstance().error(std::wstring(L"expected code: ") + std::to_wstring((int) scgms::NDevice_Event_Code::Masked_Level));
+                        Logger::getInstance().error(std::wstring(L"actual code: ") + std::to_wstring((int) raw_event->event_code));
                         test_result = E_FAIL;
                     }
                     Logger::getInstance().debug(L"Event correctly masked!");
                 } else {
                     if (raw_event->event_code != scgms::NDevice_Event_Code::Level) {
                         Logger::getInstance().error(L"Event shouldn't have been masked!");
-                        Logger::getInstance().error(&L"expected code: "[(int) scgms::NDevice_Event_Code::Level]);
-                        Logger::getInstance().error(&L"expected code: "[(int) raw_event->event_code]);
+                        Logger::getInstance().error(std::wstring(L"expected code: ") + std::to_wstring((int) scgms::NDevice_Event_Code::Level));
+                        Logger::getInstance().error(std::wstring(L"actual code: ") + std::to_wstring((int) raw_event->event_code));
                         test_result = E_FAIL;
                     }
                 }
@@ -164,7 +165,7 @@ namespace tester {
 
         HRESULT test_result = S_OK;
         for (size_t i = 0; i < bitmask.size(); i++) {
-            scgms::IDevice_Event *event = createEvent(scgms::NDevice_Event_Code::Information);
+            scgms::IDevice_Event *event = scgms::createEvent(scgms::NDevice_Event_Code::Information);
             if (event == nullptr) {
                 std::wcerr << L"Error while creating \"Info\" IDevice_event!\n";
                 Logger::getInstance().error(L"Error while creating \"Info\" IDevice_event!");
@@ -182,8 +183,8 @@ namespace tester {
             if (Succeeded(result)) {
                 if (raw_event->event_code != scgms::NDevice_Event_Code::Information) {
                     Logger::getInstance().error(L"Info event was incorrectly masked!");
-                    Logger::getInstance().error(&L"expected code: "[(int) scgms::NDevice_Event_Code::Information]);
-                    Logger::getInstance().error(&L"actual result: "[(int) raw_event->event_code]);
+                    Logger::getInstance().error(std::wstring(L"expected code: ") + std::to_wstring((int) scgms::NDevice_Event_Code::Information));
+                    Logger::getInstance().error(std::wstring(L"actual result: ") + std::to_wstring((int) raw_event->event_code));
                     test_result = E_FAIL;
                 }
             } else {
