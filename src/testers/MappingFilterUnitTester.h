@@ -15,10 +15,7 @@ namespace tester {
      */
     class MappingFilterUnitTester : public GenericUnitTester {
     private: // private attributes
-        static const std::string FILTER_CONFIG;
-        static const std::string SIGNAL_SRC_ID_STR;
         static const GUID SIGNAL_SRC_ID_GUID;
-        static const std::string SIGNAL_DST_ID_STR;
         static const GUID SIGNAL_DST_ID_GUID;
 
     public: // public methods

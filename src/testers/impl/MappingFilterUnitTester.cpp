@@ -6,11 +6,8 @@
 
 namespace tester {
 
-    const std::string MappingFilterUnitTester::FILTER_CONFIG = "[Filter_001_{8FAB525C-5E86-AB81-12CB-D95B1588530A}]";
     const GUID MappingFilterUnitTester::SIGNAL_SRC_ID_GUID = { 0xe1cd07ef, 0xb079, 0x4911, {0xb7, 0x9b, 0xd2, 0x03, 0x48, 0x61, 0x01, 0xc8} };
-    const std::string MappingFilterUnitTester::SIGNAL_SRC_ID_STR = "{E1CD07EF-B079-4911-B79B-D203486101C8}";
     const GUID MappingFilterUnitTester::SIGNAL_DST_ID_GUID = { 0xf666f6c2, 0xd7c0, 0x43e8, {0x8e, 0xe1, 0xc8, 0xca, 0xa8, 0xf8, 0x60, 0xe5} };
-    const std::string MappingFilterUnitTester::SIGNAL_DST_ID_STR = "{F666F6C2-D7C0-43E8-8EE1-C8CAA8F860E5}";
 
     MappingFilterUnitTester::MappingFilterUnitTester(const GUID& guid) : GenericUnitTester(guid) {
         //
@@ -21,12 +18,20 @@ namespace tester {
     */
     void MappingFilterUnitTester::executeSpecificTests(){
         Logger::getInstance().info(L"Executing specific tests...");
-        executeConfigTest(L"empty source id test",
-                          FILTER_CONFIG + "\n\nSignal_Src_Id = \n\nSignal_Dst_Id = " + SIGNAL_DST_ID_STR, E_FAIL);
-        executeConfigTest(L"empty destination id test",
-                          FILTER_CONFIG + "\n\nSignal_Src_Id = " + SIGNAL_SRC_ID_STR + "\n\nSignal_Dst_Id = ", E_FAIL);
-        executeConfigTest(L"correct id's test",
-                          FILTER_CONFIG + "\n\nSignal_Src_Id = " + SIGNAL_SRC_ID_STR + "\n\nSignal_Dst_Id = " + SIGNAL_DST_ID_STR, S_OK);
+
+        /// Configuration tests
+        tester::MappingFilterConfig config;
+        config.setSignalDstId(SIGNAL_DST_ID_GUID);
+        executeConfigTest(L"empty source id test", config, E_FAIL);
+
+        config.setSignalDstId(Invalid_GUID);
+        config.setSignalSrcId(SIGNAL_SRC_ID_GUID);
+        executeConfigTest(L"empty destination id test", config, E_FAIL);
+
+        config.setSignalDstId(SIGNAL_DST_ID_GUID);
+        executeConfigTest(L"correct id's test", config, S_OK);
+
+        /// Functional tests
         executeTest(L"level event mapping test", std::bind(&MappingFilterUnitTester::levelEventMappingTest, this));
         executeTest(L"info event mapping test", std::bind(&MappingFilterUnitTester::infoEventMappingTest, this));
         executeTest(L"parameters event mapping test", std::bind(&MappingFilterUnitTester::parametersEventMappingTest, this));
@@ -35,10 +40,8 @@ namespace tester {
     /**
         Helper method for correct configuring of Mapping filter.
     */
-    HRESULT MappingFilterUnitTester::configureFilterCorrectly()
-    {
-        if (!isFilterLoaded())
-        {
+    HRESULT MappingFilterUnitTester::configureFilterCorrectly() {
+        if (!isFilterLoaded()) {
             std::wcerr << L"No filter created! Cannot execute test.\n";
             Logger::getInstance().error(L"No filter loaded! Can't execute test.");
             return E_FAIL;
@@ -46,15 +49,14 @@ namespace tester {
 
         scgms::SPersistent_Filter_Chain_Configuration configuration;
         refcnt::Swstr_list errors;
-        std::string memory = FILTER_CONFIG + "\n\nSignal_Src_Id = " + SIGNAL_SRC_ID_STR + "\n\nSignal_Dst_Id = " + SIGNAL_DST_ID_STR;
+        tester::MappingFilterConfig config(SIGNAL_SRC_ID_GUID, SIGNAL_DST_ID_GUID);
+        std::string memory = config.toString();
 
         HRESULT result = configuration ? S_OK : E_FAIL;
-        if (result == S_OK)
-        {
+        if (result == S_OK) {
             configuration->Load_From_Memory(memory.c_str(), memory.size(), errors.get());
             Logger::getInstance().info(L"Loading configuration from memory...");
-        }
-        else {
+        } else {
             Logger::getInstance().error(L"Error while creating configuration!");
             return E_FAIL;
         }
@@ -69,8 +71,7 @@ namespace tester {
     /**
         Tests if level event's signal id will be correctly mapped.
     */
-    HRESULT MappingFilterUnitTester::levelEventMappingTest()
-    {
+    HRESULT MappingFilterUnitTester::levelEventMappingTest() {
         HRESULT result = configureFilterCorrectly();
 
         if (!Succeeded(result)) {

@@ -18,6 +18,12 @@ namespace tester {
 
         LogFilterUnitTester(const GUID& guid);
         void executeSpecificTests() override;
+        /**
+         * If LogFilter is successfully configured with Log_File attribute value present, text file with identical name should be created.
+         * This method tests if it is true. Returns S_OK only if the log file is created, otherwise returns  E_FAIL.
+         *
+         * @return S_OK if log file is created, otherwise E_FAIL
+         */
         HRESULT logFileGenerationTest();
     };
 }

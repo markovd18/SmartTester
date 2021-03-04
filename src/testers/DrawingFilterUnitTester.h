@@ -18,6 +18,10 @@ namespace tester {
 
         DrawingFilterUnitTester(const GUID& guid);
         void executeSpecificTests() override;
+        /**
+         * Executes an information event upon created and configured Drawing filter.
+         */
+        HRESULT imageGenerationTest();
     };
 }
 #endif // !_DRAWING_FILTER_UNIT_TESTER_H_

@@ -32,10 +32,9 @@ namespace tester {
 
         scgms::SPersistent_Filter_Chain_Configuration configuration;
         refcnt::Swstr_list errors;
-        std::string memory = FILTER_CONFIG + "\n\nSignal = " + SIGNAL_ID_STR + "\n\nBitmask = " + bitmask;
-        Logger::getInstance().debug(
-                L"Signal = " + std::wstring(SIGNAL_ID_STR.begin(), SIGNAL_ID_STR.end()) + L", Bitmask = " +
-                std::wstring(bitmask.begin(), bitmask.end()));
+        tester::MaskingFilterConfig config(SIGNAL_ID_GUID, bitmask);
+        std::string memory = config.toString();
+        Logger::getInstance().debug(Widen_String(memory));
 
         HRESULT result = configuration ? S_OK : E_FAIL;
         if (result == S_OK) {
@@ -55,13 +54,13 @@ namespace tester {
     HRESULT MaskingFilterUnitTester::completeBitmaskMappingTest() {
         HRESULT result = S_OK;
         std::string bitmasks[] = {"00000000", "11111111", "01010101", "10101010", "00101111", "11010000"};
-        int bitmasks_length = 6;
 
-        for (int i = 0; i < bitmasks_length; i++) {
-            if (bitmaskMappingTest(bitmasks[i]) != S_OK) {
+        for (const auto& bitmask : bitmasks) {
+            if (bitmaskMappingTest(bitmask) != S_OK) {
                 result = E_FAIL;
             }
         }
+
         shutDownTest();
         return result;
     }

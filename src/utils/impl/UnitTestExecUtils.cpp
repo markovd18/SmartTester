@@ -4,9 +4,11 @@
 
 #include <iostream>
 #include <rtl/guid.h>
+#include <utils/string_utils.h>
 #include "../UnitTestExecUtils.h"
 #include "../../mappers/GuidTesterMapper.h"
 #include "../../mappers/GuidFileMapper.h"
+#include "../constants.h"
 
 void tester::executeFilterTests(const GUID& guid) {
     if (Is_Invalid_GUID(guid)) {
@@ -32,4 +34,20 @@ void tester::executeAllTests() {
 
 tester::GenericUnitTester* tester::getUnitTester(const GUID& guid) {
 	return GuidTesterMapper::GetInstance().getTesterInstance(guid);
+}
+
+bool moveToTmp(const filesystem::path& filePath) {
+    if (!filesystem::exists(filePath)) {
+        return false;
+    }
+
+    std::string tmpDir = Narrow_WChar(cnst::TMP_DIR);
+    filesystem::create_directory(tmpDir);
+    if (!filesystem::exists(tmpDir)) {
+        return false;
+    }
+
+    std::string dest = tmpDir + "/" +  filePath.filename().string();
+    filesystem::rename(filePath, dest);
+    return filesystem::exists(dest);
 }

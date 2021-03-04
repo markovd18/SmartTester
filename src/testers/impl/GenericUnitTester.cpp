@@ -6,7 +6,6 @@
 #include <string>
 #include <rtl/hresult.h>
 #include <rtl/FilterLib.h>
-#include <utils/string_utils.h>
 #include <rtl/scgmsLib.h>
 #include "../../mappers/GuidFileMapper.h"
 #include "../../utils/constants.h"
@@ -100,7 +99,7 @@ namespace tester {
         log::printResult(result);
     }
 
-    void GenericUnitTester::executeConfigTest(const std::wstring& testName, const std::string& configuration, const HRESULT expectedResult) {
+    void GenericUnitTester::executeConfigTest(const std::wstring& testName, const tester::FilterConfig& configuration, const HRESULT expectedResult) {
         Logger::getInstance().info(L"----------------------------------------");
         Logger::getInstance().info(L"Executing " + testName + L"...");
         Logger::getInstance().info(L"----------------------------------------");
@@ -153,7 +152,7 @@ namespace tester {
         return result;
     }
 
-    HRESULT GenericUnitTester::runConfigTestInThread(const std::string& configuration, const HRESULT expectedResult) {
+    HRESULT GenericUnitTester::runConfigTestInThread(const tester::FilterConfig& configuration, const HRESULT expectedResult) {
         Logger::getInstance().debug(L"Running test in thread...");
         std::cv_status status;
         HRESULT result;
@@ -161,7 +160,7 @@ namespace tester {
         {
             std::unique_lock<std::mutex> lock(m_testMutex);
 
-            std::thread thread(&GenericUnitTester::runConfigTest, this, configuration, expectedResult);
+            std::thread thread(&GenericUnitTester::runConfigTest, this, std::ref(configuration), expectedResult);
 
             status = m_testCv.wait_for(lock, std::chrono::milliseconds(cnst::MAX_EXEC_TIME));
             lock.unlock();
@@ -191,7 +190,7 @@ namespace tester {
         m_testCv.notify_all();
     }
 
-    void GenericUnitTester::runConfigTest(const std::string& configuration, const HRESULT expectedResult) {
+    void GenericUnitTester::runConfigTest(const tester::FilterConfig& configuration, const HRESULT expectedResult) {
         m_lastTestResult = configurationTest(configuration, expectedResult);
         m_testCv.notify_all();
     }
@@ -285,7 +284,7 @@ namespace tester {
         return result;
     }
 
-    HRESULT GenericUnitTester::configurationTest(const std::string &memory, const HRESULT expectedResult) {
+    HRESULT GenericUnitTester::configurationTest(const tester::FilterConfig &config, const HRESULT expectedResult) {
         if (!isFilterLoaded()) {
             std::wcerr << L"No filter loaded! Can't execute test.\n";
             Logger::getInstance().error(L"No filter loaded! Can't execute test.");
@@ -296,6 +295,7 @@ namespace tester {
         refcnt::Swstr_list errors;
 
         HRESULT result = configuration ? S_OK : E_FAIL;
+        std::string memory = config.toString();
         if (result == S_OK) {
             configuration->Load_From_Memory(memory.c_str(), memory.size(), errors.get());
             Logger::getInstance().info(L"Loading configuration from memory...");

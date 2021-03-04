@@ -11,7 +11,7 @@ Obecné:
 - žádná knihovna nesmí vytvořit entitu, kterou neobsahuje v deskriptoru (pro případ kdy např. zapomeneme else blok nebo tak něco - testovat se to dá s náhodným nebo neplatným GUID na vstupu)
 - do_get_*_descriptors, do_create_* a do_solve.. funkce obecně validují všechny vstupy (že nejsou nullptr, u deskriptorů že begin != end, apod.)
 
-Filtry obecné:
+Filtry obecné: HOTOVO
 
 - Information, Warning a Error událost nesmí být nikdy maskována (projde v nezměněné podobě)
 - Shut_Down událost ukončí činnost filtru a nesmí být nikdy maskována (projde dál; filtr pak už nepřijímá další eventy - Execute vrací chybový kód)
