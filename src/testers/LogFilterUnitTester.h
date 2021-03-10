@@ -12,10 +12,6 @@ namespace tester {
      */
     class LogFilterUnitTester : public GenericUnitTester {
     public:
-        static const std::string FILTER_CONFIG;
-        static const std::string LOG_FILE_GENERATION_TEST_LOG;
-        static const std::string CORRECT_LOG_FILE_NAME_TEST_LOG;
-
         LogFilterUnitTester(const GUID& guid);
         void executeSpecificTests() override;
         /**
@@ -25,6 +21,14 @@ namespace tester {
          * @return S_OK if log file is created, otherwise E_FAIL
          */
         HRESULT logFileGenerationTest();
+        /**
+         * When there is N events executed upon the LogFilter, there should be a line for every single event
+         * that was executed, plus one for the header.
+         * This test will execute 3 level events and a shutdown event upon the LogFilter and checks, whether there are
+         * 5 lines present in the generated log file.
+         * @return S_OK if log file contains 5 lines, otherwise E_FAIL
+         */
+        HRESULT logRowCountTest();
     };
 }
 #endif // !_LOG_FILTER_UNIT_TESTER_H_

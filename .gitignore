@@ -36,3 +36,4 @@ cmake_install.cmake
 
 /lib*.a
 Testing
+tmp

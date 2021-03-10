@@ -21,7 +21,7 @@ namespace tester {
      * Contains generic tests and methods, which can be applied on any filter.
      */
     class GenericUnitTester {
-    private: // private attibutes
+    private: // private attributes
         std::mutex m_testMutex;
         std::condition_variable m_testCv;
         HRESULT m_lastTestResult;
@@ -99,7 +99,12 @@ namespace tester {
 
         /// Creates shut down event and executes it with tested filter
         HRESULT shutDownTest();
-
+        /**
+         * Configures tested filter with given configuration and returns the result.
+         * @param configuration filter configuration
+         * @return cnfiguration result
+         */
+        HRESULT configureFilter(const tester::FilterConfig& configuration);
         CDynamic_Library& getFilterLib();
         TestFilter& getTestFilter();
         scgms::IFilter* getTestedFilter();
