@@ -14,7 +14,6 @@ namespace tester {
      */
     class DrawingFilterUnitTester : public GenericUnitTester {
     public:
-        static const std::string FILTER_CONFIG;
 
         DrawingFilterUnitTester(const GUID& guid);
         void executeSpecificTests() override;
@@ -22,6 +21,8 @@ namespace tester {
          * Executes an information event upon created and configured Drawing filter.
          */
         HRESULT imageGenerationTest();
+
+        HRESULT ifaceInspectionTest();
     };
 }
 #endif // !_DRAWING_FILTER_UNIT_TESTER_H_
