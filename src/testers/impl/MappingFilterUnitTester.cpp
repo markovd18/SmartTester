@@ -3,6 +3,7 @@
 #include <utils/string_utils.h>
 #include "../MappingFilterUnitTester.h"
 #include "../../utils/scgmsLibUtils.h"
+#include "../../utils/LogUtils.h"
 
 namespace tester {
 
@@ -72,21 +73,18 @@ namespace tester {
         Tests if level event's signal id will be correctly mapped.
     */
     HRESULT MappingFilterUnitTester::levelEventMappingTest() {
-        HRESULT result = configureFilterCorrectly();
+        tester::MappingFilterConfig config(SIGNAL_SRC_ID_GUID, SIGNAL_DST_ID_GUID);
+        HRESULT result = configureFilter(config);
 
         if (!Succeeded(result)) {
-            Logger::getInstance().error(L"Failed to configure filter!");
-            Logger::getInstance().error(L"expected result: " + Widen_Char(std::system_category().message(S_OK).c_str()));
-            Logger::getInstance().error(L"actual result: " + Widen_Char(std::system_category().message(result).c_str()));
-            shutDownTest();
+            log::logConfigurationError(config, S_OK, result);
             return E_FAIL;
         }
 
         scgms::IDevice_Event* event = createEvent(scgms::NDevice_Event_Code::Level);
-        if (event == nullptr) {
-            std::wcerr << L"Error while creating \"Level\" IDevice_event!\n";
-            Logger::getInstance().error(L"Error while creating \"Level\" IDevice_event!");
-            shutDownTest();
+        if (!event) {
+            std::wcerr << L"Error while creating " << describeEvent(scgms::NDevice_Event_Code::Level) << "\n";
+            Logger::getInstance().error(L"Error while creating " + describeEvent(scgms::NDevice_Event_Code::Level));
             return E_FAIL;
         }
 
@@ -96,7 +94,7 @@ namespace tester {
         scgms::TDevice_Event src_event = *raw_event;
 
         result = getTestedFilter()->Execute(event);
-        Logger::getInstance().info(L"Executing \"Level\" event...");
+        Logger::getInstance().info(L"Executing " + describeEvent(scgms::NDevice_Event_Code::Level));
 
         GUID dst_id = getTestFilter().getRecievedEvent()->signal_id;
         if (Succeeded(result) && (dst_id == SIGNAL_DST_ID_GUID)) {
@@ -123,7 +121,6 @@ namespace tester {
         }
 
         event->Release();
-        shutDownTest();
         return result;
     }
 
@@ -131,20 +128,18 @@ namespace tester {
         Tests if info event's signal id will be correctly mapped.
     */
     HRESULT MappingFilterUnitTester::infoEventMappingTest() {
-        HRESULT result = configureFilterCorrectly();
+        tester::MappingFilterConfig config(SIGNAL_SRC_ID_GUID, SIGNAL_DST_ID_GUID);
+        HRESULT result = configureFilter(config);
+
         if (!Succeeded(result)) {
-            Logger::getInstance().error(L"Failed to configure filter!");
-            Logger::getInstance().error(L"expected result: " + Widen_Char(std::system_category().message(S_OK).c_str()));
-            Logger::getInstance().error(L"actual result: " + Widen_Char(std::system_category().message(result).c_str()));
-            shutDownTest();
+            log::logConfigurationError(config, S_OK, result);
             return E_FAIL;
         }
 
         scgms::IDevice_Event* event = createEvent(scgms::NDevice_Event_Code::Information);
         if (event == nullptr) {
-            std::wcerr << L"Error while creating \"Info\" IDevice_event!\n";
-            Logger::getInstance().error(L"Error while creating \"Info\" IDevice_event!");
-            shutDownTest();
+            std::wcerr << L"Error while creating " << describeEvent(scgms::NDevice_Event_Code::Information) << "\n";
+            Logger::getInstance().error(L"Error while creating " + describeEvent(scgms::NDevice_Event_Code::Information));
             return E_FAIL;
         }
 
@@ -154,7 +149,7 @@ namespace tester {
         scgms::TDevice_Event src_event = *raw_event;
 
         result = getTestedFilter()->Execute(event);
-        Logger::getInstance().info(L"Executing \"Info\" event...");
+        Logger::getInstance().info(L"Executing " + describeEvent(scgms::NDevice_Event_Code::Information));
 
         GUID dst_id = getTestFilter().getRecievedEvent()->signal_id;
         if (Succeeded(result) && (dst_id == SIGNAL_DST_ID_GUID)) {
@@ -178,27 +173,24 @@ namespace tester {
             Logger::getInstance().error(L"actual result: " + GUID_To_WString(dst_id));
             result = E_FAIL;
         }
-        event->Release();
 
-        shutDownTest();
+        event->Release();
         return result;
     }
 
     HRESULT MappingFilterUnitTester::parametersEventMappingTest() {
-        HRESULT result = configureFilterCorrectly();
+        tester::MappingFilterConfig config(SIGNAL_SRC_ID_GUID, SIGNAL_DST_ID_GUID);
+        HRESULT result = configureFilter(config);
+
         if (!Succeeded(result)) {
-            Logger::getInstance().error(L"Failed to configure filter!");
-            Logger::getInstance().error(L"expected result: " + Widen_Char(std::system_category().message(S_OK).c_str()));
-            Logger::getInstance().error(L"actual result: " + Widen_Char(std::system_category().message(result).c_str()));
-            shutDownTest();
+            log::logConfigurationError(config, S_OK, result);
             return E_FAIL;
         }
 
         scgms::IDevice_Event* event = createEvent(scgms::NDevice_Event_Code::Parameters);
         if (event == nullptr) {
-            std::wcerr << L"Error while creating \"Parameters\" IDevice_event!\n";
-            Logger::getInstance().error(L"Error while creating \"Parameters\" IDevice_event!");
-            shutDownTest();
+            std::wcerr << L"Error while creating " << describeEvent(scgms::NDevice_Event_Code::Parameters) << "\n";
+            Logger::getInstance().error(L"Error while creating " + describeEvent(scgms::NDevice_Event_Code::Parameters));
             return E_FAIL;
         }
 
@@ -208,7 +200,7 @@ namespace tester {
         scgms::TDevice_Event src_event = *raw_event;
 
         result = getTestedFilter()->Execute(event);
-        Logger::getInstance().info(L"Executing \"Parameters\" event...");
+        Logger::getInstance().info(L"Executing " + describeEvent(scgms::NDevice_Event_Code::Parameters));
 
         GUID dst_id = getTestFilter().getRecievedEvent()->signal_id;
         if (Succeeded(result) && (dst_id == SIGNAL_DST_ID_GUID)) {
@@ -233,10 +225,8 @@ namespace tester {
             Logger::getInstance().error(L"actual result: " + GUID_To_WString(dst_id));
             result = E_FAIL;
         }
+
         event->Release();
-
-
-        shutDownTest();
         return result;
     }
 }

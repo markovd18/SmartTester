@@ -11,6 +11,7 @@
 #include <utils/string_utils.h>
 #include "Logger.h"
 #include "constants.h"
+#include "UnitTestExecUtils.h"
 
 namespace log {
 
@@ -24,6 +25,8 @@ namespace log {
     void infoLogLines(const std::vector<std::vector<std::string>>& lines);
     /// Prints errors into the log and console and empties the container
     void printAndEmptyErrors(const refcnt::Swstr_list& errors);
+    /// Logs the error information about failed filter configuration
+    void logConfigurationError(const tester::FilterConfig &config, HRESULT expected, HRESULT result);
     /**
      * Reads log file at given path and transforms it into individual tokens.
      *
