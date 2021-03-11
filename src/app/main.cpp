@@ -5,7 +5,6 @@
 #include <string>
 #include <rtl/guid.h>
 #include <utils/string_utils.h>
-#include <rtl/FilesystemLib.h>
 #include "../utils/UnitTestExecUtils.h"
 #include "../utils/constants.h"
 #include "../testers/RegressionTester.h"
@@ -137,14 +136,8 @@ HRESULT execute_regression_testing(const std::wstring& config_filepath) {
         return E_FAIL;
     }
 
-    filesystem::create_directory(Narrow_WChar(cnst::TMP_DIR));
-    std::ifstream file(Narrow_WChar(cnst::TMP_LOG_FILE));
-    if (file.good()) {
-        file.close();
-        std::remove(Narrow_WChar(cnst::TMP_LOG_FILE).c_str());
-    }
-    file.close();
-    std::rename(Narrow_WChar(cnst::LOG_FILE).c_str(), Narrow_WChar(cnst::TMP_LOG_FILE).c_str());
+    /// Moving created log into tmp
+    moveToTmp(Narrow_WChar(cnst::LOG_FILE));
 
     Logger::getInstance().info(L"Shutting down.");
     std::wcerr << L"For detailed information see generated log.\n";
@@ -170,7 +163,7 @@ int main(int argc, char* argv[]) {
         std::wstring config_filepath;
 
         switch (argv[1][1]) {
-        case 'u':   // unit testing
+        case 'u':   /// unit testing
             if (argv[2] != nullptr) {
                 parameter = argv[2];
             }
@@ -178,7 +171,7 @@ int main(int argc, char* argv[]) {
             std::wcout << L"Executing unit tests.\n";
             execute_unit_testing(parameter);
             break;
-        case 'r':   // regression testing
+        case 'r':   /// regression testing
             Logger::getInstance().info(L"Regression tests will be executed.");
             std::wcout << L"Executing regression tests.\n";
             config_filepath = argc > 2 ? std::wstring{ argv[2], argv[2] + strlen(argv[2]) } : std::wstring{};
@@ -189,8 +182,7 @@ int main(int argc, char* argv[]) {
             print_help();
             return 2;
         }
-    }
-    else {
+    } else {
         std::wcerr << L"Unsupported command: " << argv[1] << "\n";
         Logger::getInstance().error(L"Unsupported command passed!");
         print_help();

@@ -13,20 +13,15 @@ HRESULT IfaceCalling TestFilter::Configure(IFilter_Configuration* configuration,
 
 HRESULT IfaceCalling TestFilter::Execute(scgms::IDevice_Event *event) {
 
-    if (event == nullptr)
-    {
+    if (event == nullptr) {
         return E_FAIL;
     }
-    event->Raw(&m_receivedEvent);
 
-    if (m_receivedEvent->event_code == scgms::NDevice_Event_Code::Shut_Down) {
-        event->Release();
-    }
+    event->Raw(&m_receivedEvent);
 
     return S_OK;
 }
 
-scgms::TDevice_Event* TestFilter::getRecievedEvent()
-{
+scgms::TDevice_Event* TestFilter::getReceivedEvent() {
     return m_receivedEvent;
 }

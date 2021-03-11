@@ -3,13 +3,12 @@
 #include <utils/string_utils.h>
 #include "../MaskingFilterUnitTester.h"
 #include "../../utils/scgmsLibUtils.h"
+#include "../../utils/LogUtils.h"
 
 namespace tester {
 
-    const std::string MaskingFilterUnitTester::FILTER_CONFIG = "[Filter_001_{A1124C89-18A4-F4C1-28E8-A9471A58021E}]";
     const GUID MaskingFilterUnitTester::SIGNAL_ID_GUID = {0xe1cd07ef, 0xb079, 0x4911,
                                                           {0xb7, 0x9b, 0xd2, 0x03, 0x48, 0x61, 0x01, 0xc8}};
-    const std::string MaskingFilterUnitTester::SIGNAL_ID_STR = "{E1CD07EF-B079-4911-B79B-D203486101C8}";
 
     MaskingFilterUnitTester::MaskingFilterUnitTester(const GUID &guid) : GenericUnitTester(guid) {
         //
@@ -23,65 +22,33 @@ namespace tester {
     }
 
 
-    HRESULT MaskingFilterUnitTester::configureFilterCorrectly(const std::string &bitmask) {
-        if (!isFilterLoaded()) {
-            std::wcerr << L"No filter created! Cannot execute test.\n";
-            Logger::getInstance().error(L"No filter loaded! Can't execute test.");
-            return E_FAIL;
-        }
-
-        scgms::SPersistent_Filter_Chain_Configuration configuration;
-        refcnt::Swstr_list errors;
-        std::string memory = FILTER_CONFIG + "\n\nSignal = " + SIGNAL_ID_STR + "\n\nBitmask = " + bitmask;
-        Logger::getInstance().debug(
-                L"Signal = " + std::wstring(SIGNAL_ID_STR.begin(), SIGNAL_ID_STR.end()) + L", Bitmask = " +
-                std::wstring(bitmask.begin(), bitmask.end()));
-
-        HRESULT result = configuration ? S_OK : E_FAIL;
-        if (result == S_OK) {
-            configuration->Load_From_Memory(memory.c_str(), memory.size(), errors.get());
-            Logger::getInstance().info(L"Loading configuration from memory...");
-        } else {
-            Logger::getInstance().error(L"Error while creating configuration!");
-        }
-
-        scgms::IFilter_Configuration_Link **begin, **end;
-        configuration->get(&begin, &end);
-
-        return getTestFilter().Configure(begin[0], errors.get());
-    }
-
-
     HRESULT MaskingFilterUnitTester::completeBitmaskMappingTest() {
         HRESULT result = S_OK;
         std::string bitmasks[] = {"00000000", "11111111", "01010101", "10101010", "00101111", "11010000"};
-        int bitmasks_length = 6;
 
-        for (int i = 0; i < bitmasks_length; i++) {
-            if (bitmaskMappingTest(bitmasks[i]) != S_OK) {
+        for (const auto& bitmask : bitmasks) {
+            if (bitmaskMappingTest(bitmask) != S_OK) {
                 result = E_FAIL;
             }
         }
-        shutDownTest();
+
         return result;
     }
 
     HRESULT MaskingFilterUnitTester::bitmaskMappingTest(const std::string &bitmask) {
-
-        Logger::getInstance().info(L"Configuring filter...");
-        HRESULT result = configureFilterCorrectly(bitmask);
+        tester::MaskingFilterConfig config(SIGNAL_ID_GUID, bitmask);
+        HRESULT result = configureFilter(config);
         if (!Succeeded(result)) {
-            Logger::getInstance().error(L"Failed to configure filter!");
+            log::logConfigurationError(config, S_OK, result);
             return E_FAIL;
         }
 
         HRESULT test_result = S_OK;
         for (const char &i : bitmask) {
             scgms::IDevice_Event *event = createEvent(scgms::NDevice_Event_Code::Level);
-            if (event == nullptr) {
+            if (!event) {
                 std::wcerr << L"Error while creating " << describeEvent(scgms::NDevice_Event_Code::Level) << std::endl;
                 Logger::getInstance().error(L"Error while creating " + describeEvent(scgms::NDevice_Event_Code::Level));
-                shutDownTest();
                 return E_FAIL;
             }
 
@@ -117,49 +84,16 @@ namespace tester {
             event->Release();
         }
 
-        shutDownTest();
         return test_result;
     }
 
-/**
- * Tests if Info event is correctly not masked by this filter.
- *
- * @return S_OK if Info event is not masked by this filter, otherwise E_FAIL
- */
+
     HRESULT MaskingFilterUnitTester::infoEventMaskingTest() {
-        if (!isFilterLoaded()) {
-            std::wcerr << L"No filter created! Cannot execute test.\n";
-            Logger::getInstance().error(L"No filter loaded! Can't execute test.");
-            return E_FAIL;
-        }
-
-        scgms::SPersistent_Filter_Chain_Configuration configuration;
-        refcnt::Swstr_list errors;
         std::string bitmask = "00101111";
-        std::string memory = FILTER_CONFIG + "\n\nSignal = " + SIGNAL_ID_STR + "\n\nBitmask = " + bitmask;
-        Logger::getInstance().debug(
-                L"Signal = " + std::wstring(SIGNAL_ID_STR.begin(), SIGNAL_ID_STR.end()) + L", Bitmask = " +
-                std::wstring(bitmask.begin(), bitmask.end()));
-
-        HRESULT result = configuration ? S_OK : E_FAIL;
-        if (result == S_OK) {
-            configuration->Load_From_Memory(memory.c_str(), memory.size(), errors.get());
-            Logger::getInstance().info(L"Loading configuration from memory...");
-        } else {
-            Logger::getInstance().error(L"Error while creating configuration!");
-            shutDownTest();
-            return E_FAIL;
-        }
-
-        scgms::IFilter_Configuration_Link **begin, **end;
-        configuration->get(&begin, &end);
-
-        result = getTestedFilter()->Configure(begin[0], errors.get());
-        Logger::getInstance().info(L"Configuring filter...");
-
+        tester::MaskingFilterConfig config(SIGNAL_ID_GUID, bitmask);
+        HRESULT result = configureFilter(config);
         if (!Succeeded(result)) {
-            Logger::getInstance().error(L"Failed to configure filter!");
-            shutDownTest();
+            log::logConfigurationError(config, S_OK, result);
             return E_FAIL;
         }
 
@@ -169,7 +103,6 @@ namespace tester {
             if (event == nullptr) {
                 std::wcerr << L"Error while creating " << describeEvent(scgms::NDevice_Event_Code::Information);
                 Logger::getInstance().error(L"Error while creating " + describeEvent(scgms::NDevice_Event_Code::Information));
-                shutDownTest();
                 return E_FAIL;
             }
 
@@ -178,7 +111,7 @@ namespace tester {
             raw_event->signal_id = SIGNAL_ID_GUID;
 
             result = getTestedFilter()->Execute(event);
-            Logger::getInstance().info(L"Executing \"Info\" event...");
+            Logger::getInstance().info(L"Executing " + describeEvent(scgms::NDevice_Event_Code::Information));
 
             if (Succeeded(result)) {
                 if (raw_event->event_code != scgms::NDevice_Event_Code::Information) {
@@ -197,7 +130,6 @@ namespace tester {
             event->Release();
         }
 
-        shutDownTest();
         return test_result;
     }
 }

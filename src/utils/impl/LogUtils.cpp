@@ -63,6 +63,13 @@ namespace log {
         }
     }
 
+    void logConfigurationError(const tester::FilterConfig &config, HRESULT expected, HRESULT result) {
+        Logger::getInstance().error(L"Provided configuration:\n"
+                                    L"(" + Widen_String(config.toString()) + L")");
+        Logger::getInstance().error(std::wstring(L"expected configuration result: ") + Describe_Error(expected));
+        Logger::getInstance().error(std::wstring(L"actual configuration result: ") + Describe_Error(result));
+    }
+
     std::vector<std::vector<std::string>> readLogFile(const std::string& logPath) {
         std::string line;
         std::string delimiter = ";";
@@ -74,7 +81,7 @@ namespace log {
 
         std::vector<std::vector<std::string>> loggedData;
 
-        while (getline(logFile, line)) {
+        while (std::getline(logFile, line)) {
             size_t pos;
             std::vector<std::string> tmpVec;
             while ((pos = line.find(delimiter)) != std::string::npos) {

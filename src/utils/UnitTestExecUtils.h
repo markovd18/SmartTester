@@ -5,6 +5,7 @@
 #ifndef SMARTTESTER_UNITTESTER_H
 #define SMARTTESTER_UNITTESTER_H
 #include <rtl/guid.h>
+#include <rtl/FilesystemLib.h>
 #include "../testers/GenericUnitTester.h"
 #include "Logger.h"
 
@@ -25,4 +26,11 @@ namespace tester {
     /// Returns a unit tester instance based on given guid
     tester::GenericUnitTester *getUnitTester(const GUID &guid);
 }
+
+/**
+ * Moves given file to a tmp folder next to an executable
+ * @param filePath path to an existing file
+ * @return true if success, otherwise false
+ */
+bool moveToTmp(const filesystem::path& filePath);
 #endif //SMARTTESTER_UNITTESTER_H

@@ -6,7 +6,6 @@
 #include <string>
 #include <rtl/hresult.h>
 #include <rtl/FilterLib.h>
-#include <utils/string_utils.h>
 #include <rtl/scgmsLib.h>
 #include "../../mappers/GuidFileMapper.h"
 #include "../../utils/constants.h"
@@ -17,20 +16,24 @@
 namespace tester {
 
     GenericUnitTester::GenericUnitTester(const GUID guid)
-            :  m_lastTestResult(S_OK), m_testedGuid(guid), m_testedFilter(loadFilter()) {
-    }
-
-    scgms::IFilter* GenericUnitTester::loadFilter() {
-
+            :  m_lastTestResult(S_OK), m_testedGuid(guid), m_testedFilter(nullptr) {
         const wchar_t* file_name = GuidFileMapper::GetInstance().getFileName(m_testedGuid);
         std::wstring file = std::wstring(file_name) + cnst::LIB_EXTENSION;
 
         m_filterLibrary.Load(file);
 
-
         if (!m_filterLibrary.Is_Loaded()) {
             std::wcerr << L"Couldn't load " << file_name << " library!\n";
             Logger::getInstance().error(L"Couldn't load " + std::wstring(file_name) + L" library.");
+        } else {
+            m_testedFilter = loadFilter();
+        }
+    }
+
+    scgms::IFilter* GenericUnitTester::loadFilter() {
+        if (!m_filterLibrary.Is_Loaded()) {
+            std::wcerr << L"Filter library is not loaded! Filter will not be loaded.\n";
+            Logger::getInstance().error(L"Filter library is not loaded! Filter will not be loaded.");
             return nullptr;
         }
 
@@ -100,7 +103,7 @@ namespace tester {
         log::printResult(result);
     }
 
-    void GenericUnitTester::executeConfigTest(const std::wstring& testName, const std::string& configuration, const HRESULT expectedResult) {
+    void GenericUnitTester::executeConfigTest(const std::wstring& testName, const tester::FilterConfig& configuration, const HRESULT expectedResult) {
         Logger::getInstance().info(L"----------------------------------------");
         Logger::getInstance().info(L"Executing " + testName + L"...");
         Logger::getInstance().info(L"----------------------------------------");
@@ -110,6 +113,10 @@ namespace tester {
     }
 
     HRESULT GenericUnitTester::shutDownTest() {
+        if (!isFilterLoaded()) {
+            return E_FAIL;
+        }
+
         scgms::IDevice_Event* shutDown = createEvent(scgms::NDevice_Event_Code::Shut_Down);
         if (shutDown == nullptr) {
             std::wcerr << L"Error while creating " << describeEvent(scgms::NDevice_Event_Code::Shut_Down) << std::endl;
@@ -117,7 +124,12 @@ namespace tester {
             return E_FAIL;
         }
 
-        return m_testedFilter->Execute(shutDown);
+        m_testedFilter->Execute(shutDown);
+        shutDown->Release();
+        m_testedFilter->Release();
+        m_testedFilter = nullptr;
+
+        return S_OK;
     }
 
     HRESULT GenericUnitTester::runTestInThread(const std::function<HRESULT(void)>& test) {
@@ -153,7 +165,7 @@ namespace tester {
         return result;
     }
 
-    HRESULT GenericUnitTester::runConfigTestInThread(const std::string& configuration, const HRESULT expectedResult) {
+    HRESULT GenericUnitTester::runConfigTestInThread(const tester::FilterConfig& configuration, const HRESULT expectedResult) {
         Logger::getInstance().debug(L"Running test in thread...");
         std::cv_status status;
         HRESULT result;
@@ -161,7 +173,7 @@ namespace tester {
         {
             std::unique_lock<std::mutex> lock(m_testMutex);
 
-            std::thread thread(&GenericUnitTester::runConfigTest, this, configuration, expectedResult);
+            std::thread thread(&GenericUnitTester::runConfigTest, this, std::ref(configuration), expectedResult);
 
             status = m_testCv.wait_for(lock, std::chrono::milliseconds(cnst::MAX_EXEC_TIME));
             lock.unlock();
@@ -187,12 +199,34 @@ namespace tester {
     }
 
     void GenericUnitTester::runTest(const std::function<HRESULT(void)>& test) {
-        m_lastTestResult = test();
+        if (!isFilterLoaded()) {
+            m_testedFilter = loadFilter();
+        }
+
+        if (isFilterLoaded()) {
+            m_lastTestResult = test();
+        } else {
+            Logger::getInstance().error(L"Filter is not loaded! Test will not be executed.");
+            m_lastTestResult = E_FAIL;
+        }
+
+        shutDownTest();
         m_testCv.notify_all();
     }
 
-    void GenericUnitTester::runConfigTest(const std::string& configuration, const HRESULT expectedResult) {
-        m_lastTestResult = configurationTest(configuration, expectedResult);
+    void GenericUnitTester::runConfigTest(const tester::FilterConfig& configuration, const HRESULT expectedResult) {
+        if (!isFilterLoaded()) {
+            m_testedFilter = loadFilter();
+        }
+
+        if (isFilterLoaded()) {
+            m_lastTestResult = configurationTest(configuration, expectedResult);
+        } else {
+            Logger::getInstance().error(L"Filter is not loaded! Test will not be executed.");
+            m_lastTestResult = E_FAIL;
+        }
+
+        shutDownTest();
         m_testCv.notify_all();
     }
 
@@ -263,16 +297,17 @@ namespace tester {
         HRESULT result = m_testedFilter->Execute(event);
 
         if (Succeeded(result)) {
-            scgms::TDevice_Event* receivedEvent = m_testFilter.getRecievedEvent();
+            scgms::TDevice_Event* receivedEvent = m_testFilter.getReceivedEvent();
             if (receivedEvent->event_code == eventCode) {
                 result = S_OK;
             } else {
                 Logger::getInstance().error(L"Event was modified during execution!");
                 Logger::getInstance().error(L"expected code: " + describeEvent(eventCode));
-                Logger::getInstance().error(L"expected code: " + describeEvent(receivedEvent->event_code));
+                Logger::getInstance().error(L"actual code: " + describeEvent(receivedEvent->event_code));
                 result = E_FAIL;
             }
         } else {
+            Logger::getInstance().error(L"Error while sending " + describeEvent(scgms::NDevice_Event_Code::Shut_Down));
             Logger::getInstance().error(std::wstring(L"expected result: ") + Describe_Error(S_OK));
             Logger::getInstance().error(std::wstring(L"actual result: ") + Describe_Error(result));
             result = E_FAIL;
@@ -280,12 +315,12 @@ namespace tester {
 
         if (eventCode != scgms::NDevice_Event_Code::Shut_Down) {
             event->Release();
-            shutDownTest();
         }
+
         return result;
     }
 
-    HRESULT GenericUnitTester::configurationTest(const std::string &memory, const HRESULT expectedResult) {
+    HRESULT GenericUnitTester::configureFilter(const tester::FilterConfig &config) {
         if (!isFilterLoaded()) {
             std::wcerr << L"No filter loaded! Can't execute test.\n";
             Logger::getInstance().error(L"No filter loaded! Can't execute test.");
@@ -296,9 +331,10 @@ namespace tester {
         refcnt::Swstr_list errors;
 
         HRESULT result = configuration ? S_OK : E_FAIL;
+        std::string memory = config.toString();
         if (result == S_OK) {
             configuration->Load_From_Memory(memory.c_str(), memory.size(), errors.get());
-            Logger::getInstance().info(L"Loading configuration from memory...");
+            Logger::getInstance().debug(L"Loading configuration from memory...");
         } else {
             Logger::getInstance().error(L"Error while creating configuration!");
             return E_FAIL;
@@ -308,20 +344,20 @@ namespace tester {
         configuration->get(&begin, &end);
 
         Logger::getInstance().info(L"Configuring filter...");
-        result = m_testedFilter->Configure(begin[0], errors.get());
+        return m_testedFilter->Configure(begin[0], errors.get());
+    }
 
+    HRESULT GenericUnitTester::configurationTest(const tester::FilterConfig &config, const HRESULT expectedResult) {
         HRESULT testResult;
+
+        HRESULT result = configureFilter(config);
         if (result == expectedResult) {
             testResult = S_OK;
         } else {
-            Logger::getInstance().error(L"Provided configuration:\n"
-                                        L"(" + std::wstring(memory.begin(), memory.end()) + L")");
-            Logger::getInstance().error(std::wstring(L"expected configuration result: ") + Describe_Error(expectedResult));
-            Logger::getInstance().error(std::wstring(L"actual configuration result: ") + Describe_Error(result));
+            log::logConfigurationError(config, expectedResult, result);
             testResult = E_FAIL;
         }
 
-        shutDownTest();
         return testResult;
     }
 

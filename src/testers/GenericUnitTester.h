@@ -14,13 +14,14 @@
 #include <rtl/hresult.h>
 #include "../utils/TestFilter.h"
 #include "../utils/Logger.h"
+#include "FilterConfiguration.h"
 
 namespace tester {
     /**
      * Contains generic tests and methods, which can be applied on any filter.
      */
     class GenericUnitTester {
-    private: // private attibutes
+    private: // private attributes
         std::mutex m_testMutex;
         std::condition_variable m_testCv;
         HRESULT m_lastTestResult;
@@ -73,7 +74,7 @@ namespace tester {
          * @param expectedResult expected result of this configuration
          * @return S_OK only if the result of given configuration is identical with given expectedResult parameter, otherwise E_FAIL
          */
-        HRESULT configurationTest(const std::string& memory, HRESULT expectedResult);
+        HRESULT configurationTest(const tester::FilterConfig& config, HRESULT expectedResult);
         bool isFilterLoaded();
         void executeAllTests();
         void executeGenericTests();
@@ -94,11 +95,16 @@ namespace tester {
          * @param testName name of the test which will be displayed in logs
          * @param test method to be invoked by this method
          */
-        void executeConfigTest(const std::wstring& testName, const std::string& configuration, HRESULT expectedResult);
+        void executeConfigTest(const std::wstring& testName, const tester::FilterConfig& configuration, HRESULT expectedResult);
 
         /// Creates shut down event and executes it with tested filter
         HRESULT shutDownTest();
-
+        /**
+         * Configures tested filter with given configuration and returns the result.
+         * @param configuration filter configuration
+         * @return cnfiguration result
+         */
+        HRESULT configureFilter(const tester::FilterConfig& configuration);
         CDynamic_Library& getFilterLib();
         TestFilter& getTestFilter();
         scgms::IFilter* getTestedFilter();
@@ -108,9 +114,9 @@ namespace tester {
         scgms::IFilter* loadFilter();
         const wchar_t* getFilterName();
         HRESULT runTestInThread(const std::function<HRESULT(void)>& test);
-        HRESULT runConfigTestInThread(const std::string& configuration, HRESULT expectedResult);
+        HRESULT runConfigTestInThread(const tester::FilterConfig& configuration, HRESULT expectedResult);
         void runTest(const std::function<HRESULT(void)>& test);
-        void runConfigTest(const std::string& configuration, HRESULT expectedResult);
+        void runConfigTest(const tester::FilterConfig& configuration, HRESULT expectedResult);
     };
 }
 
