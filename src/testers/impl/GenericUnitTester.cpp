@@ -146,7 +146,7 @@ namespace tester {
             lock.unlock();
 
             if (status == std::cv_status::timeout) {
-//                shutDownTest();
+                shutDownTest();
             }
 
             if (thread.joinable()) {
