@@ -113,6 +113,10 @@ namespace tester {
     }
 
     HRESULT GenericUnitTester::shutDownTest() {
+        if (!isFilterLoaded()) {
+            return E_FAIL;
+        }
+
         scgms::IDevice_Event* shutDown = createEvent(scgms::NDevice_Event_Code::Shut_Down);
         if (shutDown == nullptr) {
             std::wcerr << L"Error while creating " << describeEvent(scgms::NDevice_Event_Code::Shut_Down) << std::endl;
@@ -121,6 +125,7 @@ namespace tester {
         }
 
         m_testedFilter->Execute(shutDown);
+        shutDown->Release();
         m_testedFilter->Release();
         m_testedFilter = nullptr;
 
@@ -141,7 +146,7 @@ namespace tester {
             lock.unlock();
 
             if (status == std::cv_status::timeout) {
-                shutDownTest();
+//                shutDownTest();
             }
 
             if (thread.joinable()) {
@@ -210,7 +215,9 @@ namespace tester {
     }
 
     void GenericUnitTester::runConfigTest(const tester::FilterConfig& configuration, const HRESULT expectedResult) {
-        m_testedFilter = loadFilter();
+        if (!isFilterLoaded()) {
+            m_testedFilter = loadFilter();
+        }
 
         if (isFilterLoaded()) {
             m_lastTestResult = configurationTest(configuration, expectedResult);
@@ -290,7 +297,7 @@ namespace tester {
         HRESULT result = m_testedFilter->Execute(event);
 
         if (Succeeded(result)) {
-            scgms::TDevice_Event* receivedEvent = m_testFilter.getRecievedEvent();
+            scgms::TDevice_Event* receivedEvent = m_testFilter.getReceivedEvent();
             if (receivedEvent->event_code == eventCode) {
                 result = S_OK;
             } else {
@@ -327,7 +334,7 @@ namespace tester {
         std::string memory = config.toString();
         if (result == S_OK) {
             configuration->Load_From_Memory(memory.c_str(), memory.size(), errors.get());
-            Logger::getInstance().info(L"Loading configuration from memory...");
+            Logger::getInstance().debug(L"Loading configuration from memory...");
         } else {
             Logger::getInstance().error(L"Error while creating configuration!");
             return E_FAIL;
