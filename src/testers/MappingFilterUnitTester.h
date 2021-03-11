@@ -27,10 +27,6 @@ namespace tester {
         HRESULT levelEventMappingTest();
         HRESULT infoEventMappingTest();
         HRESULT parametersEventMappingTest();
-
-    private: // private methods
-        /// Helper method for executing correct configuration
-        HRESULT configureFilterCorrectly();
     };
 }
 #endif // !_CSV_LOG_FILE_FILTER_UNIT_TESTER_H_

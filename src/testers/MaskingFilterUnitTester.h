@@ -35,11 +35,6 @@ namespace tester {
          * @return S_OK if test passes, otherwise E_FAIL
          */
         HRESULT infoEventMaskingTest();
-
-    private: // private methods
-        /// Helper method for executing a correct configuration
-        HRESULT configureFilterCorrectly(const std::string &bitmask);
-
     };
 }
 

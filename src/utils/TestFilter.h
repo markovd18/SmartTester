@@ -23,7 +23,7 @@ public:
     ~TestFilter() override = default;
 
     /// Returns a pointer to the event we got from the tested filter.
-    scgms::TDevice_Event* getRecievedEvent();
+    scgms::TDevice_Event* getReceivedEvent();
 
     HRESULT IfaceCalling Execute(scgms::IDevice_Event *event) final;
     HRESULT IfaceCalling Configure(IFilter_Configuration* configuration, refcnt::wstr_list *error_description) final;

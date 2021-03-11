@@ -39,37 +39,6 @@ namespace tester {
     }
 
     /**
-        Helper method for correct configuring of Mapping filter.
-    */
-    HRESULT MappingFilterUnitTester::configureFilterCorrectly() {
-        if (!isFilterLoaded()) {
-            std::wcerr << L"No filter created! Cannot execute test.\n";
-            Logger::getInstance().error(L"No filter loaded! Can't execute test.");
-            return E_FAIL;
-        }
-
-        scgms::SPersistent_Filter_Chain_Configuration configuration;
-        refcnt::Swstr_list errors;
-        tester::MappingFilterConfig config(SIGNAL_SRC_ID_GUID, SIGNAL_DST_ID_GUID);
-        std::string memory = config.toString();
-
-        HRESULT result = configuration ? S_OK : E_FAIL;
-        if (result == S_OK) {
-            configuration->Load_From_Memory(memory.c_str(), memory.size(), errors.get());
-            Logger::getInstance().info(L"Loading configuration from memory...");
-        } else {
-            Logger::getInstance().error(L"Error while creating configuration!");
-            return E_FAIL;
-        }
-
-        scgms::IFilter_Configuration_Link** begin, ** end;
-        configuration->get(&begin, &end);
-
-        Logger::getInstance().info(L"Configuring filter...");
-        return getTestFilter().Configure(begin[0], errors.get());
-    }
-
-    /**
         Tests if level event's signal id will be correctly mapped.
     */
     HRESULT MappingFilterUnitTester::levelEventMappingTest() {
@@ -96,7 +65,7 @@ namespace tester {
         result = getTestedFilter()->Execute(event);
         Logger::getInstance().info(L"Executing " + describeEvent(scgms::NDevice_Event_Code::Level));
 
-        GUID dst_id = getTestFilter().getRecievedEvent()->signal_id;
+        GUID dst_id = getTestFilter().getReceivedEvent()->signal_id;
         if (Succeeded(result) && (dst_id == SIGNAL_DST_ID_GUID)) {
             if ((src_event.device_time == raw_event->device_time)
                 && (src_event.device_id == raw_event->device_id)
@@ -151,7 +120,7 @@ namespace tester {
         result = getTestedFilter()->Execute(event);
         Logger::getInstance().info(L"Executing " + describeEvent(scgms::NDevice_Event_Code::Information));
 
-        GUID dst_id = getTestFilter().getRecievedEvent()->signal_id;
+        GUID dst_id = getTestFilter().getReceivedEvent()->signal_id;
         if (Succeeded(result) && (dst_id == SIGNAL_DST_ID_GUID)) {
             if ((src_event.device_time == raw_event->device_time)
                 && (src_event.device_id == raw_event->device_id)
@@ -202,7 +171,7 @@ namespace tester {
         result = getTestedFilter()->Execute(event);
         Logger::getInstance().info(L"Executing " + describeEvent(scgms::NDevice_Event_Code::Parameters));
 
-        GUID dst_id = getTestFilter().getRecievedEvent()->signal_id;
+        GUID dst_id = getTestFilter().getReceivedEvent()->signal_id;
         if (Succeeded(result) && (dst_id == SIGNAL_DST_ID_GUID)) {
             if ((src_event.device_time == raw_event->device_time)
                 && (src_event.device_id == raw_event->device_id)

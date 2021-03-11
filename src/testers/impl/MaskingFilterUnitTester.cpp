@@ -22,34 +22,6 @@ namespace tester {
     }
 
 
-    HRESULT MaskingFilterUnitTester::configureFilterCorrectly(const std::string &bitmask) {
-        if (!isFilterLoaded()) {
-            std::wcerr << L"No filter created! Cannot execute test.\n";
-            Logger::getInstance().error(L"No filter loaded! Can't execute test.");
-            return E_FAIL;
-        }
-
-        scgms::SPersistent_Filter_Chain_Configuration configuration;
-        refcnt::Swstr_list errors;
-        tester::MaskingFilterConfig config(SIGNAL_ID_GUID, bitmask);
-        std::string memory = config.toString();
-        Logger::getInstance().debug(Widen_String(memory));
-
-        HRESULT result = configuration ? S_OK : E_FAIL;
-        if (result == S_OK) {
-            configuration->Load_From_Memory(memory.c_str(), memory.size(), errors.get());
-            Logger::getInstance().info(L"Loading configuration from memory...");
-        } else {
-            Logger::getInstance().error(L"Error while creating configuration!");
-        }
-
-        scgms::IFilter_Configuration_Link **begin, **end;
-        configuration->get(&begin, &end);
-
-        return getTestFilter().Configure(begin[0], errors.get());
-    }
-
-
     HRESULT MaskingFilterUnitTester::completeBitmaskMappingTest() {
         HRESULT result = S_OK;
         std::string bitmasks[] = {"00000000", "11111111", "01010101", "10101010", "00101111", "11010000"};
