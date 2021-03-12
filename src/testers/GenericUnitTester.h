@@ -102,7 +102,7 @@ namespace tester {
         /**
          * Configures tested filter with given configuration and returns the result.
          * @param configuration filter configuration
-         * @return cnfiguration result
+         * @return configuration result
          */
         HRESULT configureFilter(const tester::FilterConfig& configuration);
         CDynamic_Library& getFilterLib();
@@ -111,7 +111,8 @@ namespace tester {
 
     private: // private methods
         HRESULT informativeEventsTest(scgms::NDevice_Event_Code eventCode);
-        scgms::IFilter* loadFilter();
+        void loadFilter();
+        void loadFilterLibrary();
         const wchar_t* getFilterName();
         HRESULT runTestInThread(const std::function<HRESULT(void)>& test);
         HRESULT runConfigTestInThread(const tester::FilterConfig& configuration, HRESULT expectedResult);

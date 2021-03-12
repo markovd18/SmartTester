@@ -4,7 +4,7 @@
 #include "../TestFilter.h"
 #include "../constants.h"
 
-TestFilter::TestFilter() : m_receivedEvent(nullptr) {
+TestFilter::TestFilter() : m_receivedEvent() {
 }
 
 HRESULT IfaceCalling TestFilter::Configure(IFilter_Configuration* configuration, refcnt::wstr_list *error_description){
@@ -14,14 +14,17 @@ HRESULT IfaceCalling TestFilter::Configure(IFilter_Configuration* configuration,
 HRESULT IfaceCalling TestFilter::Execute(scgms::IDevice_Event *event) {
 
     if (event == nullptr) {
-        return E_FAIL;
+        return S_FALSE;
     }
 
-    event->Raw(&m_receivedEvent);
+    scgms::TDevice_Event *rawEvent;
+    event->Raw(&rawEvent);
+    m_receivedEvent = *rawEvent;
 
+    event->Release();   /// Copying acquired data and releasing, so we don't need to manually release in every test
     return S_OK;
 }
 
-scgms::TDevice_Event* TestFilter::getReceivedEvent() {
+const scgms::TDevice_Event& TestFilter::getReceivedEvent() {
     return m_receivedEvent;
 }

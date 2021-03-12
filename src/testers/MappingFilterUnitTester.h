@@ -14,19 +14,30 @@ namespace tester {
      * Derived class from GenericUnitTester responsible for the testing of Mapping filter.
      */
     class MappingFilterUnitTester : public GenericUnitTester {
-    private: // private attributes
-        static const GUID SIGNAL_SRC_ID_GUID;
-        static const GUID SIGNAL_DST_ID_GUID;
-
     public: // public methods
         MappingFilterUnitTester(const GUID& guid);
-        /**
-         * Executes unit tests specific to mapping filter.
-         */
         void executeSpecificTests() override;
+        /**
+         * When the MappingFilter is correctly configured, executed level event's signal_id should be mapped to the configured destination signal_id.
+         * This test executes level event upon the MappingFilter and checks, if the signal_id was correctly mapped.
+         * @return S_OK if the signal_id of executed was correctly mapped and no other attribute was modified, otherwise false
+         */
         HRESULT levelEventMappingTest();
+        /**
+         * When the MappingFilter is correctly configured, executed info event's signal_id should be mapped to the configured destination signal_id.
+         * This test executes info event upon the MappingFilter and checks, if the signal_id was correctly mapped.
+         * @return S_OK if the signal_id of executed was correctly mapped and no other attribute was modified, otherwise false
+         */
         HRESULT infoEventMappingTest();
+        /**
+         * When the MappingFilter is correctly configured, executed parameter event's signal_id should be mapped to the configured destination signal_id.
+         * This test executes parameter event upon the MappingFilter and checks, if the signal_id was correctly mapped.
+         * @return S_OK if the signal_id of executed was correctly mapped and no other attribute was modified, otherwise false
+         */
         HRESULT parametersEventMappingTest();
+
+    private: // private methods
+        HRESULT eventMappingTest(const tester::MappingFilterConfig &config, scgms::NDevice_Event_Code eventCode);
     };
 }
 #endif // !_CSV_LOG_FILE_FILTER_UNIT_TESTER_H_

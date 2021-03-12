@@ -30,45 +30,45 @@ namespace tester {
 
         /// Configuration tests
         tester::DrawingFilterConfig config;
-        executeConfigTest(L"empty canvas size test", config, E_FAIL);
+        executeConfigTest(L"empty canvas size test", config, E_INVALIDARG);
 
         config.setCanvasHeight(800);
-        executeConfigTest(L"empty canvas width test", config, E_FAIL);
+        executeConfigTest(L"empty canvas width test", config, E_INVALIDARG);
 
         config.setCanvasHeight(0);
         config.setCanvasWidth(1200);
-        executeConfigTest(L"empty canvas height test", config, E_FAIL);
+        executeConfigTest(L"empty canvas height test", config, E_INVALIDARG);
 
         config.setCanvasWidth(-100);
         config.setCanvasHeight(-100);
-        executeConfigTest(L"negative canvas size test", config, E_FAIL);
+        executeConfigTest(L"negative canvas size test", config, E_INVALIDARG);
 
         config.setCanvasWidth(1200);
         config.setCanvasHeight(800);
         executeConfigTest(L"correct canvas size test", config, S_OK);
 
         config.setGraphFilePath("/");
-        executeConfigTest(L"invalid graph file path test", config, E_FAIL);
+        executeConfigTest(L"invalid graph file path test", config, E_INVALIDARG);
 
         config.setGraphFilePath("");
         config.setDayFilePath("/home");
-        executeConfigTest(L"invalid day file path test", config, E_FAIL);
+        executeConfigTest(L"invalid day file path test", config, E_INVALIDARG);
 
         config.setDayFilePath("");
         config.setAgpFilePath("/usr");
-        executeConfigTest(L"invalid AGP file path test", config, E_FAIL);
+        executeConfigTest(L"invalid AGP file path test", config, E_INVALIDARG);
 
         config.setAgpFilePath("");
         config.setParkesFilePath("/etc");
-        executeConfigTest(L"invalid Parkes file path test", config, E_FAIL);
+        executeConfigTest(L"invalid Parkes file path test", config, E_INVALIDARG);
 
         config.setParkesFilePath("");
         config.setClarkFilePath("/lib");
-        executeConfigTest(L"invalid Clark file path test", config, E_FAIL);
+        executeConfigTest(L"invalid Clark file path test", config, E_INVALIDARG);
 
         config.setClarkFilePath("");
         config.setEcdfFilePath("/home/lost+found");
-        executeConfigTest(L"invalid EDCF file path test", config, E_FAIL);
+        executeConfigTest(L"invalid EDCF file path test", config, E_INVALIDARG);
 
         config.setEcdfFilePath("");
         config.setGraphFilePath(TEST_IMAGE_SVG);
@@ -77,11 +77,11 @@ namespace tester {
 
         config.setGraphFilePath("/");
         config.setDayFilePath("/");
-        executeConfigTest(L"identical invalid paths test", config, E_FAIL);
+        executeConfigTest(L"identical invalid paths test", config, E_INVALIDARG);
 
         config.setGraphFilePath(TEST_IMAGE_SVG);
         config.setDayFilePath(TEST_IMAGE_SVG);
-        executeConfigTest(L"identical valid paths test", config, E_FAIL);
+        executeConfigTest(L"identical valid paths test", config, E_INVALIDARG);
         moveToTmp(TEST_IMAGE_SVG);
 
         config.setDayFilePath(TEST_IMAGE_2_SVG);
@@ -122,6 +122,7 @@ namespace tester {
         HRESULT execResult = getTestedFilter()->Execute(event);
         if (!Succeeded(execResult)) {
             Logger::getInstance().error(L"Error while executing " + describeEvent(scgms::NDevice_Event_Code::Level));
+            event->Release();
             return E_FAIL;
         }
 
@@ -153,9 +154,9 @@ namespace tester {
 
         Logger::getInstance().debug(L"Executing " + describeEvent(scgms::NDevice_Event_Code::Level));
         HRESULT execResult = getTestedFilter()->Execute(event);
-        event->Release();
         if (!Succeeded(execResult)) {
             Logger::getInstance().error(L"Error while executing " + describeEvent(scgms::NDevice_Event_Code::Level));
+            event->Release();
             return E_FAIL;
         }
 
@@ -200,9 +201,9 @@ namespace tester {
 
         Logger::getInstance().debug(L"Executing " + describeEvent(scgms::NDevice_Event_Code::Level));
         HRESULT execResult = getTestedFilter()->Execute(event);
-        event->Release();
         if (!Succeeded(execResult)) {
             Logger::getInstance().error(L"Error while executing " + describeEvent(scgms::NDevice_Event_Code::Level));
+            event->Release();
             return E_FAIL;
         }
 
