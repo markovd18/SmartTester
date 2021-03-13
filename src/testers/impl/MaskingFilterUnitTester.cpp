@@ -7,7 +7,7 @@
 
 namespace tester {
 
-    const GUID MaskingFilterUnitTester::SIGNAL_ID_GUID = {0xe1cd07ef, 0xb079, 0x4911,
+    const GUID INVALID_SIGNAL_ID_GUID = {0xe1cd0700, 0xb079, 0x4911,
                                                           {0xb7, 0x9b, 0xd2, 0x03, 0x48, 0x61, 0x01, 0xc8}};
 
     MaskingFilterUnitTester::MaskingFilterUnitTester() : GenericUnitTester(cnst::MASKING_GUID) {
@@ -16,6 +16,32 @@ namespace tester {
 
     void MaskingFilterUnitTester::executeSpecificTests() {
         Logger::getInstance().info(L"Executing specific tests...");
+
+        ///Configuration tests
+        tester::MaskingFilterConfig config;
+        executeConfigTest(L"empty configuration test", config, E_INVALIDARG);
+
+        config.setSignalId(INVALID_SIGNAL_ID_GUID);
+        config.setBitmask("01010101");
+        executeConfigTest(L"invalid signal id test", config, E_INVALIDARG);
+
+        config.setSignalId(scgms::signal_BG);
+        executeConfigTest(L"correct configuration test", config, S_OK);
+
+        config.setBitmask("01");
+        executeConfigTest(L"2-bit bitmask test", config, E_INVALIDARG);
+
+        config.setBitmask("1111111111111111");
+        executeConfigTest(L"16-bit bitmask test", config, S_OK);
+
+        config.setBitmask("001001001001");
+        executeConfigTest(L"12-bit bitmask test", config, E_INVALIDARG);
+
+        config.setBitmask("1111");
+        config.setSignalId(INVALID_SIGNAL_ID_GUID);
+        executeConfigTest(L"invalid configuration test", config, E_INVALIDARG);
+
+        /// Functional tests
         executeTest(L"complete bitmask masking test",
                     std::bind(&MaskingFilterUnitTester::completeBitmaskMappingTest, this));
         executeTest(L"info event masking test", std::bind(&MaskingFilterUnitTester::infoEventMaskingTest, this));
@@ -24,10 +50,12 @@ namespace tester {
 
     HRESULT MaskingFilterUnitTester::completeBitmaskMappingTest() {
         HRESULT result = S_OK;
-        std::string bitmasks[] = {"00000000", "11111111", "01010101", "10101010", "00101111", "11010000"};
-
-        for (const auto& bitmask : bitmasks) {
-            if (bitmaskMappingTest(bitmask) != S_OK) {
+        std::size_t testCount = 6;
+        std::string bitmasks[] = {"00000000", "11111111", "01010101", "10101010", "1100110011001100", "11010000"};
+        GUID signalIds[] = { scgms::signal_BG, scgms::signal_COB, scgms::signal_Calibration,
+                             scgms::signal_Carb_Ratio, scgms::signal_Carb_Rescue, scgms::signal_Air_Temperature };
+        for (std::size_t i = 0; i < testCount; ++i) {
+            if (bitmaskMappingTest(signalIds[i], bitmasks[i]) != S_OK) {
                 result = E_FAIL;
             }
         }
@@ -35,8 +63,8 @@ namespace tester {
         return result;
     }
 
-    HRESULT MaskingFilterUnitTester::bitmaskMappingTest(const std::string &bitmask) {
-        tester::MaskingFilterConfig config(SIGNAL_ID_GUID, bitmask);
+    HRESULT MaskingFilterUnitTester::bitmaskMappingTest(const GUID& signalId, const std::string &bitmask) {
+        tester::MaskingFilterConfig config(signalId, bitmask);
         HRESULT configResult = configureFilter(config);
         if (!Succeeded(configResult)) {
             log::logConfigurationError(config, S_OK, configResult);
@@ -52,9 +80,9 @@ namespace tester {
 
             scgms::TDevice_Event *raw_event;
             event->Raw(&raw_event);
-            raw_event->signal_id = SIGNAL_ID_GUID;
+            raw_event->signal_id = config.getSignalId();
 
-            Logger::getInstance().info(L"Executing " + describeEvent(scgms::NDevice_Event_Code::Level));
+            Logger::getInstance().debug(L"Executing " + describeEvent(scgms::NDevice_Event_Code::Level));
             HRESULT execResult = getTestedFilter()->Execute(event);
             if (!Succeeded(execResult)) {
                 Logger::getInstance().error(L"Error while executing " + describeEvent(scgms::NDevice_Event_Code::Level));
@@ -88,10 +116,10 @@ namespace tester {
 
     HRESULT MaskingFilterUnitTester::infoEventMaskingTest() {
         std::string bitmask = "00101111";
-        tester::MaskingFilterConfig config(SIGNAL_ID_GUID, bitmask);
-        HRESULT result = configureFilter(config);
-        if (!Succeeded(result)) {
-            log::logConfigurationError(config, S_OK, result);
+        tester::MaskingFilterConfig config(scgms::signal_COB, bitmask);
+        HRESULT configResult = configureFilter(config);
+        if (!Succeeded(configResult)) {
+            log::logConfigurationError(config, S_OK, configResult);
             return E_FAIL;
         }
 
@@ -99,19 +127,18 @@ namespace tester {
         for (size_t i = 0; i < bitmask.size(); i++) {
             scgms::IDevice_Event *event = createEvent(scgms::NDevice_Event_Code::Information);
             if (event == nullptr) {
-                std::wcerr << L"Error while creating " << describeEvent(scgms::NDevice_Event_Code::Information);
                 Logger::getInstance().error(L"Error while creating " + describeEvent(scgms::NDevice_Event_Code::Information));
                 return E_FAIL;
             }
 
             scgms::TDevice_Event *raw_event;
             event->Raw(&raw_event);
-            raw_event->signal_id = SIGNAL_ID_GUID;
+            raw_event->signal_id = config.getSignalId();
 
-            result = getTestedFilter()->Execute(event);
-            Logger::getInstance().info(L"Executing " + describeEvent(scgms::NDevice_Event_Code::Information));
+            Logger::getInstance().debug(L"Executing " + describeEvent(scgms::NDevice_Event_Code::Information));
+            HRESULT execResult = getTestedFilter()->Execute(event);
 
-            if (Succeeded(result)) {
+            if (Succeeded(execResult)) {
                 if (raw_event->event_code != scgms::NDevice_Event_Code::Information) {
                     Logger::getInstance().error(L"Info event was incorrectly masked!");
                     Logger::getInstance().error(L"expected result: " + describeEvent(scgms::NDevice_Event_Code::Information));
@@ -121,11 +148,9 @@ namespace tester {
             } else {
                 Logger::getInstance().error(L"Error while executing event!");
                 Logger::getInstance().error(std::wstring(L"expected result: ") + Describe_Error(S_OK));
-                Logger::getInstance().error(std::wstring(L"actual result: ") + Describe_Error(result));
+                Logger::getInstance().error(std::wstring(L"actual result: ") + Describe_Error(execResult));
                 test_result = E_FAIL;
             }
-
-            event->Release();
         }
 
         return test_result;

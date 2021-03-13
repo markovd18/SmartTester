@@ -13,11 +13,6 @@ namespace tester {
      * * Derived class from GenericUnitTester responsible for testing of Masking filter.
      */
     class MaskingFilterUnitTester : public GenericUnitTester {
-    private: // private attributes
-        static const std::string FILTER_CONFIG;
-        static const GUID SIGNAL_ID_GUID;
-        static const std::string SIGNAL_ID_STR;
-
     public: // public methods
         MaskingFilterUnitTester();
 
@@ -28,13 +23,14 @@ namespace tester {
 
         HRESULT completeBitmaskMappingTest();
 
-        HRESULT bitmaskMappingTest(const std::string &bitmask);
-
         /**
          * Executes info event masking unit test. When executed, info event should not be masked. If it is, the test fails.
          * @return S_OK if test passes, otherwise E_FAIL
          */
         HRESULT infoEventMaskingTest();
+
+    private: // private methods
+        HRESULT bitmaskMappingTest(const GUID& signalId, const std::string &bitmask);
     };
 }
 
