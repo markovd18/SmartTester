@@ -21,8 +21,9 @@
 class GuidTesterMapper {
 
 private:
+    using TesterFactory = std::function<tester::GenericUnitTester*(void)>;
     /// Mapped derived class instance pointers to their representing GUID
-	std::map<GUID, tester::GenericUnitTester*> m_guidTesterMap;
+	std::map<GUID, TesterFactory> m_guidTesterMap;
     /// Private constructor because of this class being a singleton
 	GuidTesterMapper();
     Logger& logger = Logger::getInstance();
@@ -34,16 +35,15 @@ public:
     */
 	static GuidTesterMapper& GetInstance();
 	/**
-	 * Returns a pointer to a tester instance based on given guid.
+	 * Returns a pointer to a tester instance based on given guid. Caller TAKES OWNERSHIP of the returned pointer -
+	 * has to delete the instance manually.
 	 *
 	 * @param guid guid of a filter, that we want to test
-	 * @return non-owning pointer to a tester instance
+	 * @return owning pointer to a tester instance
 	 */
 	tester::GenericUnitTester* getTesterInstance(const GUID& guid);
 	GuidTesterMapper(GuidTesterMapper const&) = delete;
 	void operator=(GuidTesterMapper const&) = delete;
-	/// Since we are storing pointers to testers, we need to delete them in destructor
-	~GuidTesterMapper();
 
 };
 #endif // !_FILE_TESTER_MAPPER_H_

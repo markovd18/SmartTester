@@ -19,6 +19,7 @@ void tester::executeFilterTests(const GUID& guid) {
 	
 	tester::GenericUnitTester* unitTester = getUnitTester(guid);
     unitTester->executeAllTests();
+    delete unitTester;
 }
 
 void tester::executeAllTests() {

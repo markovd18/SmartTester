@@ -15,7 +15,7 @@ namespace tester {
     const char* POP_RESULT_REPEATING_TEST_LOG = "pushResultRepeatingTestLog.csv";
     const char* POP_EVENT_COUNT_TEST_LOG = "popEventCountTEstLog.csv";
 
-    LogFilterUnitTester::LogFilterUnitTester(const GUID& guid) : GenericUnitTester(guid){
+    LogFilterUnitTester::LogFilterUnitTester() : GenericUnitTester(cnst::LOG_GUID){
         //
     }
 

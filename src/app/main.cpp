@@ -10,6 +10,23 @@
 #include "../testers/RegressionTester.h"
 
 
+void logApplicationStart() {
+    std::wcout << L"Starting SmartTester application...";
+    Logger::getInstance().info(L"Starting SmartTester application...");
+    std::wstring logo = L"\n"
+                        "*****************************************************************\n"
+                        "   _____                      _ _______        _            \n"
+                        "  / ____|                    | |__   __|      | |           \n"
+                        " | (___  _ __ ___   __ _ _ __| |_ | | ___  ___| |_ ___ _ __ \n"
+                        "  \\___ \\| '_ ` _ \\ / _` | '__| __|| |/ _ \\/ __| __/ _ \\ '__|\n"
+                        "  ____) | | | | | | (_| | |  | |_ | |  __/\\__ \\ ||  __/ |   \n"
+                        " |_____/|_| |_| |_|\\__,_|_|   \\__||_|\\___||___/\\__\\___|_|   \n"
+                        "                                                            \n"
+                        "*****************************************************************\n"
+                        "";
+    std::wcout << logo;
+    Logger::getInstance().info(logo);
+}
 /**
     Prints few tips on how to use the application and which parameters to specify.
 */
@@ -79,15 +96,13 @@ GUID parse_guid(std::string guid_string) {
                 guid.Data4[i] = std::stoi(token, nullptr, 16);
                 guid_string.erase(0, 2 * sizeof(char));
             }
-        }
-        catch (std::exception&) {
+        } catch (std::exception&) {
             std::wcerr << L"Invalid format of GUID passed!\n"
                        << L"Expected format: " << cnst::GUID_FORMAT << "\n";
             Logger::getInstance().error(L"Invalid format of GUID passed!");
             exit(2);
         }
-    }
-    else {
+    } else {
         Logger::getInstance().info(L"No GUID passed...");
     }
     return guid;
@@ -148,8 +163,7 @@ HRESULT execute_regression_testing(const std::wstring& config_filepath) {
     Entry point of the application.
 */
 int main(int argc, char* argv[]) {
-    Logger::getInstance().info(L"Starting SmartTester application...");
-    std::wcout << L"Starting SmartTester application...\n";
+    logApplicationStart();
 
     if (argc < 2) {
         std::wcerr << L"Wrong parameter count!\n";

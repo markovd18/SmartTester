@@ -19,7 +19,7 @@ namespace tester {
         static const std::string SIGNAL_ID_STR;
 
     public: // public methods
-        MaskingFilterUnitTester(const GUID &guid);
+        MaskingFilterUnitTester();
 
         /**
          * Executes unit tests specific for masking filter.
