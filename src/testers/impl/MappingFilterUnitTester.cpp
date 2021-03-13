@@ -7,195 +7,303 @@
 
 namespace tester {
 
-    const GUID MappingFilterUnitTester::SIGNAL_SRC_ID_GUID = { 0xe1cd07ef, 0xb079, 0x4911, {0xb7, 0x9b, 0xd2, 0x03, 0x48, 0x61, 0x01, 0xc8} };
-    const GUID MappingFilterUnitTester::SIGNAL_DST_ID_GUID = { 0xf666f6c2, 0xd7c0, 0x43e8, {0x8e, 0xe1, 0xc8, 0xca, 0xa8, 0xf8, 0x60, 0xe5} };
+    const GUID INVALID_SIGNAL_ID_GUID = { 0xe1cd0715, 0xb079, 0x4911, {0xb7, 0x9b, 0xd2, 0x03, 0x48, 0x61, 0x01, 0xc8} };
 
-    MappingFilterUnitTester::MappingFilterUnitTester(const GUID& guid) : GenericUnitTester(guid) {
+    MappingFilterUnitTester::MappingFilterUnitTester() : GenericUnitTester(cnst::MAPPING_GUID) {
         //
     }
 
-    /**
-        Executes all specific tests for loaded Mapping filter.
-    */
     void MappingFilterUnitTester::executeSpecificTests(){
         Logger::getInstance().info(L"Executing specific tests...");
 
         /// Configuration tests
         tester::MappingFilterConfig config;
-        config.setSignalDstId(SIGNAL_DST_ID_GUID);
-        executeConfigTest(L"empty source id test", config, E_FAIL);
+        config.setSignalDstId(scgms::signal_BG);
+        executeConfigTest(L"empty source id test", config, E_INVALIDARG);
 
         config.setSignalDstId(Invalid_GUID);
-        config.setSignalSrcId(SIGNAL_SRC_ID_GUID);
-        executeConfigTest(L"empty destination id test", config, E_FAIL);
+        config.setSignalSrcId(scgms::signal_COB);
+        executeConfigTest(L"empty destination id test", config, E_INVALIDARG);
 
-        config.setSignalDstId(SIGNAL_DST_ID_GUID);
+        config.setSignalDstId(INVALID_SIGNAL_ID_GUID);
+        executeConfigTest(L"invalid destination id test", config, E_INVALIDARG);
+
+        config.setSignalDstId(scgms::signal_Acceleration);
+        config.setSignalSrcId(INVALID_SIGNAL_ID_GUID);
+        executeConfigTest(L"invalid source id test", config, E_INVALIDARG);
+
+        config.setSignalSrcId(scgms::signal_Air_Temperature);
         executeConfigTest(L"correct id's test", config, S_OK);
+
+        config.setSignalSrcId(scgms::signal_All);
+        executeConfigTest(L"all signal source id test", config, S_OK);
+
+        config.setSignalSrcId(scgms::signal_Calibration);
+        config.setSignalDstId(scgms::signal_Null);
+        executeConfigTest(L"null signal destination id test", config, S_OK);
+
+        config.setSignalSrcId(scgms::signal_Null);
+        config.setSignalDstId(scgms::signal_Carb_Intake);
+        executeConfigTest(L"null signal source id test", config, E_INVALIDARG);
+
+        config.setSignalSrcId(scgms::signal_Carb_Ratio);
+        config.setSignalDstId(scgms::signal_All);
+        executeConfigTest(L"all signal destination id test", config, E_INVALIDARG);
 
         /// Functional tests
         executeTest(L"level event mapping test", std::bind(&MappingFilterUnitTester::levelEventMappingTest, this));
         executeTest(L"info event mapping test", std::bind(&MappingFilterUnitTester::infoEventMappingTest, this));
         executeTest(L"parameters event mapping test", std::bind(&MappingFilterUnitTester::parametersEventMappingTest, this));
+        executeTest(L"not configured signal mapping test", std::bind(&MappingFilterUnitTester::notConfiguredSignalMappingTest, this));
+        executeTest(L"null destination id test", std::bind(&MappingFilterUnitTester::nullDestinationIdTest, this));
+        executeTest(L"different source id null destination id test", std::bind(&MappingFilterUnitTester::differentSrcIdNullDestinationIdTest, this));
+        executeTest(L"all source id test", std::bind(&MappingFilterUnitTester::allSourceIdTest, this));
     }
 
-    /**
-        Tests if level event's signal id will be correctly mapped.
-    */
     HRESULT MappingFilterUnitTester::levelEventMappingTest() {
-        tester::MappingFilterConfig config(SIGNAL_SRC_ID_GUID, SIGNAL_DST_ID_GUID);
-        HRESULT result = configureFilter(config);
-
-        if (!Succeeded(result)) {
-            log::logConfigurationError(config, S_OK, result);
-            return E_FAIL;
-        }
-
-        scgms::IDevice_Event* event = createEvent(scgms::NDevice_Event_Code::Level);
-        if (!event) {
-            std::wcerr << L"Error while creating " << describeEvent(scgms::NDevice_Event_Code::Level) << "\n";
-            Logger::getInstance().error(L"Error while creating " + describeEvent(scgms::NDevice_Event_Code::Level));
-            return E_FAIL;
-        }
-
-        scgms::TDevice_Event* raw_event;
-        event->Raw(&raw_event);
-        raw_event->signal_id = SIGNAL_SRC_ID_GUID;
-        scgms::TDevice_Event src_event = *raw_event;
-
-        result = getTestedFilter()->Execute(event);
-        Logger::getInstance().info(L"Executing " + describeEvent(scgms::NDevice_Event_Code::Level));
-
-        GUID dst_id = getTestFilter().getReceivedEvent()->signal_id;
-        if (Succeeded(result) && (dst_id == SIGNAL_DST_ID_GUID)) {
-            if ((src_event.device_time == raw_event->device_time)
-                && (src_event.device_id == raw_event->device_id)
-                && (src_event.event_code == raw_event->event_code)
-                && (src_event.info == raw_event->info)
-                //&& (src_event.level == raw_event->level) //pouze tady pad�?? nan
-                && (src_event.logical_time == raw_event->logical_time)
-                && (src_event.parameters == raw_event->parameters)
-                && (src_event.segment_id == raw_event->segment_id)) {
-                Logger::getInstance().debug(L"Event's signal_id successfully mapped!");
-                result = S_OK;
-            } else {
-                Logger::getInstance().error(L"Other event attributes were modified!");
-                result = E_FAIL;
-            }
-
-        } else {
-            Logger::getInstance().error(L"Event was incorrectly sent or it's signal_id wasn't mapped!");
-            Logger::getInstance().error(L"expected result: " + GUID_To_WString(SIGNAL_DST_ID_GUID));
-            Logger::getInstance().error(L"actual result: " + GUID_To_WString(dst_id));
-            result = E_FAIL;
-        }
-
-        event->Release();
-        return result;
+        return eventMappingTest(tester::MappingFilterConfig(scgms::signal_Air_Temperature, scgms::signal_Acceleration),
+                                scgms::NDevice_Event_Code::Level);
     }
 
-    /**
-        Tests if info event's signal id will be correctly mapped.
-    */
     HRESULT MappingFilterUnitTester::infoEventMappingTest() {
-        tester::MappingFilterConfig config(SIGNAL_SRC_ID_GUID, SIGNAL_DST_ID_GUID);
-        HRESULT result = configureFilter(config);
-
-        if (!Succeeded(result)) {
-            log::logConfigurationError(config, S_OK, result);
-            return E_FAIL;
-        }
-
-        scgms::IDevice_Event* event = createEvent(scgms::NDevice_Event_Code::Information);
-        if (event == nullptr) {
-            std::wcerr << L"Error while creating " << describeEvent(scgms::NDevice_Event_Code::Information) << "\n";
-            Logger::getInstance().error(L"Error while creating " + describeEvent(scgms::NDevice_Event_Code::Information));
-            return E_FAIL;
-        }
-
-        scgms::TDevice_Event* raw_event;
-        event->Raw(&raw_event);
-        raw_event->signal_id = SIGNAL_SRC_ID_GUID;
-        scgms::TDevice_Event src_event = *raw_event;
-
-        result = getTestedFilter()->Execute(event);
-        Logger::getInstance().info(L"Executing " + describeEvent(scgms::NDevice_Event_Code::Information));
-
-        GUID dst_id = getTestFilter().getReceivedEvent()->signal_id;
-        if (Succeeded(result) && (dst_id == SIGNAL_DST_ID_GUID)) {
-            if ((src_event.device_time == raw_event->device_time)
-                && (src_event.device_id == raw_event->device_id)
-                && (src_event.event_code == raw_event->event_code)
-                && (src_event.info == raw_event->info)
-                && (src_event.level == raw_event->level)
-                && (src_event.logical_time == raw_event->logical_time)
-                && (src_event.parameters == raw_event->parameters)
-                && (src_event.segment_id == raw_event->segment_id)) {
-                Logger::getInstance().debug(L"Event's signal_id successfully mapped!");
-                result = S_OK;
-            } else {
-                Logger::getInstance().error(L"Other event attributes were modified!");
-                result = E_FAIL;
-            }
-        } else {
-            Logger::getInstance().error(L"Event was incorrectly sent or it's signal_id wasn't mapped!");
-            Logger::getInstance().error(L"expected result: " + GUID_To_WString(SIGNAL_DST_ID_GUID));
-            Logger::getInstance().error(L"actual result: " + GUID_To_WString(dst_id));
-            result = E_FAIL;
-        }
-
-        event->Release();
-        return result;
+        return eventMappingTest(tester::MappingFilterConfig(scgms::signal_Carb_Ratio, scgms::signal_Carb_Intake),
+                                scgms::NDevice_Event_Code::Information);
     }
 
     HRESULT MappingFilterUnitTester::parametersEventMappingTest() {
-        tester::MappingFilterConfig config(SIGNAL_SRC_ID_GUID, SIGNAL_DST_ID_GUID);
-        HRESULT result = configureFilter(config);
+        return eventMappingTest(tester::MappingFilterConfig(scgms::signal_BG, scgms::signal_COB),
+                                scgms::NDevice_Event_Code::Parameters);
+    }
 
-        if (!Succeeded(result)) {
-            log::logConfigurationError(config, S_OK, result);
+    HRESULT MappingFilterUnitTester::eventMappingTest(const tester::MappingFilterConfig &config,
+                                                      scgms::NDevice_Event_Code eventCode,
+                                                      const GUID& signalId) {
+        HRESULT configResult = configureFilter(config);
+
+        if (!Succeeded(configResult)) {
+            log::logConfigurationError(config, S_OK, configResult);
             return E_FAIL;
         }
 
-        scgms::IDevice_Event* event = createEvent(scgms::NDevice_Event_Code::Parameters);
-        if (event == nullptr) {
-            std::wcerr << L"Error while creating " << describeEvent(scgms::NDevice_Event_Code::Parameters) << "\n";
-            Logger::getInstance().error(L"Error while creating " + describeEvent(scgms::NDevice_Event_Code::Parameters));
+        scgms::IDevice_Event* event = createEvent(eventCode);
+        if (!event) {
+            Logger::getInstance().error(L"Error while creating " + describeEvent(eventCode));
             return E_FAIL;
         }
 
         scgms::TDevice_Event* raw_event;
         event->Raw(&raw_event);
-        raw_event->signal_id = SIGNAL_SRC_ID_GUID;
+        raw_event->signal_id = signalId == Invalid_GUID ? config.getSignalSrcId() : signalId;
         scgms::TDevice_Event src_event = *raw_event;
 
-        result = getTestedFilter()->Execute(event);
-        Logger::getInstance().info(L"Executing " + describeEvent(scgms::NDevice_Event_Code::Parameters));
+        Logger::getInstance().debug(L"Executing " + describeEvent(eventCode));
+        HRESULT execResult = getTestedFilter()->Execute(event);
 
-        GUID dst_id = getTestFilter().getReceivedEvent()->signal_id;
-        if (Succeeded(result) && (dst_id == SIGNAL_DST_ID_GUID)) {
-            if ((src_event.device_time == raw_event->device_time)
-                && (src_event.device_id == raw_event->device_id)
-                && (src_event.event_code == raw_event->event_code)
-                && (src_event.info == raw_event->info)
-                && (src_event.level == raw_event->level)
-                && (src_event.logical_time == raw_event->logical_time)
-                && (src_event.parameters == raw_event->parameters)
-                && (src_event.segment_id == raw_event->segment_id)) {
-                Logger::getInstance().debug(L"Event's signal_id successfully mapped!");
-                result = S_OK;
-            } else {
-                Logger::getInstance().error(L"Other event attributes were modified!");
-                result = E_FAIL;
-            }
-
-        } else {
-            Logger::getInstance().error(L"Event was incorrectly sent or it's signal_id wasn't mapped!");
-            Logger::getInstance().error(L"expected result: " + GUID_To_WString(SIGNAL_DST_ID_GUID));
-            Logger::getInstance().error(L"actual result: " + GUID_To_WString(dst_id));
-            result = E_FAIL;
+        if (!Succeeded(execResult)) {
+            Logger::getInstance().error(L"Error while executing " + describeEvent(eventCode));
+            return E_FAIL;
         }
 
-        event->Release();
-        return result;
+        scgms::TDevice_Event receivedEvent = getTestFilter().getReceivedEvent();
+        if (receivedEvent.signal_id != config.getSignalDstId()) {
+            Logger::getInstance().error(L"Event was incorrectly mapped!");
+            Logger::getInstance().error(L"expected result: " + GUID_To_WString(config.getSignalDstId()));
+            Logger::getInstance().error(L"actual result: " + GUID_To_WString(receivedEvent.signal_id));
+            return E_FAIL;
+        }
+
+        if ((src_event.device_time == receivedEvent.device_time)   /// Checking no other attribute has been modified
+            && (src_event.device_id == receivedEvent.device_id)
+            && (src_event.event_code == receivedEvent.event_code)
+            && (src_event.info == receivedEvent.info)
+//            && (src_event.level == receivedEvent.level)           /// Comparing NaN vs. NaN with info event returns false
+            && (src_event.logical_time == receivedEvent.logical_time)
+            && (src_event.parameters == receivedEvent.parameters)
+            && (src_event.segment_id == receivedEvent.segment_id)) {
+            Logger::getInstance().info(L"Event's signal_id successfully mapped!");
+            return S_OK;
+        } else {
+            Logger::getInstance().error(L"Other event attributes were modified!");
+            return E_FAIL;
+        }
+    }
+
+    HRESULT MappingFilterUnitTester::notConfiguredSignalMappingTest() {
+        tester::MappingFilterConfig config(scgms::signal_COB, scgms::signal_BG);
+        HRESULT configResult = configureFilter(config);
+
+        if (!Succeeded(configResult)) {
+            log::logConfigurationError(config, S_OK, configResult);
+            return E_FAIL;
+        }
+
+        scgms::NDevice_Event_Code eventCode = scgms::NDevice_Event_Code::Information;
+        scgms::IDevice_Event* event = createEvent(eventCode);
+        if (!event) {
+            Logger::getInstance().error(L"Error while creating " + describeEvent(eventCode));
+            return E_FAIL;
+        }
+
+        scgms::TDevice_Event* raw_event;
+        event->Raw(&raw_event);
+        raw_event->signal_id = scgms::signal_Acceleration;  /// Setting the signal id to something other than the configured source id
+        scgms::TDevice_Event src_event = *raw_event;
+
+        Logger::getInstance().debug(L"Executing " + describeEvent(eventCode));
+        HRESULT execResult = getTestedFilter()->Execute(event);
+
+        if (!Succeeded(execResult)) {
+            Logger::getInstance().error(L"Error while executing " + describeEvent(eventCode));
+            return E_FAIL;
+        }
+
+        scgms::TDevice_Event receivedEvent = getTestFilter().getReceivedEvent();
+        if (receivedEvent.signal_id != scgms::signal_Acceleration) {
+            Logger::getInstance().error(L"Event was incorrectly mapped!");
+            Logger::getInstance().error(L"expected result: " + GUID_To_WString(scgms::signal_Acceleration));
+            Logger::getInstance().error(L"actual result: " + GUID_To_WString(receivedEvent.signal_id));
+            return E_FAIL;
+        }
+
+        if ((src_event.device_time == receivedEvent.device_time)   /// Checking no other attribute has been modified
+            && (src_event.device_id == receivedEvent.device_id)
+            && (src_event.event_code == receivedEvent.event_code)
+            && (src_event.info == receivedEvent.info)
+            //            && (src_event.level == receivedEvent.level)           /// Comparing NaN vs. NaN with info event returns false
+            && (src_event.logical_time == receivedEvent.logical_time)
+            && (src_event.parameters == receivedEvent.parameters)
+            && (src_event.segment_id == receivedEvent.segment_id)) {
+            Logger::getInstance().info(L"Event's signal_id successfully mapped.");
+            return S_OK;
+        } else {
+            Logger::getInstance().error(L"Other event attributes were modified!");
+            return E_FAIL;
+        }
+    }
+
+    HRESULT MappingFilterUnitTester::nullDestinationIdTest() {
+        tester::MappingFilterConfig config(scgms::signal_Carb_Intake, scgms::signal_Null);
+        HRESULT configResult = configureFilter(config);
+
+        if (!Succeeded(configResult)) {
+            log::logConfigurationError(config, S_OK, configResult);
+            return E_FAIL;
+        }
+
+        scgms::NDevice_Event_Code eventCode = scgms::NDevice_Event_Code::Parameters;
+        scgms::IDevice_Event* event = createEvent(eventCode);
+        if (!event) {
+            Logger::getInstance().error(L"Error while creating " + describeEvent(eventCode));
+            return E_FAIL;
+        }
+
+        scgms::TDevice_Event* raw_event;
+        event->Raw(&raw_event);
+        raw_event->signal_id = config.getSignalSrcId();
+
+        Logger::getInstance().debug(L"Executing " + describeEvent(eventCode));
+        HRESULT execResult = getTestedFilter()->Execute(event);
+
+        if (!Succeeded(execResult)) {
+            Logger::getInstance().error(L"Error while executing " + describeEvent(eventCode));
+            return E_FAIL;
+        }
+
+        scgms::TDevice_Event receivedEvent = getTestFilter().getReceivedEvent();
+        if (receivedEvent.event_code == eventCode) {
+            Logger::getInstance().error(L"Executed event arrived to the appended filter!");
+            return E_FAIL;
+        }
+
+        Logger::getInstance().info(L"Executed event did not arrive to the appended filter.");
+        return S_OK;
+    }
+
+    HRESULT MappingFilterUnitTester::differentSrcIdNullDestinationIdTest() {
+        tester::MappingFilterConfig config(scgms::signal_Air_Temperature, scgms::signal_Calibration);
+        HRESULT configResult = configureFilter(config);
+
+        if (!Succeeded(configResult)) {
+            log::logConfigurationError(config, S_OK, configResult);
+            return E_FAIL;
+        }
+
+        scgms::NDevice_Event_Code eventCode = scgms::NDevice_Event_Code::Warm_Reset;
+        scgms::IDevice_Event* event = createEvent(eventCode);
+        if (!event) {
+            Logger::getInstance().error(L"Error while creating " + describeEvent(eventCode));
+            return E_FAIL;
+        }
+
+        scgms::TDevice_Event* raw_event;
+        event->Raw(&raw_event);
+        raw_event->signal_id = scgms::signal_Carb_Intake;   /// Setting the signal_id to something different than configured source id
+
+        scgms::TDevice_Event src_event = *raw_event;
+        Logger::getInstance().debug(L"Executing " + describeEvent(eventCode));
+        HRESULT execResult = getTestedFilter()->Execute(event);
+
+        if (!Succeeded(execResult)) {
+            Logger::getInstance().error(L"Error while executing " + describeEvent(eventCode));
+            return E_FAIL;
+        }
+
+        scgms::TDevice_Event receivedEvent = getTestFilter().getReceivedEvent();
+        if (receivedEvent.event_code != eventCode) {
+            Logger::getInstance().error(L"Executed event did not arrive to the appended filter!");
+            Logger::getInstance().error(L"Expected event code: " + describeEvent(eventCode) +
+                                            L", actual event code: " + describeEvent(receivedEvent.event_code));
+            return E_FAIL;
+        }
+
+        Logger::getInstance().info(L"Executed event arrived to the appended filter.");
+        if ((src_event.device_time == receivedEvent.device_time)   /// Checking no other attribute has been modified
+            && (src_event.device_id == receivedEvent.device_id)
+            && (src_event.event_code == receivedEvent.event_code)
+            && (src_event.info == receivedEvent.info)
+            //            && (src_event.level == receivedEvent.level)           /// Comparing NaN vs. NaN with info event returns false
+            && (src_event.logical_time == receivedEvent.logical_time)
+            && (src_event.parameters == receivedEvent.parameters)
+            && (src_event.segment_id == receivedEvent.segment_id)) {
+            Logger::getInstance().info(L"No other event attributes were modified.");
+            return S_OK;
+        } else {
+            Logger::getInstance().error(L"Other event attributes were modified!");
+            return E_FAIL;
+        }
+    }
+
+    HRESULT MappingFilterUnitTester::allSourceIdTest() {
+        tester::MappingFilterConfig config(scgms::signal_All, scgms::signal_BG);
+        std::size_t eventCount = 4;
+        HRESULT testResult = S_OK;
+
+        for (std::size_t i = 0; i < eventCount; ++i) {
+            scgms::NDevice_Event_Code eventCode;
+            GUID signalId;
+
+            switch (i) {
+                case 0:
+                    eventCode = scgms::NDevice_Event_Code::Information;
+                    signalId = scgms::signal_Carb_Intake;
+                    break;
+                case 1:
+                    eventCode = scgms::NDevice_Event_Code::Warm_Reset;
+                    signalId = scgms::signal_COB;
+                    break;
+                case 2:
+                    eventCode = scgms::NDevice_Event_Code::Parameters;
+                    signalId = scgms::signal_Air_Temperature;
+                    break;
+                default:
+                    eventCode = scgms::NDevice_Event_Code::Error;
+                    signalId = scgms::signal_Carb_Ratio;
+                    break;
+            }
+
+            testResult = eventMappingTest(config, eventCode, signalId);
+        }
+
+        return testResult;
     }
 }

@@ -12,7 +12,7 @@ namespace tester {
      */
     class LogFilterUnitTester : public GenericUnitTester {
     public:
-        LogFilterUnitTester(const GUID& guid);
+        LogFilterUnitTester();
         void executeSpecificTests() override;
         /**
          * If LogFilter is successfully configured with Log_File attribute value present, text file with identical name should be created.

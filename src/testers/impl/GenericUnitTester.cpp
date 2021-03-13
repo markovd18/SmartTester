@@ -17,42 +17,32 @@ namespace tester {
 
     GenericUnitTester::GenericUnitTester(const GUID guid)
             :  m_lastTestResult(S_OK), m_testedGuid(guid), m_testedFilter(nullptr) {
-        const wchar_t* file_name = GuidFileMapper::GetInstance().getFileName(m_testedGuid);
-        std::wstring file = std::wstring(file_name) + cnst::LIB_EXTENSION;
-
-        m_filterLibrary.Load(file);
-
-        if (!m_filterLibrary.Is_Loaded()) {
-            std::wcerr << L"Couldn't load " << file_name << " library!\n";
-            Logger::getInstance().error(L"Couldn't load " + std::wstring(file_name) + L" library.");
-        } else {
-            m_testedFilter = loadFilter();
-        }
+        //
     }
 
-    scgms::IFilter* GenericUnitTester::loadFilter() {
+    void GenericUnitTester::loadFilter() {
         if (!m_filterLibrary.Is_Loaded()) {
             std::wcerr << L"Filter library is not loaded! Filter will not be loaded.\n";
             Logger::getInstance().error(L"Filter library is not loaded! Filter will not be loaded.");
-            return nullptr;
+            return;
         }
 
         auto creator = m_filterLibrary.Resolve<scgms::TCreate_Filter>("do_create_filter");
 
-        scgms::IFilter* created_filter = nullptr;
-        auto result = creator(&m_testedGuid, &m_testFilter, &created_filter);
+        m_testedFilter = nullptr;
+        auto result = creator(&m_testedGuid, &m_testFilter, &m_testedFilter);
         if (result != S_OK) {
-            return nullptr;
+            Logger::getInstance().error(L"Error while loading filter from the dynamic library!");
+            m_testedFilter = nullptr;   /// Just to be sure
         }
 
         Logger::getInstance().info(L"Filter loaded from dynamic library.");
-        return created_filter;
     }
 
 
     const wchar_t* GenericUnitTester::getFilterName() {
         if (!m_filterLibrary.Is_Loaded()) {
-            return nullptr;
+            loadFilterLibrary();
         }
 
         auto creator = m_filterLibrary.Resolve<scgms::TGet_Filter_Descriptors>("do_get_filter_descriptors");
@@ -64,12 +54,10 @@ namespace tester {
             }
             begin++;
         }
+
         return nullptr;
     }
 
-    /**
-        Executes all generic and specific tests for given filter.
-    */
     void GenericUnitTester::executeAllTests() {
         const wchar_t* filter_name = getFilterName();
 
@@ -125,7 +113,6 @@ namespace tester {
         }
 
         m_testedFilter->Execute(shutDown);
-        shutDown->Release();
         m_testedFilter->Release();
         m_testedFilter = nullptr;
 
@@ -146,7 +133,7 @@ namespace tester {
             lock.unlock();
 
             if (status == std::cv_status::timeout) {
-                shutDownTest();
+//                shutDownTest();
             }
 
             if (thread.joinable()) {
@@ -199,8 +186,12 @@ namespace tester {
     }
 
     void GenericUnitTester::runTest(const std::function<HRESULT(void)>& test) {
+        if (!m_filterLibrary.Is_Loaded()) {
+            loadFilterLibrary();
+        }
+
         if (!isFilterLoaded()) {
-            m_testedFilter = loadFilter();
+            loadFilter();
         }
 
         if (isFilterLoaded()) {
@@ -210,13 +201,20 @@ namespace tester {
             m_lastTestResult = E_FAIL;
         }
 
-        shutDownTest();
+        if (isFilterLoaded()) { /// Need to check, because filter will be unloaded in case of TIMEOUT
+            shutDownTest();
+        }
+
         m_testCv.notify_all();
     }
 
     void GenericUnitTester::runConfigTest(const tester::FilterConfig& configuration, const HRESULT expectedResult) {
+        if (!m_filterLibrary.Is_Loaded()) {
+            loadFilterLibrary();
+        }
+
         if (!isFilterLoaded()) {
-            m_testedFilter = loadFilter();
+            loadFilter();
         }
 
         if (isFilterLoaded()) {
@@ -226,7 +224,10 @@ namespace tester {
             m_lastTestResult = E_FAIL;
         }
 
-        shutDownTest();
+        if (isFilterLoaded()) { /// Need to check, because filter will be unloaded in case of TIMEOUT
+            shutDownTest();
+        }
+
         m_testCv.notify_all();
     }
 
@@ -269,7 +270,6 @@ namespace tester {
         }
 
         HRESULT afterShutDownEventResult = m_testedFilter->Execute(infoEvent);
-        infoEvent->Release();
         if (Succeeded(afterShutDownEventResult)) {
             Logger::getInstance().error(L"Execution of event after shutting down did not fail!");
             Logger::getInstance().error(std::wstring(L"Actual result: ") + Describe_Error(afterShutDownEventResult));
@@ -297,13 +297,13 @@ namespace tester {
         HRESULT result = m_testedFilter->Execute(event);
 
         if (Succeeded(result)) {
-            scgms::TDevice_Event* receivedEvent = m_testFilter.getReceivedEvent();
-            if (receivedEvent->event_code == eventCode) {
+            scgms::TDevice_Event receivedEvent = m_testFilter.getReceivedEvent();
+            if (receivedEvent.event_code == eventCode) {
                 result = S_OK;
             } else {
                 Logger::getInstance().error(L"Event was modified during execution!");
                 Logger::getInstance().error(L"expected code: " + describeEvent(eventCode));
-                Logger::getInstance().error(L"actual code: " + describeEvent(receivedEvent->event_code));
+                Logger::getInstance().error(L"actual code: " + describeEvent(receivedEvent.event_code));
                 result = E_FAIL;
             }
         } else {
@@ -311,10 +311,6 @@ namespace tester {
             Logger::getInstance().error(std::wstring(L"expected result: ") + Describe_Error(S_OK));
             Logger::getInstance().error(std::wstring(L"actual result: ") + Describe_Error(result));
             result = E_FAIL;
-        }
-
-        if (eventCode != scgms::NDevice_Event_Code::Shut_Down) {
-            event->Release();
         }
 
         return result;
@@ -361,6 +357,8 @@ namespace tester {
         return testResult;
     }
 
+
+
     CDynamic_Library &GenericUnitTester::getFilterLib() {
         return m_filterLibrary;
     }
@@ -371,5 +369,17 @@ namespace tester {
 
     scgms::IFilter *GenericUnitTester::getTestedFilter() {
         return m_testedFilter;
+    }
+
+    void GenericUnitTester::loadFilterLibrary() {
+        const wchar_t* file_name = GuidFileMapper::GetInstance().getFileName(m_testedGuid);
+        std::wstring file = std::wstring(file_name) + cnst::LIB_EXTENSION;
+
+        m_filterLibrary.Load(file);
+
+        if (!m_filterLibrary.Is_Loaded()) {
+            std::wcerr << L"Couldn't load " << file_name << " library!\n";
+            Logger::getInstance().error(L"Couldn't load " + std::wstring(file_name) + L" library.");
+        }
     }
 }

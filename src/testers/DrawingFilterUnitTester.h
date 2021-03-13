@@ -15,7 +15,7 @@ namespace tester {
     class DrawingFilterUnitTester : public GenericUnitTester {
     public:
 
-        DrawingFilterUnitTester(const GUID& guid);
+        DrawingFilterUnitTester();
         void executeSpecificTests() override;
         /**
          * After successful configuration and executing an event upon the DrawingFilter, there should be an image created

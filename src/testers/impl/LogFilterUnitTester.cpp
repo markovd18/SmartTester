@@ -15,13 +15,10 @@ namespace tester {
     const char* POP_RESULT_REPEATING_TEST_LOG = "pushResultRepeatingTestLog.csv";
     const char* POP_EVENT_COUNT_TEST_LOG = "popEventCountTEstLog.csv";
 
-    LogFilterUnitTester::LogFilterUnitTester(const GUID& guid) : GenericUnitTester(guid){
+    LogFilterUnitTester::LogFilterUnitTester() : GenericUnitTester(cnst::LOG_GUID){
         //
     }
 
-    /**
-        Executes all tests specific to filter tested by this UnitTester.
-    */
     void LogFilterUnitTester::executeSpecificTests() {
         Logger::getInstance().info(L"Executing specific tests...");
 
@@ -90,29 +87,62 @@ namespace tester {
             return E_FAIL;
         }
 
-        scgms::IDevice_Event *event = createEvent(scgms::NDevice_Event_Code::Level);
-        if (!event) {
-            Logger::getInstance().error(L"Error while creating " + describeEvent(scgms::NDevice_Event_Code::Level));
+        std::size_t eventCount = 3;
+        scgms::IDevice_Event* events[eventCount];
+        HRESULT creationResult = S_OK;
+        for (std::size_t i = 0; i < eventCount; ++i) {
+            events[i] = createEvent(scgms::NDevice_Event_Code::Level);
+            if (!events[i]) {       /// If creating failed, setting flag to failed
+                Logger::getInstance().error(L"Error while creating " + describeEvent(scgms::NDevice_Event_Code::Level));
+                creationResult = E_FAIL;
+                break;
+            }
+        }
+
+        if (!Succeeded(creationResult)) {       /// If something went wrong, releasing all existing events
+            for (auto event : events) {
+                if (event) {
+                    event->Release();
+                }
+            }
+
             return E_FAIL;
         }
 
-        for (int i = 0; i < 3; ++i) {
-            getTestedFilter()->Execute(event);
+        HRESULT testResult = S_OK;
+        for (scgms::IDevice_Event *event : events) {
+            HRESULT execResult = getTestedFilter()->Execute(event);
+            if (!Succeeded(execResult)) {
+                testResult = E_FAIL;
+                break;
+            }
         }
 
-        event->Release();
+        if (!Succeeded(testResult)) {
+            Logger::getInstance().error(L"Error while executing test events!");
+            for (auto event : events) {     /// If something went wrong, releasing all existing events
+                if (event) {
+                    event->Release();
+                }
+            }
+
+            return E_FAIL;
+        }
 
         scgms::IDevice_Event *shutDown = createEvent(scgms::NDevice_Event_Code::Shut_Down);
         if (!shutDown) {
             Logger::getInstance().error(L"Error while creating shut down event during Log Filter testing!");
         } else {
-            getTestedFilter()->Execute(shutDown);   /// Forcing logs to be displayed in the log
-            shutDown->Release();
+            HRESULT execResult = getTestedFilter()->Execute(shutDown);   /// Forcing logs to be displayed in the log
+            if (!Succeeded(execResult)) {
+                Logger::getInstance().error(L"Error while executing " + describeEvent(scgms::NDevice_Event_Code::Shut_Down));
+                shutDown->Release();    /// Here not returning E_FAIL, will try to check the log anyways
+            }
         }
 
         std::string logLine;
         int32_t logRows = 0;
-        int32_t expectedRowCount = 5;
+        int32_t expectedRowCount = eventCount + 2;  /// +2 for header and shut down event
         while (std::getline(logFile, logLine)) {
             logRows++;
         }
@@ -149,8 +179,6 @@ namespace tester {
             return E_FAIL;
         }
 
-        event->Release();
-
         try {
             std::vector<std::vector<std::string>> logLines = log::readLogFile(FILTER_OUTPUT_TEST_LOG);
             if (logLines.size() < 2) {
@@ -182,8 +210,9 @@ namespace tester {
 
         std::size_t eventCount = 3;
         scgms::IDevice_Event* events[eventCount];
-        scgms::NDevice_Event_Code eventCode;
+        HRESULT creationResult = S_OK;
         for (std::size_t i = 0; i < eventCount; ++i) {
+            scgms::NDevice_Event_Code eventCode;
             switch (i) {
                 case 0:
                     eventCode = scgms::NDevice_Event_Code::Level;
@@ -199,29 +228,38 @@ namespace tester {
             events[i] = createEvent(eventCode);
             if (!events[i]) {
                 Logger::getInstance().error(L"Error while creating " + describeEvent(eventCode));
-                for (int j = i; j > 0; --j) {
-                    events[i - 1]->Release();
-                }
-                return E_FAIL;
+                creationResult = E_FAIL;
+                break;
             }
         }
 
-        HRESULT execResult;
+        if (!Succeeded(creationResult)) {       /// If something went wrong, releasing all existing events
+            for (auto event : events) {
+                if (event) {
+                    event->Release();
+                }
+            }
+
+            E_FAIL;
+        }
+
         HRESULT testResult = S_OK;
         for (scgms::IDevice_Event *event : events) {
-            execResult = getTestedFilter()->Execute(event);
+            HRESULT execResult = getTestedFilter()->Execute(event);
             if (!Succeeded(execResult)) {
                 testResult = E_FAIL;
                 break;
             }
         }
 
-        for (scgms::IDevice_Event *event : events) {
-            event->Release();
-        }
-
-        if (!Succeeded(testResult)) {
+        if (!Succeeded(testResult)) {       /// If something went wrong, releasing all existing events
             Logger::getInstance().error(L"Error while executing test events!");
+            for (auto event : events) {
+                if (event) {
+                    event->Release();
+                }
+            }
+
             return E_FAIL;
         }
 
@@ -238,8 +276,8 @@ namespace tester {
             return E_FAIL;
         }
 
-        std::string eventName;
         for (std::size_t i = 1; i < (eventCount + 1); ++i) {
+            std::string eventName;
             switch (i) {
                 case 1:
                     eventName = "Level";
@@ -256,8 +294,8 @@ namespace tester {
                 Logger::getInstance().error(Widen_String(eventName) + L" event record not found!");
                 return E_FAIL;
             }
-            Logger::getInstance().info(Widen_String(eventName) + L" event record found!");
 
+            Logger::getInstance().info(Widen_String(eventName) + L" event record found!");
         }
 
         return S_OK;
@@ -279,9 +317,9 @@ namespace tester {
         }
 
         HRESULT execResult = getTestedFilter()->Execute(event);
-        event->Release();
         if (!Succeeded(execResult)) {
             Logger::getInstance().error(L"Error while executing " + describeEvent(scgms::NDevice_Event_Code::Level));
+            event->Release();
             return E_FAIL;
         }
 
@@ -293,22 +331,23 @@ namespace tester {
 
 
         refcnt::Swstr_list list;
-        HRESULT result = inspection.pop(list);
+        bool result = inspection.pop(list);
         if (!result) {
             Logger::getInstance().error(L"Executed event was not recognized by the log filter!");
             return E_FAIL;
         }
 
         result = inspection.pop(list);
-        if (!result) {    /// Popping the same event for the second time should return S_FALSE
-            Logger::getInstance().info(L"Executed event was not recognized for the second time.");
-            return S_OK;
+        if (result) {    /// Popping the same event for the second time should return false
+            Logger::getInstance().error(L"Error while popping an event from a log filter!");
+            Logger::getInstance().error(std::wstring(L"Expected result: ") + Describe_Error(S_FALSE) +
+                                        L", actual result: " + Describe_Error(result));
+            return E_FAIL;
         }
 
-        Logger::getInstance().error(L"Error while popping an event from a log filter!");
-        Logger::getInstance().error(std::wstring(L"Expected result: ") + Describe_Error(S_FALSE) +
-                                        L", actual result: " + Describe_Error(result));
-        return E_FAIL;
+        Logger::getInstance().info(L"Executed event was not recognized for the second time.");
+        return S_OK;
+
     }
 
     HRESULT LogFilterUnitTester::popEventCountTest() {
@@ -322,34 +361,45 @@ namespace tester {
 
         std::size_t eventCount = 3;
         scgms::IDevice_Event* events[eventCount];
+        HRESULT creationResult = S_OK;
         for (std::size_t i = 0; i < eventCount; ++i) {
             events[i] = createEvent(scgms::NDevice_Event_Code::Level);
             if (!events[i]) {
                 Logger::getInstance().error(L"Error while creating " + describeEvent(scgms::NDevice_Event_Code::Level));
-                for (int j = i; j > 0 ; --j) {
-                    events[i - 1]->Release();
-                }
-                return E_FAIL;
+                creationResult = E_FAIL;
+                break;
             }
 
         }
 
-        HRESULT execResult;
+        if (!Succeeded(creationResult)) {
+            for (auto event : events) {
+                if (event) {
+                    event->Release();
+                }
+            }
+
+            return E_FAIL;
+        }
+
         HRESULT testResult = S_OK;
         for (scgms::IDevice_Event *event : events) {
-            execResult = getTestedFilter()->Execute(event);
+            HRESULT execResult = getTestedFilter()->Execute(event);
             if (!Succeeded(execResult)) {
                 testResult = E_FAIL;
                 break;
             }
         }
 
-        for (scgms::IDevice_Event *event : events) {
-            event->Release();
-        }
-
         if (!Succeeded(testResult)) {
             Logger::getInstance().error(L"Error while executing test events!");
+            for (auto event : events) {
+                if (event) {
+                    event->Release();
+                }
+            }
+
+
             return E_FAIL;
         }
 
