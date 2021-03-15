@@ -17,8 +17,7 @@ namespace tester {
     const char* SVG_RETRIEVING_TEST_SVG = "svgRetrievingTest.svg";
     const char* NEW_DATA_AVAILABLE_TEST_SVG = "newDataAvailableTest.svg";
 
-    DrawingFilterUnitTester::DrawingFilterUnitTester()
-            : GenericUnitTester(cnst::DRAWING_GUID) {
+    DrawingFilterUnitTester::DrawingFilterUnitTester() : FilterUnitTester(cnst::DRAWING_GUID) {
         //
     }
 

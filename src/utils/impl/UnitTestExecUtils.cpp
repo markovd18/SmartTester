@@ -17,7 +17,7 @@ void tester::executeFilterTests(const GUID& guid) {
         return;
     }
 	
-	tester::GenericUnitTester* unitTester = getUnitTester(guid);
+	tester::FilterUnitTester* unitTester = getUnitTester(guid);
     unitTester->executeAllTests();
     delete unitTester;
 }
@@ -31,7 +31,7 @@ void tester::executeAllTests() {
     }
 }
 
-tester::GenericUnitTester* tester::getUnitTester(const GUID& guid) {
+tester::FilterUnitTester* tester::getUnitTester(const GUID& guid) {
 	return GuidTesterMapper::GetInstance().getTesterInstance(guid);
 }
 

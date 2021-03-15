@@ -1,4 +1,5 @@
-﻿// main.cpp : Defines the entry point for the application.
+﻿//
+//  Author: markovd@students.zcu.cz
 //
 
 #include <iostream>

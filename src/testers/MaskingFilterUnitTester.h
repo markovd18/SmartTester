@@ -12,7 +12,7 @@ namespace tester {
     /**
      * * Derived class from GenericUnitTester responsible for testing of Masking filter.
      */
-    class MaskingFilterUnitTester : public GenericUnitTester {
+    class MaskingFilterUnitTester : public FilterUnitTester {
     public: // public methods
         MaskingFilterUnitTester();
 

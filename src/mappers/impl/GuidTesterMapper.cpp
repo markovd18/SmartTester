@@ -13,7 +13,7 @@
  * @return pointer to the created tester instance
  */
 template<typename T>
-tester::GenericUnitTester* createTester() {
+tester::FilterUnitTester* createTester() {
     return new T();
 }
 
@@ -29,7 +29,7 @@ GuidTesterMapper& GuidTesterMapper::GetInstance() {
 	return instance;
 }
 
-tester::GenericUnitTester* GuidTesterMapper::getTesterInstance(const GUID& guid) {
+tester::FilterUnitTester* GuidTesterMapper::getTesterInstance(const GUID& guid) {
 	logger.info(L"Getting unit tester instance..");
 	try{
 		return m_guidTesterMap[guid]();

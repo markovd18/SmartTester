@@ -99,8 +99,8 @@ namespace log {
         for (size_t i = cnst::firstComparedIndex; i < referenceLogLine.size(); i++) {
 
             if ((i >= cnst::firstNumberValueIndex) && (i <= cnst::lastNumberValueIndex)) {
-                std::string expectedField = referenceLogLine.at(i);
-                std::string actualField = resultLogLine.at(i);
+                std::string expectedField = referenceLogLine[i];
+                std::string actualField = resultLogLine[i];
 
                 if (expectedField.empty() && actualField.empty()) {
                     continue;
@@ -108,15 +108,15 @@ namespace log {
                     return false;
                 }
 
-                double expected = std::stod(referenceLogLine.at(i));
-                double actual = std::stod(resultLogLine.at(i));
+                double expected = std::stod(expectedField);
+                double actual = std::stod(actualField);
                 double lambda = 0.0001;
 
                 if (abs(expected - actual) > lambda) {
                     return false;
                 }
             } else {
-                if (referenceLogLine.at(i) != resultLogLine.at(i)) {
+                if (referenceLogLine[i] != resultLogLine[i]) {
                     return false;
                 }
             }

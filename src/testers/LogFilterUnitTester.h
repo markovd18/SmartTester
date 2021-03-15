@@ -10,7 +10,7 @@ namespace tester {
     /**
      * Derived class from GenericUnitTester responsible for testing of Log filter.
      */
-    class LogFilterUnitTester : public GenericUnitTester {
+    class LogFilterUnitTester : public FilterUnitTester {
     public:
         LogFilterUnitTester();
         void executeSpecificTests() override;
