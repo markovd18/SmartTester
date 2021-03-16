@@ -549,7 +549,7 @@ namespace tester {
         return S_OK;
     }
 
-    HRESULT ModuleUnitTester::validFilterCreationTest() {
+    HRESULT ModuleUnitTester::filterCreationTest() {
         scgms::TFilter_Descriptor *begin, *end;
         HRESULT descriptorsResult = getEntityDescriptors<scgms::TGet_Filter_Descriptors>("do_get_filter_descriptors", &begin, &end);
         if (!Succeeded(descriptorsResult)) {
@@ -577,10 +577,21 @@ namespace tester {
             Logger::getInstance().error(L"Some filters could not be created!");
         }
 
+        Logger::getInstance().info(L"Creating invalid filter...");
+
+        scgms::IFilter *filter;
+        HRESULT creationResult = constructEntity<scgms::TCreate_Filter>("do_create_filter", &Invalid_GUID, &testFilter, &filter);
+        if (Succeeded(creationResult)) {
+            Logger::getInstance().error(L"Invalid filter was created!");
+            testResult = E_FAIL;
+        } else {
+            Logger::getInstance().info(L"Invalid filter not created.");
+        }
+
         return testResult;
     }
 
-    HRESULT ModuleUnitTester::validSignalCreationTest() {
+    HRESULT ModuleUnitTester::signalCreationTest() {
         scgms::TSignal_Descriptor *begin, *end;
         HRESULT descriptorsResult = getEntityDescriptors<scgms::TGet_Signal_Descriptors>("do_get_signal_descriptors", &begin, &end);
         if (!Succeeded(descriptorsResult)) {
@@ -609,10 +620,22 @@ namespace tester {
             Logger::getInstance().error(L"Some signals could not be created!");
         }
 
+        Logger::getInstance().info(L"Creating invalid signal...");
+        scgms::CTime_Segment timeSegment;
+        scgms::ISignal *signal;
+        HRESULT creationResult = constructEntity<scgms::TCreate_Signal>("do_create_signal", &Invalid_GUID, &timeSegment,
+                                                                        nullptr, &signal);
+        if (Succeeded(creationResult)) {
+            Logger::getInstance().error(L"Invalid signal was created!");
+            testResult = E_FAIL;
+        } else {
+            Logger::getInstance().info(L"Invalid signal not created.");
+        }
+
         return testResult;
     }
 
-    HRESULT ModuleUnitTester::validMetricCreationTest() {
+    HRESULT ModuleUnitTester::metricCreationTest() {
         scgms::TMetric_Descriptor *begin, *end;
         HRESULT descriptorsResult = getEntityDescriptors<scgms::TGet_Metric_Descriptors>("do_get_metric_descriptors", &begin, &end);
         if (!Succeeded(descriptorsResult)) {
@@ -639,10 +662,20 @@ namespace tester {
             Logger::getInstance().error(L"Some metrics could not be created!");
         }
 
+        Logger::getInstance().info(L"Creating invalid metric...");
+        scgms::IMetric *metric;
+        HRESULT constructionResult = constructEntity<scgms::TCreate_Metric>("do_create_metric", &scgms::Null_Metric_Parameters, &metric);
+        if (Succeeded(constructionResult)) {
+            Logger::getInstance().error(L"Invalid metric was created!");
+            testResult = E_FAIL;
+        } else {
+            Logger::getInstance().info(L"Invalid metric not created.");
+        }
+
         return testResult;
     }
 
-    HRESULT ModuleUnitTester::validSolverCreationTest() {
+    HRESULT ModuleUnitTester::solverCreationTest() {
         scgms::TSolver_Descriptor *begin, *end;
         HRESULT descriptorsResult = getEntityDescriptors<scgms::TGet_Solver_Descriptors>("do_get_solver_descriptors", &begin, &end);
         if (!Succeeded(descriptorsResult)) {
@@ -669,10 +702,21 @@ namespace tester {
             Logger::getInstance().error(L"Some solvers could not be created!");
         }
 
+        Logger::getInstance().info(L"Creating invalid solver...");
+        solver::TSolver_Progress nullProgress = solver::Null_Solver_Progress;
+        HRESULT creationResult = constructEntity<solver::TGeneric_Solver>("do_solve_generic", &Invalid_GUID,
+                                                                          &solver::Default_Solver_Setup, &nullProgress);
+        if (!Succeeded(creationResult)) {
+            Logger::getInstance().error(L"Invalid solver created!");
+            testResult = E_FAIL;
+        } else {
+            Logger::getInstance().info(L"Invalid solver not created.");
+        }
+
         return testResult;
     }
 
-    HRESULT ModuleUnitTester::validApproxCreationTest() {
+    HRESULT ModuleUnitTester::approxCreationTest() {
         scgms::TApprox_Descriptor *begin, *end;
         HRESULT descriptorsResult = getEntityDescriptors<scgms::TGet_Approx_Descriptors>("do_get_approximator_descriptors", &begin, &end);
         if (!Succeeded(descriptorsResult)) {
@@ -706,6 +750,18 @@ namespace tester {
 
         if (!Succeeded(testResult)) {
             Logger::getInstance().error(L"Some approximators could not be created!");
+        }
+
+        Logger::getInstance().info(L"Creating invalid approximator...");
+
+        scgms::IApproximator *approx;
+        HRESULT creationResult = constructEntity<scgms::TCreate_Approximator>("do_create_approximator", &Invalid_GUID,
+                                                                              signal, &approx);
+        if (Succeeded(creationResult)) {
+            Logger::getInstance().error(L"Invalid approximator was created!");
+            testResult = E_FAIL;
+        } else {
+            Logger::getInstance().info(L"Invalid approximator not created.");
         }
 
         return testResult;

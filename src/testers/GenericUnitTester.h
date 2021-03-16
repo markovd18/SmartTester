@@ -54,11 +54,11 @@ namespace tester {
         static std::map<std::string, std::string> s_descriptorsToFactories;
         /// Mapped do_get_*_descriptors methods to factory tests of their factory methods
         std::map<std::string, std::function<HRESULT(void)>> m_descriptorsToTests {
-                {"do_get_filter_descriptors", std::bind(&ModuleUnitTester::validFilterCreationTest, this) },
-                {"do_get_signal_descriptors", std::bind(&ModuleUnitTester::validSignalCreationTest, this) },
-                {"do_get_metric_descriptors", std::bind(&ModuleUnitTester::validMetricCreationTest, this) },
-                {"do_get_solver_descriptors", std::bind(&ModuleUnitTester::validSolverCreationTest, this) },
-                {"do_get_approximator_descriptors", std::bind(&ModuleUnitTester::validApproxCreationTest, this) }
+                {"do_get_filter_descriptors", std::bind(&ModuleUnitTester::filterCreationTest, this) },
+                {"do_get_signal_descriptors", std::bind(&ModuleUnitTester::signalCreationTest, this) },
+                {"do_get_metric_descriptors", std::bind(&ModuleUnitTester::metricCreationTest, this) },
+                {"do_get_solver_descriptors", std::bind(&ModuleUnitTester::solverCreationTest, this) },
+                {"do_get_approximator_descriptors", std::bind(&ModuleUnitTester::approxCreationTest, this) }
         };
         /// Mapped do_get_*_descriptors methods to tests of their input parameters validation
         std::map<std::string, std::function<HRESULT(const std::string&)>> m_descriptorsToParamsTests {
@@ -125,11 +125,11 @@ namespace tester {
 
         template<typename T, typename... Args>
         HRESULT constructEntity(const std::string& symbolName, Args... args);
-        HRESULT validFilterCreationTest();
-        HRESULT validSignalCreationTest();
-        HRESULT validMetricCreationTest();
-        HRESULT validSolverCreationTest();
-        HRESULT validApproxCreationTest();
+        HRESULT filterCreationTest();
+        HRESULT signalCreationTest();
+        HRESULT metricCreationTest();
+        HRESULT solverCreationTest();
+        HRESULT approxCreationTest();
     };
 
     /**
