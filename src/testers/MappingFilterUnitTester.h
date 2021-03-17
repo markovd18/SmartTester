@@ -13,7 +13,7 @@ namespace tester {
     /**
      * Derived class from GenericUnitTester responsible for the testing of Mapping filter.
      */
-    class MappingFilterUnitTester : public GenericUnitTester {
+    class MappingFilterUnitTester : public FilterUnitTester {
     public: // public methods
         MappingFilterUnitTester();
         void executeSpecificTests() override;

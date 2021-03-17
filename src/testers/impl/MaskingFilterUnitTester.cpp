@@ -10,7 +10,7 @@ namespace tester {
     const GUID INVALID_SIGNAL_ID_GUID = {0xe1cd0700, 0xb079, 0x4911,
                                                           {0xb7, 0x9b, 0xd2, 0x03, 0x48, 0x61, 0x01, 0xc8}};
 
-    MaskingFilterUnitTester::MaskingFilterUnitTester() : GenericUnitTester(cnst::MASKING_GUID) {
+    MaskingFilterUnitTester::MaskingFilterUnitTester() : FilterUnitTester(cnst::MASKING_GUID) {
         //
     }
 

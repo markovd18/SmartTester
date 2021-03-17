@@ -11,7 +11,6 @@
 #include <utility>
 #include <vector>
 #include <algorithm>
-#include <rtl/scgmsLib.h>
 #include "../RegressionTester.h"
 #include "../../utils/constants.h"
 #include "../../utils/LogUtils.h"
@@ -75,13 +74,13 @@ HRESULT tester::RegressionTester::compareLogs(const std::string& referenceLog) {
     std::vector<std::vector<std::string>> resultLogLinesVector = log::readLogFile(this->resultLog);
     std::sort(resultLogLinesVector.begin() + 1, resultLogLinesVector.end(),
         [](const std::vector<std::string>& first, const std::vector<std::string>& second) {
-        return std::stoi(first.at(0)) < std::stoi(second.at(0));
+        return std::stoi(first[0]) < std::stoi(second[0]);
         });
 
     std::vector<std::vector<std::string>> referenceLogLinesVector = log::readLogFile(referenceLog);
     std::sort(referenceLogLinesVector.begin() + 1, referenceLogLinesVector.end(),
         [](const std::vector<std::string>& first, const std::vector<std::string>& second) {
-        return std::stoi(first.at(0)) < std::stoi(second.at(0));
+        return std::stoi(first[0]) < std::stoi(second[0]);
         });
 
     std::vector<std::vector<std::string>> missingLines;
@@ -92,7 +91,7 @@ HRESULT tester::RegressionTester::compareLogs(const std::string& referenceLog) {
     bool firstMismatch = true;
     int lastComparedLine = 1;
     if (resultLogLinesVector[0].size() != referenceLogLinesVector[0].size()) {
-        // different number of parametes in line is not correct
+        // different number of parameters in line is not correct
         std::wcerr << L"There is different number of parameters in first line!\n";
         Logger::getInstance().error(L"There is different number of parameters in first line!");
         return E_FAIL;
@@ -100,7 +99,7 @@ HRESULT tester::RegressionTester::compareLogs(const std::string& referenceLog) {
 
     for (size_t i = 1; i < referenceLogLinesVector.size(); i++) {
         for (size_t j = lastComparedLine; j < resultLogLinesVector.size(); j++) {
-            if (log::compareLines(resultLogLinesVector.at(j), referenceLogLinesVector.at(i))) {
+            if (log::compareLines(resultLogLinesVector[j], referenceLogLinesVector[i])) {
                 resultLogLinesVector.erase(resultLogLinesVector.begin() + j);
                 lastComparedLine = j;
                 match = true;
@@ -109,10 +108,10 @@ HRESULT tester::RegressionTester::compareLogs(const std::string& referenceLog) {
         }
 
         if (!match) {
-            missingLines.push_back(referenceLogLinesVector.at(i));
+            missingLines.push_back(referenceLogLinesVector[i]);
             if (firstMismatch) {
-                expectedLine = missingLines.at(0);
-                mismatchLine = resultLogLinesVector.at(lastComparedLine);
+                expectedLine = missingLines[0];
+                mismatchLine = resultLogLinesVector[lastComparedLine];
                 firstMismatch = false;
             }
             logsAreEqual = false;
@@ -125,7 +124,7 @@ HRESULT tester::RegressionTester::compareLogs(const std::string& referenceLog) {
         std::wcout << "Test result is OK!\n";
         Logger::getInstance().info(L"Test result is OK!");
         if (resultLogLinesVector.size() > 1) {
-            Logger::getInstance().info(L"There were reduntant lines found:");
+            Logger::getInstance().info(L"There were redundant lines found:");
             std::wcout << L"There were redundant lines found!\n";
             resultLogLinesVector.erase(resultLogLinesVector.begin());
             log::infoLogLines(resultLogLinesVector);

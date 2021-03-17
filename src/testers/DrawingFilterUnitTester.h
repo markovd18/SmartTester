@@ -12,7 +12,7 @@ namespace tester {
     /**
      * Derived class from GenericUnitTester responsible for unit testing of Drawing filter.
      */
-    class DrawingFilterUnitTester : public GenericUnitTester {
+    class DrawingFilterUnitTester : public FilterUnitTester {
     public:
 
         DrawingFilterUnitTester();

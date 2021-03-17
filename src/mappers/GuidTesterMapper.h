@@ -21,7 +21,7 @@
 class GuidTesterMapper {
 
 private:
-    using TesterFactory = std::function<tester::GenericUnitTester*(void)>;
+    using TesterFactory = std::function<tester::FilterUnitTester*(void)>;
     /// Mapped derived class instance pointers to their representing GUID
 	std::map<GUID, TesterFactory> m_guidTesterMap;
     /// Private constructor because of this class being a singleton
@@ -41,7 +41,7 @@ public:
 	 * @param guid guid of a filter, that we want to test
 	 * @return owning pointer to a tester instance
 	 */
-	tester::GenericUnitTester* getTesterInstance(const GUID& guid);
+	tester::FilterUnitTester* getTesterInstance(const GUID& guid);
 	GuidTesterMapper(GuidTesterMapper const&) = delete;
 	void operator=(GuidTesterMapper const&) = delete;
 

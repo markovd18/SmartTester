@@ -24,7 +24,7 @@ namespace tester {
 
 
     /// Returns a unit tester instance based on given guid
-    tester::GenericUnitTester *getUnitTester(const GUID &guid);
+    tester::FilterUnitTester *getUnitTester(const GUID &guid);
 }
 
 /**
