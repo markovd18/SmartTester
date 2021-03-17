@@ -130,6 +130,7 @@ namespace tester {
         HRESULT metricCreationTest();
         HRESULT solverCreationTest();
         HRESULT approxCreationTest();
+        HRESULT validat
     };
 
     /**

@@ -560,6 +560,8 @@ namespace tester {
         TestFilter testFilter;
         HRESULT testResult = S_OK;
         while (begin != end) {
+            Logger::getInstance().debug(std::wstring(L"Creating ") + begin->description + L" filter...");
+
             scgms::IFilter *filter;
 
             HRESULT constructionResult = constructEntity<scgms::TCreate_Filter>("do_create_filter", &begin->id, &testFilter, &filter);
@@ -568,6 +570,22 @@ namespace tester {
                 testResult = E_FAIL;
             } else {
                 Logger::getInstance().info(std::wstring(L"Successfully created ") + begin->description + L" filter!");
+            }
+
+            filter->Release();
+            Logger::getInstance().info(L"Validating input parameters...");
+            HRESULT invalidConstructionResult = constructEntity<scgms::TCreate_Filter>("do_create_filter", &begin->id, nullptr, &filter);
+            if (Succeeded(invalidConstructionResult)) {
+                Logger::getInstance().error(L"Null pointer accepted as a valid output filter!");
+                testResult = E_FAIL;
+            }
+
+            filter->Release();
+            invalidConstructionResult = constructEntity<scgms::TCreate_Filter>("do_create_filter", &begin->id, &testFilter,
+                                                                               nullptr);
+            if (Succeeded(invalidConstructionResult)) {
+                Logger::getInstance().error(L"Null pointer accepted as a valid filter pointer!");
+                testResult = E_FAIL;
             }
 
             begin++;
@@ -601,6 +619,8 @@ namespace tester {
 
         HRESULT testResult = S_OK;
         while (begin != end) {
+            Logger::getInstance().debug(std::wstring(L"Creating ") + begin->signal_description + L" signal...");
+
             scgms::CTime_Segment timeSegment;
             scgms::ISignal *signal;
 
@@ -611,6 +631,23 @@ namespace tester {
                 testResult = E_FAIL;
             } else {
                 Logger::getInstance().info(std::wstring(L"Successfully created ") + begin->signal_description + L" signal!");
+            }
+
+            signal->Release();
+            Logger::getInstance().info(L"Validating input parameters...");
+            HRESULT invalidConstructionResult = constructEntity<scgms::TCreate_Signal>("do_create_signal", &begin->id,
+                                                                                       nullptr, nullptr, &signal);
+            if (Succeeded(invalidConstructionResult)) {
+                Logger::getInstance().error(L"Null pointer accepted as a valid time segment!");
+                testResult = E_FAIL;
+            }
+
+            signal->Release();
+            invalidConstructionResult = constructEntity<scgms::TCreate_Signal>("do_create_signal", &begin->id, &timeSegment,
+                                                                               nullptr, nullptr);
+            if (Succeeded(invalidConstructionResult)) {
+                Logger::getInstance().error(L"Null pointer accepted as a valid signal pointer!");
+                testResult = E_FAIL;
             }
 
             begin++;
@@ -645,6 +682,7 @@ namespace tester {
 
         HRESULT testResult = S_OK;
         while (begin != end) {
+            Logger::getInstance().debug(std::wstring(L"Creating ") + begin->description + L" metric...");
             scgms::IMetric *metric;
             scgms::TMetric_Parameters params { begin->id, 0, 0, 0, 0.0};
             HRESULT constructionResult = constructEntity<scgms::TCreate_Metric>("do_create_metric", &params, &metric);
@@ -653,6 +691,21 @@ namespace tester {
                 testResult = E_FAIL;
             } else {
                 Logger::getInstance().info(std::wstring(L"Successfully created ") + begin->description + L" metric!");
+            }
+
+            metric->Release();
+            Logger::getInstance().info(L"Validating input parameters...");
+            HRESULT invalidCreationResult = constructEntity<scgms::TCreate_Metric>("do_create_metric", nullptr, &metric);
+            if (Succeeded(invalidCreationResult)) {
+                Logger::getInstance().error(L"Null pointer accepted as a valid metric parameters!");
+                testResult = E_FAIL;
+            }
+
+            metric->Release();
+            invalidCreationResult = constructEntity<scgms::TCreate_Metric>("do_create_metric", &params, nullptr);
+            if (Succeeded(invalidCreationResult)) {
+                Logger::getInstance().error(L"Null pointer accepted as a valid metric pointer!");
+                testResult = E_FAIL;
             }
 
             begin++;
@@ -685,6 +738,8 @@ namespace tester {
 
         HRESULT testResult = S_OK;
         while (begin != end) {
+            Logger::getInstance().debug(std::wstring(L"Creating ") + begin->description + L" solver...");
+
             solver::TSolver_Progress nullProgress = solver::Null_Solver_Progress;
             HRESULT constructionResult = constructEntity<solver::TGeneric_Solver>("do_solve_generic", &begin->id,
                                                                                   &solver::Default_Solver_Setup, &nullProgress);
@@ -693,6 +748,21 @@ namespace tester {
                 testResult = E_FAIL;
             } else {
                 Logger::getInstance().info(std::wstring(L"Successfully created ") + begin->description + L" solver!");
+            }
+
+            Logger::getInstance().info(L"Validating input parameters...");
+            HRESULT invalidConstructionResult = constructEntity<solver::TGeneric_Solver>("do_solve_generic", &begin->id,
+                                                                                         nullptr, &nullProgress);
+            if (Succeeded(invalidConstructionResult)) {
+                Logger::getInstance().error(L"Null pointer accepted as a valid solver setup!");
+                testResult = E_FAIL;
+            }
+
+            invalidConstructionResult = constructEntity<solver::TGeneric_Solver>("do_solve_generic", &begin->id, &solver::Default_Solver_Setup,
+                                                                                 nullptr);
+            if (Succeeded(invalidConstructionResult)) {
+                Logger::getInstance().error(L"Null pointer accepted as a valid solver progress!");
+                testResult = E_FAIL;
             }
 
             begin++;
@@ -735,6 +805,8 @@ namespace tester {
 
         HRESULT testResult = S_OK;
         while (begin != end) {
+            Logger::getInstance().debug(std::wstring(L"Creating ") + begin->description + L" approximator...");
+
             scgms::IApproximator *approx;
             HRESULT creationResult = constructEntity<scgms::TCreate_Approximator>("do_create_approximator", &begin->id,
                                                                                   signal, &approx);
@@ -743,6 +815,23 @@ namespace tester {
                 testResult = E_FAIL;
             } else {
                 Logger::getInstance().info(std::wstring(L"Successfully created ") + begin->description + L" approximator!");
+            }
+
+            approx->Release();
+            Logger::getInstance().info(L"Validating input parameters...");
+            HRESULT invalidConstructionResult = constructEntity<scgms::TCreate_Approximator>("do_create_approximator", &begin->id,
+                                                                                             nullptr, &approx);
+            if (Succeeded(invalidConstructionResult)) {
+                Logger::getInstance().error(L"Null pointer accepted as a valid signal!");
+                testResult = E_FAIL;
+            }
+
+            approx->Release();
+            invalidConstructionResult = constructEntity<scgms::TCreate_Approximator>("do_create_approximator", &begin->id, signal,
+                                                                                     nullptr);
+            if (Succeeded(invalidConstructionResult)) {
+                Logger::getInstance().error(L"Null pointer accepted as a valid approximator pointer!");
+                testResult = E_FAIL;
             }
 
             begin++;
