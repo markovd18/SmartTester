@@ -240,7 +240,7 @@ namespace tester {
                 }
             }
 
-            E_FAIL;
+            return E_FAIL;
         }
 
         HRESULT testResult = S_OK;
