@@ -93,5 +93,22 @@ namespace tester {
         const std::string &getBitmask() const;
         void setBitmask(const std::string &bitmask);
     };
+
+    class LogReplayFilterConfig : public FilterConfig {
+    private:
+        std::string m_logFile;
+        bool m_emitShutdown = false;
+        bool m_filenameAsSegmentId = false;
+    public:
+        LogReplayFilterConfig(std::string logFile = "");
+
+        std::string toString() const override;
+        const std::string &getLogFile() const;
+        void setLogFile(const std::string &logFile);
+        bool isEmitShutdown() const;
+        void setEmitShutdown(bool emitShutdown);
+        bool isFilenameAsSegmentId() const;
+        void setFilenameAsSegmentId(bool filenameAsSegmentId);
+    };
 }
 #endif //SMARTTESTER_FILTERCONFIGURATION_H

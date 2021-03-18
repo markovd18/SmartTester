@@ -20,11 +20,20 @@ HRESULT IfaceCalling TestFilter::Execute(scgms::IDevice_Event *event) {
     scgms::TDevice_Event *rawEvent;
     event->Raw(&rawEvent);
     m_receivedEvent = *rawEvent;
+    m_receivedEvents.push_back(m_receivedEvent);
 
     event->Release();   /// Copying acquired data and releasing, so we don't need to manually release in every test
     return S_OK;
 }
 
 const scgms::TDevice_Event& TestFilter::getReceivedEvent() {
-    return m_receivedEvent;
+    return m_receivedEvents.back();
+}
+
+void TestFilter::resetReceivedEvent() {
+    m_receivedEvent = scgms::TDevice_Event();
+}
+
+void TestFilter::clearReceivedEvents() noexcept {
+    m_receivedEvents.clear();
 }
