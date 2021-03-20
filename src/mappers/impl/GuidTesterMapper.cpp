@@ -5,6 +5,7 @@
 #include "../../testers/DrawingFilterUnitTester.h"
 #include "../../testers/MappingFilterUnitTester.h"
 #include "../../testers/MaskingFilterUnitTester.h"
+#include "../../testers/SignalGeneratorUnitTester.h"
 
 /**
  * Factory method for creating instances of classes derived from GenericUnitTester. Caller TAKES OWNERSHIP
@@ -22,6 +23,7 @@ GuidTesterMapper::GuidTesterMapper() {
 	m_guidTesterMap[cnst::DRAWING_GUID] = &createTester<tester::DrawingFilterUnitTester>;
 	m_guidTesterMap[cnst::MAPPING_GUID] = &createTester<tester::MappingFilterUnitTester>;
 	m_guidTesterMap[cnst::MASKING_GUID] = &createTester<tester::MaskingFilterUnitTester>;
+	m_guidTesterMap[cnst::SIGNAL_GEN_GUID] = &createTester<tester::SignalGeneratorUnitTester>;
 }
 
 GuidTesterMapper& GuidTesterMapper::GetInstance() {

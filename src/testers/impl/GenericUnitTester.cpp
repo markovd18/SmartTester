@@ -143,6 +143,7 @@ namespace tester {
 
             if (status == std::cv_status::timeout) {
 //                shutDownTest();
+                    //TODO markovda odkomentovat
             }
 
             if (thread.joinable()) {
@@ -298,7 +299,7 @@ namespace tester {
                 result = E_FAIL;
             }
         } else {
-            Logger::getInstance().error(L"Error while sending " + describeEvent(scgms::NDevice_Event_Code::Shut_Down));
+            Logger::getInstance().error(L"Error while sending " + describeEvent(eventCode));
             Logger::getInstance().error(std::wstring(L"expected result: ") + Describe_Error(S_OK));
             Logger::getInstance().error(std::wstring(L"actual result: ") + Describe_Error(result));
             result = E_FAIL;

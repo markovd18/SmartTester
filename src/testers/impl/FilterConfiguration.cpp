@@ -175,5 +175,110 @@ namespace tester {
         return getHeader() + "Signal_Id = " + (m_signalId == Invalid_GUID ? "" : Narrow_WString(GUID_To_WString(m_signalId))) + getParamSeparator() +
                             "Bitmask = " + m_bitmask;
     }
+
+    SignalGeneratorConfig::SignalGeneratorConfig(const GUID &modelId) : FilterConfig(cnst::SIGNAL_GEN_GUID), m_modelId(modelId) {
+        //
+    }
+
+    const GUID &SignalGeneratorConfig::getModelId() const {
+        return m_modelId;
+    }
+
+    void SignalGeneratorConfig::setModelId(const GUID &modelId) {
+        m_modelId = modelId;
+    }
+
+    const std::string &SignalGeneratorConfig::getFeedbackName() const {
+        return m_feedbackName;
+    }
+
+    void SignalGeneratorConfig::setFeedbackName(const std::string &feedbackName) {
+        m_feedbackName = feedbackName;
+    }
+
+    bool SignalGeneratorConfig::isSynchronizeToSignal() const {
+        return m_synchronizeToSignal;
+    }
+
+    void SignalGeneratorConfig::setSynchronizeToSignal(bool synchronizeToSignal) {
+        m_synchronizeToSignal = synchronizeToSignal;
+    }
+
+    const GUID &SignalGeneratorConfig::getSynchronizationSignal() const {
+        return m_synchronizationSignal;
+    }
+
+    void SignalGeneratorConfig::setSynchronizationSignal(const GUID &synchronizationSignal) {
+        m_synchronizationSignal = synchronizationSignal;
+    }
+
+    int64_t SignalGeneratorConfig::getTimeSegmentId() const {
+        return m_timeSegmentId;
+    }
+
+    void SignalGeneratorConfig::setTimeSegmentId(int64_t timeSegmentId) {
+        m_timeSegmentId = timeSegmentId;
+    }
+
+    double SignalGeneratorConfig::getStepping() const {
+        return m_stepping;
+    }
+
+    void SignalGeneratorConfig::setStepping(double stepping) {
+        m_stepping = stepping;
+    }
+
+    double SignalGeneratorConfig::getMaximumTime() const {
+        return m_maximumTime;
+    }
+
+    void SignalGeneratorConfig::setMaximumTime(double maximumTime) {
+        m_maximumTime = maximumTime;
+    }
+
+    bool SignalGeneratorConfig::isShutDownAfterLast() const {
+        return m_shutDownAfterLast;
+    }
+
+    void SignalGeneratorConfig::setShutDownAfterLast(bool mShutDownAfterLast) {
+        m_shutDownAfterLast = mShutDownAfterLast;
+    }
+
+    bool SignalGeneratorConfig::isEchoDefaultParametersAsEvent() const {
+        return m_echoDefaultParametersAsEvent;
+    }
+
+    void SignalGeneratorConfig::setEchoDefaultParametersAsEvent(bool mEchoDefaultParametersAsEvent) {
+        m_echoDefaultParametersAsEvent = mEchoDefaultParametersAsEvent;
+    }
+
+    const std::vector<double> &SignalGeneratorConfig::getParameters() const {
+        return m_parameters;
+    }
+
+    void SignalGeneratorConfig::setParameters(const std::vector<double> &parameters) {
+        m_parameters = parameters;
+    }
+
+    std::string SignalGeneratorConfig::toString() const {
+        return getHeader() + "Model = " + Narrow_WString(GUID_To_WString(m_modelId)) + getParamSeparator() +
+                            "Feedback_Name = " + m_feedbackName + getParamSeparator() +
+                            "Synchronize_To_Signal = " + (m_synchronizeToSignal ? "true" : "false") + getParamSeparator() +
+                            "Synchronization_Signal = " + Narrow_WString(GUID_To_WString(m_synchronizationSignal)) + getParamSeparator() +
+                            "Time_Segment_Id = " + ((m_timeSegmentId == -1) ? "" : std::to_string(m_timeSegmentId)) + getParamSeparator() +
+                            "Stepping = " + ((m_stepping == -1) ? "" : std::to_string(m_stepping)) + getParamSeparator() +
+                            "Maximum_Time = " + ((m_maximumTime == -1) ? "" : std::to_string(m_maximumTime)) + getParamSeparator() +
+                            "Shutdown_After_Last = " + (m_shutDownAfterLast ? "true" : "false") + getParamSeparator() +
+                            "Echo_Default_Parameters_As_Event = " + (m_echoDefaultParametersAsEvent ? "true" : "false") + getParamSeparator() +
+                            "Parameters =" + parametersToString();  /// Purposefully left out space after =
+    }
+
+    std::string SignalGeneratorConfig::parametersToString() const {
+        std::string string;
+        for (const auto &param : m_parameters) {
+            string += ' ' + std::to_string(param);
+        }
+        return string;
+    }
 }
 

@@ -7,6 +7,7 @@
 
 #include <string>
 #include <rtl/guid.h>
+#include <vector>
 
 namespace tester {
 
@@ -92,6 +93,47 @@ namespace tester {
         void setSignalId(const GUID &signalId);
         const std::string &getBitmask() const;
         void setBitmask(const std::string &bitmask);
+    };
+
+    class SignalGeneratorConfig : public FilterConfig {
+    private:
+        GUID m_modelId;
+        std::string m_feedbackName;
+        bool m_synchronizeToSignal = false;
+        GUID m_synchronizationSignal{};
+        int64_t m_timeSegmentId = -1;
+        double m_stepping = -1.0;
+        double m_maximumTime = -1.0;
+        bool m_shutDownAfterLast = false;
+        bool m_echoDefaultParametersAsEvent = false;
+        std::vector<double> m_parameters;
+    public:
+        SignalGeneratorConfig(const GUID& modelId = Invalid_GUID);
+
+        std::string toString() const override;
+        const GUID &getModelId() const;
+        void setModelId(const GUID &modelId);
+        const std::string &getFeedbackName() const;
+        void setFeedbackName(const std::string &feedbackName);
+        bool isSynchronizeToSignal() const;
+        void setSynchronizeToSignal(bool synchronizeToSignal);
+        const GUID &getSynchronizationSignal() const;
+        void setSynchronizationSignal(const GUID &synchronizationSignal);
+        int64_t getTimeSegmentId() const;
+        void setTimeSegmentId(int64_t timeSegmentId);
+        double getStepping() const;
+        void setStepping(double stepping);
+        double getMaximumTime() const;
+        void setMaximumTime(double maximumTime);
+        bool isShutDownAfterLast() const;
+        void setShutDownAfterLast(bool mShutDownAfterLast);
+        bool isEchoDefaultParametersAsEvent() const;
+        void setEchoDefaultParametersAsEvent(bool mEchoDefaultParametersAsEvent);
+        const std::vector<double> &getParameters() const;
+        void setParameters(const std::vector<double> &parameters);
+
+    private:
+        std::string parametersToString() const;
     };
 }
 #endif //SMARTTESTER_FILTERCONFIGURATION_H
