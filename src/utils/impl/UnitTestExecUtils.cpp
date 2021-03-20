@@ -18,6 +18,11 @@ void tester::executeFilterTests(const GUID& guid) {
     }
 	
 	tester::FilterUnitTester* unitTester = getUnitTester(guid);
+    if (unitTester == nullptr) {
+        Logger::getInstance().error(L"Unit tester for GUID " + GUID_To_WString(guid) + L" not found! Skipping...");
+        return;
+    }
+
     unitTester->executeAllTests();
     delete unitTester;
 }

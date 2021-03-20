@@ -7,6 +7,7 @@ GuidFileMapper::GuidFileMapper() {
 	guidFileMap.insert(std::pair<GUID, const wchar_t*>(cnst::DRAWING_GUID, cnst::DRAWING_LIBRARY));
 	guidFileMap.insert(std::pair<GUID, const wchar_t*>(cnst::MAPPING_GUID, cnst::SIGNAL_LIBRARY));
 	guidFileMap.insert(std::pair<GUID, const wchar_t*>(cnst::MASKING_GUID, cnst::SIGNAL_LIBRARY));
+	guidFileMap[cnst::SIGNAL_GEN_GUID] = cnst::SIGNAL_LIBRARY;
 }
 
 /**
