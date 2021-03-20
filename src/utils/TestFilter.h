@@ -28,8 +28,11 @@ public:
     /// Sets received event to null event
     void resetReceivedEvent();
     void clearReceivedEvents() noexcept;
+    const scgms::TDevice_Event* getLastNonShutDownEvent();
 
+    std::size_t getReceivedEventsCount();
     HRESULT IfaceCalling Execute(scgms::IDevice_Event *event) final;
+
     HRESULT IfaceCalling Configure(IFilter_Configuration* configuration, refcnt::wstr_list *error_description) final;
 };
 #endif //SMARTTESTER_TESTFILTER_H

@@ -37,3 +37,20 @@ void TestFilter::resetReceivedEvent() {
 void TestFilter::clearReceivedEvents() noexcept {
     m_receivedEvents.clear();
 }
+
+const scgms::TDevice_Event* TestFilter::getLastNonShutDownEvent() {
+    auto iterator = m_receivedEvents.end();
+    while (iterator != m_receivedEvents.begin()) {
+        if (iterator->event_code != scgms::NDevice_Event_Code::Shut_Down) {
+            return iterator.base();
+        }
+
+        iterator--;
+    }
+
+    return nullptr;
+}
+
+std::size_t TestFilter::getReceivedEventsCount() {
+    return m_receivedEvents.size();
+}

@@ -30,7 +30,13 @@ namespace tester {
          * @return S_OK if the error event is sent, otherwise E_FAIL
          */
         HRESULT invalidBodyLogFileTest();
-
+        /**
+         * When configured with valid log, number of emitted events from LogReplay filter should be the same as the number
+         * of non-header lines in the log file.
+         * This test checks, whether the number of emitted events is the same as the number of log lines.
+         * @return S_OK if the event count checks, otherwise false
+         */
+        HRESULT emittedEventCountTest();
     private:    // private methods
         HRESULT invalidLogFileTest(const tester::LogReplayFilterConfig &config, const scgms::NDevice_Event_Code &expectedCode);
     };
