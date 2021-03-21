@@ -124,4 +124,21 @@ namespace log {
 
         return true;
     }
+
+    std::size_t getLoggedLinesCount(const std::string &logFilePath) {
+        std::ifstream file(logFilePath);
+        if (!file) {
+            return 0;
+        }
+
+        std::string line;
+        std::size_t loggedLinesCount = 0;
+        std::getline(file, line);   /// Skipping the header line
+
+        while (std::getline(file, line)) {
+            loggedLinesCount++;
+        }
+
+        return loggedLinesCount;
+    }
 }

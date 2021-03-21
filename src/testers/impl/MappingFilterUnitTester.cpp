@@ -104,7 +104,7 @@ namespace tester {
             return E_FAIL;
         }
 
-        scgms::TDevice_Event receivedEvent = getTestFilter().getReceivedEvent();
+        scgms::TDevice_Event receivedEvent = getTestFilter().getLastReceivedEvent();
         if (receivedEvent.signal_id != config.getSignalDstId()) {
             Logger::getInstance().error(L"Event was incorrectly mapped!");
             Logger::getInstance().error(L"expected result: " + GUID_To_WString(config.getSignalDstId()));
@@ -157,7 +157,7 @@ namespace tester {
             return E_FAIL;
         }
 
-        scgms::TDevice_Event receivedEvent = getTestFilter().getReceivedEvent();
+        scgms::TDevice_Event receivedEvent = getTestFilter().getLastReceivedEvent();
         if (receivedEvent.signal_id != scgms::signal_Acceleration) {
             Logger::getInstance().error(L"Event was incorrectly mapped!");
             Logger::getInstance().error(L"expected result: " + GUID_To_WString(scgms::signal_Acceleration));
@@ -209,7 +209,7 @@ namespace tester {
             return E_FAIL;
         }
 
-        scgms::TDevice_Event receivedEvent = getTestFilter().getReceivedEvent();
+        scgms::TDevice_Event receivedEvent = getTestFilter().getLastReceivedEvent();
         if (receivedEvent.event_code == eventCode) {
             Logger::getInstance().error(L"Executed event arrived to the appended filter!");
             return E_FAIL;
@@ -248,7 +248,7 @@ namespace tester {
             return E_FAIL;
         }
 
-        scgms::TDevice_Event receivedEvent = getTestFilter().getReceivedEvent();
+        scgms::TDevice_Event receivedEvent = getTestFilter().getLastReceivedEvent();
         if (receivedEvent.event_code != eventCode) {
             Logger::getInstance().error(L"Executed event did not arrive to the appended filter!");
             Logger::getInstance().error(L"Expected event code: " + describeEvent(eventCode) +

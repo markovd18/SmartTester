@@ -17,15 +17,23 @@ class TestFilter : public virtual scgms::IFilter, public virtual refcnt::CNotRef
     using IFilter_Configuration = refcnt::IVector_Container<scgms::IFilter_Parameter*>;
 private:
     /// Event that the filter we are appended to executed
-    scgms::TDevice_Event m_receivedEvent;
+    std::vector<scgms::TDevice_Event> m_receivedEvents;
 public:
-    TestFilter();
+    TestFilter() = default;
     ~TestFilter() override = default;
 
     /// Returns a reference to the event data we got from the tested filter.
-    const scgms::TDevice_Event& getReceivedEvent();
+    const scgms::TDevice_Event& getLastReceivedEvent();
+    /// Clears the vector of received events
+    void clearReceivedEvents() noexcept;
+    /// Returns the number of unique segment id's on the vector of received events
+    std::size_t getUniqueSegmentIdsFromReceivedEventsCount();
+
+    const scgms::TDevice_Event* getLastNonShutDownEvent();
+    std::size_t getReceivedEventsCount();
 
     HRESULT IfaceCalling Execute(scgms::IDevice_Event *event) final;
+
     HRESULT IfaceCalling Configure(IFilter_Configuration* configuration, refcnt::wstr_list *error_description) final;
 };
 #endif //SMARTTESTER_TESTFILTER_H

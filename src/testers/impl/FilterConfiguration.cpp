@@ -176,6 +176,41 @@ namespace tester {
                             "Bitmask = " + m_bitmask;
     }
 
+    LogReplayFilterConfig::LogReplayFilterConfig(std::string logFile)
+            : FilterConfig(cnst::LOG_REPLAY_GUID), m_logFile(std::move(logFile)) {
+        //
+    }
+
+    const std::string &LogReplayFilterConfig::getLogFile() const {
+        return m_logFile;
+    }
+
+    void LogReplayFilterConfig::setLogFile(const std::string &logFile) {
+        m_logFile = logFile;
+    }
+
+    bool LogReplayFilterConfig::isEmitShutdown() const {
+        return m_emitShutdown;
+    }
+
+    void LogReplayFilterConfig::setEmitShutdown(bool emitShutdown) {
+        m_emitShutdown = emitShutdown;
+    }
+
+    bool LogReplayFilterConfig::isFilenameAsSegmentId() const {
+        return m_filenameAsSegmentId;
+    }
+
+    void LogReplayFilterConfig::setFilenameAsSegmentId(bool filenameAsSegmentId) {
+        m_filenameAsSegmentId = filenameAsSegmentId;
+    }
+
+    std::string LogReplayFilterConfig::toString() const {
+        return getHeader() + "Log_File = " + m_logFile + getParamSeparator() +
+                            "Emit_Shutdown = " + (isEmitShutdown() ? "true" : "false") + getParamSeparator() +
+                            "Filename_as_segment_id = " + (isFilenameAsSegmentId() ? "true" : "false");
+    }
+
     SignalGeneratorConfig::SignalGeneratorConfig(const GUID &modelId) : FilterConfig(cnst::SIGNAL_GEN_GUID), m_modelId(modelId) {
         //
     }

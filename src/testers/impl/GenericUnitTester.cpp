@@ -27,6 +27,7 @@ namespace tester {
         auto creator = m_filterLibrary.Resolve<scgms::TCreate_Filter>("do_create_filter");
 
         m_testedFilter = nullptr;
+        m_testFilter.clearReceivedEvents();     /// Resetting so there will not be data from last test present
         auto result = creator(&m_testedGuid, &m_testFilter, &m_testedFilter);
         if (result != S_OK) {
             Logger::getInstance().error(L"Error while loading filter from the dynamic library!");
@@ -124,7 +125,7 @@ namespace tester {
         m_testedFilter->Execute(shutDown);
         m_testedFilter->Release();
         m_testedFilter = nullptr;
-
+        m_testFilter.clearReceivedEvents();
         return S_OK;
     }
 
@@ -289,7 +290,7 @@ namespace tester {
         HRESULT result = m_testedFilter->Execute(event);
 
         if (Succeeded(result)) {
-            scgms::TDevice_Event receivedEvent = m_testFilter.getReceivedEvent();
+            scgms::TDevice_Event receivedEvent = m_testFilter.getLastReceivedEvent();
             if (receivedEvent.event_code == eventCode) {
                 result = S_OK;
             } else {
@@ -589,7 +590,7 @@ namespace tester {
 //                Logger::getInstance().error(L"Null pointer accepted as a valid filter pointer!");
 //                testResult = E_FAIL;
 //            }
-//TODO markovda odkomentovat
+//TODO markovda odkomentovat do produkce
             begin++;
         }
 
@@ -651,8 +652,7 @@ namespace tester {
 //                Logger::getInstance().error(L"Null pointer accepted as a valid signal pointer!");
 //                testResult = E_FAIL;
 //            }
-//TODO markovda odkomentovat
-
+//TODO markovda odkomentovat do produkce
             begin++;
         }
 
@@ -710,7 +710,7 @@ namespace tester {
 //                Logger::getInstance().error(L"Null pointer accepted as a valid metric pointer!");
 //                testResult = E_FAIL;
 //            }
-//TODO markovda odkomentovat
+//TODO markovda odkomentovat do produkce
             begin++;
         }
 
@@ -836,7 +836,7 @@ namespace tester {
 //                Logger::getInstance().error(L"Null pointer accepted as a valid approximator pointer!");
 //                testResult = E_FAIL;
 //            }
-//TODO markovda odkomentovat
+//TODO markovda odkomentovat do produkce
             begin++;
         }
 
@@ -910,7 +910,6 @@ namespace tester {
         if (!Succeeded(creationResult)) {
             return E_FAIL;
         }
-
 
         return S_OK;
     }

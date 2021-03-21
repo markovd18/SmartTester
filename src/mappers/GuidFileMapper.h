@@ -13,7 +13,7 @@
 class GuidFileMapper {
 	
 private:
-	std::map<GUID, const wchar_t*> guidFileMap;
+	std::map<GUID, const wchar_t*> m_guidFileMap;
 	GuidFileMapper();
 
 public:
