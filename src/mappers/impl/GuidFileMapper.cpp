@@ -9,7 +9,7 @@ GuidFileMapper::GuidFileMapper() {
     m_guidFileMap[cnst::MASKING_GUID] = cnst::SIGNAL_LIBRARY;
     m_guidFileMap[cnst::LOG_REPLAY_GUID] = cnst::LOG_LIBRARY;
     m_guidFileMap[cnst::SIGNAL_GEN_GUID] = cnst::SIGNAL_LIBRARY;
-
+}
 /**
  * Returns the instance of GuidFileMapper.
  *
