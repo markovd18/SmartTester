@@ -37,6 +37,26 @@ namespace tester {
          * @return S_OK if the event count checks, otherwise false
          */
         HRESULT emittedEventCountTest();
+        /**
+         * When configured with @a Emit_Shutdown_Message = @a true, at the end of the log processing, shut down event should
+         * be sent. This test checks, if this shut down event is sent in the end.
+         * @return S_OK if the shut down event is sent, otherwise E_FAIL
+         */
+        HRESULT emitShutdownFlagTest();
+        /**
+         * When configured with a folder as an input, LogReplay filter should replay all valid logs in that folder.
+         * This test checks, if all valid logs were replayed.
+         * @return S_OK if all logs were replayed, otherwise E_FAIL
+         */
+        HRESULT logReplayFolderTest();
+        /**
+         * When configured with a @a Interpret_Filename_As_Segment_ID = @a true, segment id's in every log file
+         * should be rewritten to a unique one. This test checks, whether the number of unique segment id's
+         * on received events is higher or equal to the number of log files replayed.
+         * @return S_OK if the number of unique segment id's on received events id higher or equal to the number of
+         * replayed log files, otherwise E_FAIL
+         */
+        HRESULT filenameAsSegmentIdTest();
     private:    // private methods
         HRESULT invalidLogFileTest(const tester::LogReplayFilterConfig &config, const scgms::NDevice_Event_Code &expectedCode);
     };

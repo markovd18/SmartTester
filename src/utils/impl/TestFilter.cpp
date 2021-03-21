@@ -4,8 +4,6 @@
 #include "../TestFilter.h"
 #include "../constants.h"
 
-TestFilter::TestFilter() : m_receivedEvent() {
-}
 
 HRESULT IfaceCalling TestFilter::Configure(IFilter_Configuration* configuration, refcnt::wstr_list *error_description){
     return S_OK;
@@ -19,19 +17,14 @@ HRESULT IfaceCalling TestFilter::Execute(scgms::IDevice_Event *event) {
 
     scgms::TDevice_Event *rawEvent;
     event->Raw(&rawEvent);
-    m_receivedEvent = *rawEvent;
-    m_receivedEvents.push_back(m_receivedEvent);
+    m_receivedEvents.push_back(*rawEvent);
 
     event->Release();   /// Copying acquired data and releasing, so we don't need to manually release in every test
     return S_OK;
 }
 
-const scgms::TDevice_Event& TestFilter::getReceivedEvent() {
+const scgms::TDevice_Event& TestFilter::getLastReceivedEvent() {
     return m_receivedEvents.back();
-}
-
-void TestFilter::resetReceivedEvent() {
-    m_receivedEvent = scgms::TDevice_Event();
 }
 
 void TestFilter::clearReceivedEvents() noexcept {
@@ -53,4 +46,15 @@ const scgms::TDevice_Event* TestFilter::getLastNonShutDownEvent() {
 
 std::size_t TestFilter::getReceivedEventsCount() {
     return m_receivedEvents.size();
+}
+
+std::size_t TestFilter::getUniqueSegmentIdsFromReceivedEventsCount() {
+    std::vector<uint64_t> uniqueIds;
+    for (const auto &event : m_receivedEvents) {
+        if (std::find(uniqueIds.begin(), uniqueIds.end(), event.segment_id) != uniqueIds.end()) {
+            uniqueIds.push_back(event.segment_id);
+        }
+    }
+
+    return uniqueIds.size();
 }

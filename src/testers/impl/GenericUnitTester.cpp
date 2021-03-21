@@ -27,7 +27,7 @@ namespace tester {
         auto creator = m_filterLibrary.Resolve<scgms::TCreate_Filter>("do_create_filter");
 
         m_testedFilter = nullptr;
-        m_testFilter.resetReceivedEvent();  /// Resetting so there will not be data from last test present
+        m_testFilter.clearReceivedEvents();     /// Resetting so there will not be data from last test present
         auto result = creator(&m_testedGuid, &m_testFilter, &m_testedFilter);
         if (result != S_OK) {
             Logger::getInstance().error(L"Error while loading filter from the dynamic library!");
@@ -288,7 +288,7 @@ namespace tester {
         HRESULT result = m_testedFilter->Execute(event);
 
         if (Succeeded(result)) {
-            scgms::TDevice_Event receivedEvent = m_testFilter.getReceivedEvent();
+            scgms::TDevice_Event receivedEvent = m_testFilter.getLastReceivedEvent();
             if (receivedEvent.event_code == eventCode) {
                 result = S_OK;
             } else {

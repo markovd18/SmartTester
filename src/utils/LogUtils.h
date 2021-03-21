@@ -27,6 +27,8 @@ namespace log {
     void printAndEmptyErrors(const refcnt::Swstr_list& errors);
     /// Logs the error information about failed filter configuration
     void logConfigurationError(const tester::FilterConfig &config, HRESULT expected, HRESULT result);
+    /// Returns number of logged lines in the log. Expects the header as the first line - skips it.
+    std::size_t getLoggedLinesCount(const std::string& logFilePath);
     /**
      * Reads log file at given path and transforms it into individual tokens.
      *

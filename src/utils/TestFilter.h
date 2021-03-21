@@ -18,19 +18,20 @@ class TestFilter : public virtual scgms::IFilter, public virtual refcnt::CNotRef
 private:
     /// Event that the filter we are appended to executed
     std::vector<scgms::TDevice_Event> m_receivedEvents;
-    scgms::TDevice_Event m_receivedEvent;
 public:
-    TestFilter();
+    TestFilter() = default;
     ~TestFilter() override = default;
 
     /// Returns a reference to the event data we got from the tested filter.
-    const scgms::TDevice_Event& getReceivedEvent();
-    /// Sets received event to null event
-    void resetReceivedEvent();
+    const scgms::TDevice_Event& getLastReceivedEvent();
+    /// Clears the vector of received events
     void clearReceivedEvents() noexcept;
-    const scgms::TDevice_Event* getLastNonShutDownEvent();
+    /// Returns the number of unique segment id's on the vector of received events
+    std::size_t getUniqueSegmentIdsFromReceivedEventsCount();
 
+    const scgms::TDevice_Event* getLastNonShutDownEvent();
     std::size_t getReceivedEventsCount();
+
     HRESULT IfaceCalling Execute(scgms::IDevice_Event *event) final;
 
     HRESULT IfaceCalling Configure(IFilter_Configuration* configuration, refcnt::wstr_list *error_description) final;
