@@ -17,9 +17,26 @@ private:
 	GuidFileMapper();
 
 public:
+    /**
+     * Returns the instance of GuidFileMapper.
+     *
+     * @return the instance of GuidFileMapper
+     */
 	static GuidFileMapper& GetInstance();
+    /**
+     * Returns the file name of shared library associated with given GUID.
+     *
+     * @param guid filter GUID
+     * @return name of shared library containing implementation of filter with given GUID
+     */
 	const wchar_t* getFileName(const GUID& guid);
-	std::map<GUID, const wchar_t*> getMap();
+    /**
+     * Returns the map with mapped information. The map takes GUID as a key. If given key exists in this map,
+     * it returns mapped const wchar_t* as value.
+     *
+     * @return map with mapped information
+     */
+    std::map<GUID, const wchar_t*> getMap();
 	GuidFileMapper(GuidFileMapper const&) = delete;
 	void operator=(GuidFileMapper const&) = delete;
 
