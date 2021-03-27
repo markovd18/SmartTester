@@ -9,7 +9,7 @@ namespace tester {
 
     const GUID INVALID_SIGNAL_ID_GUID = { 0xe1cd0715, 0xb079, 0x4911, {0xb7, 0x9b, 0xd2, 0x03, 0x48, 0x61, 0x01, 0xc8} };
 
-    MappingFilterUnitTester::MappingFilterUnitTester() : FilterUnitTester(cnst::MAPPING_GUID) {
+    MappingFilterUnitTester::MappingFilterUnitTester() : FilterUnitTester(cnst::MAPPING_GUID, EntityType::FILTER) {
         //
     }
 

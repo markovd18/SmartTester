@@ -9,7 +9,7 @@ constexpr GUID BERGMAN_MODEL_GUID = { 0x8114b2a6, 0xb4b2, 0x4c8d, { 0xa0, 0x29, 
 constexpr GUID INVALID_MODEL_GUID = { 0x811122a6, 0xb4b2, 0x457d, {0xc0, 0x29, 0x62, 0x5c, 0xbd, 0xb6, 0x82, 0xef} };
 constexpr GUID INVALID_SIGNAL_ID_GUID = {0xe1cd0700, 0xb079, 0x4911, {0xb7, 0x9b, 0xd2, 0x03, 0x48, 0x61, 0x01, 0xc8}};
 
-tester::SignalGeneratorUnitTester::SignalGeneratorUnitTester() : FilterUnitTester(cnst::SIGNAL_GEN_GUID) {
+tester::SignalGeneratorUnitTester::SignalGeneratorUnitTester() : FilterUnitTester(cnst::SIGNAL_GEN_GUID, EntityType::FILTER) {
     //
 }
 

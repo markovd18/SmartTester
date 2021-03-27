@@ -18,10 +18,15 @@ namespace tester {
     void executeFilterTests(const GUID &guid);
 
     /**
-     * Executes all defined unit tests across all filters.
+     * Executes all defined tests upon models in given module.
+     * @param lib path to a module with models
+     */
+    void executeModelTests(const wchar_t *lib);
+
+    /**
+     * Executes all defined unit tests across all entities.
      */
     void executeAllTests();
-
 
     /// Returns a unit tester instance based on given guid
     tester::FilterUnitTester *getUnitTester(const GUID &guid);

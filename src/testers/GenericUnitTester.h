@@ -133,21 +133,33 @@ namespace tester {
     };
 
     /**
+     * @a scgms::IFilter interface is implemented by multiple entities. This enumeration indicates which entities can
+     * implement the interface.
+     */
+    enum class EntityType : int16_t {
+        FILTER = 0,
+        MODEL
+    };
+    /**
      * Contains generic tests for any object implementing @a scgms::IFilter.
      */
     class FilterUnitTester : public GenericUnitTester {
     private:    // private attributes
+        /// What entity, implementing the @a scgms::IFilter interface, are we testing
+        EntityType m_entityType;
         /// Our custom filter for testing
         TestFilter m_testFilter;
         /// GUID of tested filter
         GUID m_testedGuid;
         /// Tested filter itself
-        scgms::IFilter* m_testedFilter;
+        scgms::IFilter* m_testedFilter = nullptr;
         /// Dynamic library of the tested filter
         CDynamic_Library m_filterLibrary;
+        /// Path to the filter library
+        std::wstring m_libraryPath;
 
     public:     // public methods
-        explicit FilterUnitTester(GUID guid);
+        explicit FilterUnitTester(GUID guid, const EntityType& type);
         virtual ~FilterUnitTester() = default;
         /**
          * If any filter is created, executes an info event upon it. Tested filter should send the info event to
@@ -209,19 +221,27 @@ namespace tester {
          * @return configuration result
          */
         HRESULT configureFilter(const tester::FilterConfig& configuration);
+        void setFilterLib(const std::wstring& libPath);
         scgms::IFilter* getTestedFilter();
         TestFilter& getTestFilter();
     private: // private methods
         HRESULT informativeEventsTest(scgms::NDevice_Event_Code eventCode);
         void loadFilter();
         void loadFilterLibrary();
-        const wchar_t* getFilterName();
+
+        template<typename T, typename D>
+        const wchar_t* getEntityName(const std::string& symbolName);
         HRESULT runConfigTestInThread(const tester::FilterConfig& configuration, HRESULT expectedResult);
         void runConfigTest(const tester::FilterConfig& configuration, HRESULT expectedResult);
         /// We need special behavior of the test execution sequence, so we override this method
         void runTest(const std::function<HRESULT ()> &test) override;
     };
 
+    /**
+     * Executes module tests of a module on given path
+     * @param modulePath path to the module to test
+     */
+    void executeModuleTests(const std::string& modulePath);
 }
 
 

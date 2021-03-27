@@ -9,6 +9,9 @@
 #include "../../mappers/GuidTesterMapper.h"
 #include "../../mappers/GuidFileMapper.h"
 #include "../constants.h"
+#include "../../testers/ModelUnitTester.h"
+
+const wchar_t* MODEL_LIBS[] = { cnst::MODEL_LIBRARY, cnst::CONTROLLERS_LIBRARY };
 
 void tester::executeFilterTests(const GUID& guid) {
     if (Is_Invalid_GUID(guid)) {
@@ -27,13 +30,43 @@ void tester::executeFilterTests(const GUID& guid) {
     delete unitTester;
 }
 
+void tester::executeModelTests(const wchar_t *lib) {
+    CDynamic_Library modelLib;
+
+    std::wstring libPath = std::wstring(lib) + cnst::LIB_EXTENSION;
+    if (!modelLib.Load(libPath)) {
+        Logger::getInstance().info(std::wstring(L"Error while loading ") + lib + L" library. Skipping it's model tests...");
+        return;
+    }
+
+    auto descriptorsCreator = modelLib.Resolve<scgms::TGet_Model_Descriptors>("do_get_model_descriptors");
+    if (!descriptorsCreator) {
+        Logger::getInstance().error(std::wstring(L"Error while resolving model descriptors from ") + lib + L"! Cancelling tests...");
+        return;
+    }
+
+    scgms::TModel_Descriptor *begin, *end;
+    descriptorsCreator(&begin, &end);
+
+    while (begin != end) {
+        tester::ModelUnitTester modelTester(begin->id, libPath.c_str());
+        ((tester::FilterUnitTester*) &modelTester)->executeAllTests();
+        begin++;
+    }
+}
+
 void tester::executeAllTests() {
-	Logger::getInstance().info(L"Executing all tests across all filters.");
+	Logger::getInstance().info(L"Executing all tests across all entities.");
 	std::map<GUID, const wchar_t*> map = GuidFileMapper::GetInstance().getMap();
 
     for (const auto &guidPair : map) {
         executeFilterTests(guidPair.first);
     }
+
+    for (const auto &modelLib : MODEL_LIBS) {
+        executeModelTests(modelLib);
+    }
+
 }
 
 tester::FilterUnitTester* tester::getUnitTester(const GUID& guid) {

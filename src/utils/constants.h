@@ -36,13 +36,17 @@ namespace cnst {
 
     //correct guid format
     static const wchar_t* GUID_FORMAT = L"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
+    //guid representing a model
+    constexpr GUID MODEL_GUID = { 1, 1, 1, { 1, 1, 1, 1, 1, 1, 1, 1} };
 
 #ifdef _WIN32
-    constexpr wchar_t* LIB_EXTENSION = L".dll";
-    constexpr wchar_t* SCGMS_LIB = L"scgms";
-    constexpr wchar_t* LOG_LIBRARY = L"filters/log";
-    constexpr wchar_t* DRAWING_LIBRARY = L"filters/drawing";
-    constexpr wchar_t* SIGNAL_LIBRARY = L"filters/signal";
+    static const wchar_t* LIB_EXTENSION = L".dll";
+    static const wchar_t* SCGMS_LIB = L"scgms";
+    static const wchar_t* LOG_LIBRARY = L"filters/log";
+    static const wchar_t* DRAWING_LIBRARY = L"filters/drawing";
+    static const wchar_t* SIGNAL_LIBRARY = L"filters/signal";
+    static const wchar_t* MODEL_LIBRARY = L"filters/model";
+    static const wchar_t* CONTROLLERS_LIBRARY = L"filters/controllers";
 
 #else
 
@@ -56,6 +60,8 @@ namespace cnst {
     static const wchar_t* LOG_LIBRARY = L"./filters/liblog";
     static const wchar_t* DRAWING_LIBRARY = L"./filters/libdrawing";
     static const wchar_t* SIGNAL_LIBRARY = L"./filters/libsignal";
+    static const wchar_t* MODEL_LIBRARY = L"./filters/libmodel";
+    static const wchar_t* CONTROLLERS_LIBRARY = L"./filters/libcontrollers";
 
 
 

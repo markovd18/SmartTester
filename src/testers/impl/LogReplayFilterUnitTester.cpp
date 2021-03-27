@@ -11,7 +11,7 @@
 const char* VALID_LOG_REPLAY_PATH = "../../testFiles/validLogReplay.csv";
 const char* VALID_LOG_REPLAYS_DIR_PATH = "../../testFiles/validLogReplays";
 
-tester::LogReplayFilterUnitTester::LogReplayFilterUnitTester() : FilterUnitTester(cnst::LOG_REPLAY_GUID){
+tester::LogReplayFilterUnitTester::LogReplayFilterUnitTester() : FilterUnitTester(cnst::LOG_REPLAY_GUID, EntityType::FILTER){
     //
 }
 
