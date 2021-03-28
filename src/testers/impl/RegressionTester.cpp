@@ -46,12 +46,12 @@ void MainCalling tester::RegressionTester::loadConfig() {
     if (rc == S_FALSE) {
         std::wcerr << L"Warning: some filters were not loaded!" << std::endl;
         Logger::getInstance().warn(L"Warning: some filters were not loaded!");
-        log::printAndEmptyErrors(errors);
+        logs::printAndEmptyErrors(errors);
     }
 
     scgms::SFilter_Executor executor { configuration.get(), nullptr, nullptr, errors };
 
-    log::printAndEmptyErrors(errors);
+    logs::printAndEmptyErrors(errors);
 
     if (!executor) {
         std::wcerr << L"Could not execute the filters!" << std::endl;
@@ -71,13 +71,13 @@ HRESULT tester::RegressionTester::compareLogs(const std::string& referenceLog) {
         return E_FAIL;
     }
 
-    std::vector<std::vector<std::string>> resultLogLinesVector = log::readLogFile(this->resultLog);
+    std::vector<std::vector<std::string>> resultLogLinesVector = logs::readLogFile(this->resultLog);
     std::sort(resultLogLinesVector.begin() + 1, resultLogLinesVector.end(),
         [](const std::vector<std::string>& first, const std::vector<std::string>& second) {
         return std::stoi(first[0]) < std::stoi(second[0]);
         });
 
-    std::vector<std::vector<std::string>> referenceLogLinesVector = log::readLogFile(referenceLog);
+    std::vector<std::vector<std::string>> referenceLogLinesVector = logs::readLogFile(referenceLog);
     std::sort(referenceLogLinesVector.begin() + 1, referenceLogLinesVector.end(),
         [](const std::vector<std::string>& first, const std::vector<std::string>& second) {
         return std::stoi(first[0]) < std::stoi(second[0]);
@@ -99,7 +99,7 @@ HRESULT tester::RegressionTester::compareLogs(const std::string& referenceLog) {
 
     for (size_t i = 1; i < referenceLogLinesVector.size(); i++) {
         for (size_t j = lastComparedLine; j < resultLogLinesVector.size(); j++) {
-            if (log::compareLines(resultLogLinesVector[j], referenceLogLinesVector[i])) {
+            if (logs::compareLines(resultLogLinesVector[j], referenceLogLinesVector[i])) {
                 resultLogLinesVector.erase(resultLogLinesVector.begin() + j);
                 lastComparedLine = j;
                 match = true;
@@ -127,7 +127,7 @@ HRESULT tester::RegressionTester::compareLogs(const std::string& referenceLog) {
             Logger::getInstance().info(L"There were redundant lines found:");
             std::wcout << L"There were redundant lines found!\n";
             resultLogLinesVector.erase(resultLogLinesVector.begin());
-            log::infoLogLines(resultLogLinesVector);
+            logs::infoLogLines(resultLogLinesVector);
         }
 
         return S_OK;
@@ -135,11 +135,11 @@ HRESULT tester::RegressionTester::compareLogs(const std::string& referenceLog) {
         Logger::getInstance().error(L"Test failed!");
         Logger::getInstance().error(L"First mismatch:");
         Logger::getInstance().error(L"Expected line:");
-        log::errorLogLine(expectedLine);
+        logs::errorLogLine(expectedLine);
         Logger::getInstance().error(L"Actual line:");
-        log::errorLogLine(mismatchLine);
+        logs::errorLogLine(mismatchLine);
         Logger::getInstance().error(L"Lines that were not found:");
-        log::infoLogLines(missingLines);
+        logs::infoLogLines(missingLines);
 
         std::wcout << L"There were lines missing in log file!\n";
         std::wcout << L"Test failed!\n";

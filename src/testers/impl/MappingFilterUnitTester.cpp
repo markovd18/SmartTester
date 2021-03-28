@@ -81,7 +81,7 @@ namespace tester {
         HRESULT configResult = configureFilter(config);
 
         if (!Succeeded(configResult)) {
-            log::logConfigurationError(config, S_OK, configResult);
+            logs::logConfigurationError(config, S_OK, configResult);
             return E_FAIL;
         }
 
@@ -133,7 +133,7 @@ namespace tester {
         HRESULT configResult = configureFilter(config);
 
         if (!Succeeded(configResult)) {
-            log::logConfigurationError(config, S_OK, configResult);
+            logs::logConfigurationError(config, S_OK, configResult);
             return E_FAIL;
         }
 
@@ -186,7 +186,7 @@ namespace tester {
         HRESULT configResult = configureFilter(config);
 
         if (!Succeeded(configResult)) {
-            log::logConfigurationError(config, S_OK, configResult);
+            logs::logConfigurationError(config, S_OK, configResult);
             return E_FAIL;
         }
 
@@ -224,7 +224,7 @@ namespace tester {
         HRESULT configResult = configureFilter(config);
 
         if (!Succeeded(configResult)) {
-            log::logConfigurationError(config, S_OK, configResult);
+            logs::logConfigurationError(config, S_OK, configResult);
             return E_FAIL;
         }
 

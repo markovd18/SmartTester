@@ -4,7 +4,7 @@
 
 #include "../LogUtils.h"
 
-namespace log {
+namespace logs {
 
     void printResult(const HRESULT result) {
         switch (result) {
@@ -25,6 +25,13 @@ namespace log {
                 Logger::getInstance().info(L"Test result: UNKNOWN!");
                 break;
         }
+    }
+
+    void printTestStartInfo(const std::wstring& testName) {
+        Logger::getInstance().info(L"----------------------------------------");
+        Logger::getInstance().info(L"Executing " + testName + L"...");
+        Logger::getInstance().info(L"----------------------------------------");
+        std::wcout << "Executing " << testName << "... ";
     }
 
     void errorLogLine(const std::vector<std::string>& line) {

@@ -14,6 +14,7 @@
 #include <iface/UIIface.h>
 #include <rtl/Dynamic_Library.h>
 #include <rtl/hresult.h>
+#include <utils/string_utils.h>
 #include "../utils/TestFilter.h"
 #include "../utils/Logger.h"
 #include "FilterConfiguration.h"
@@ -119,12 +120,7 @@ namespace tester {
         HRESULT shutDownTest() override;
 
         template<typename T, typename D>
-        HRESULT getEntityDescriptors(const std::string& symbolName, D **begin, D **end);
-        template<typename T, typename D>
         HRESULT descriptorsParamsTest(const std::string& symbolName);
-
-        template<typename T, typename... Args>
-        HRESULT constructEntity(const std::string& symbolName, Args... args);
         HRESULT filterCreationTest();
         HRESULT signalCreationTest();
         HRESULT metricCreationTest();
@@ -222,15 +218,18 @@ namespace tester {
          */
         HRESULT configureFilter(const tester::FilterConfig& configuration);
         void setFilterLib(const std::wstring& libPath);
+        void setTestedFilter(scgms::IFilter *filter);
         scgms::IFilter* getTestedFilter();
         TestFilter& getTestFilter();
+        CDynamic_Library& getFilterLib();
+        const GUID& getFilterGuid();
     private: // private methods
-        HRESULT informativeEventsTest(scgms::NDevice_Event_Code eventCode);
-        void loadFilter();
+        HRESULT informativeEventsTest(const scgms::NDevice_Event_Code& eventCode);
+        virtual void loadFilter();
         void loadFilterLibrary();
-
         template<typename T, typename D>
         const wchar_t* getEntityName(const std::string& symbolName);
+
         HRESULT runConfigTestInThread(const tester::FilterConfig& configuration, HRESULT expectedResult);
         void runConfigTest(const tester::FilterConfig& configuration, HRESULT expectedResult);
         /// We need special behavior of the test execution sequence, so we override this method
@@ -242,6 +241,66 @@ namespace tester {
      * @param modulePath path to the module to test
      */
     void executeModuleTests(const std::string& modulePath);
+
+    template<typename T, typename... Args>
+    HRESULT constructEntity(CDynamic_Library& library, const std::string& symbolName, Args... args) {
+        if (!library.Is_Loaded()) {
+            Logger::getInstance().error(L"Library is not loaded! Cannot construct entity.");
+            return E_FAIL;
+        }
+
+        Logger::getInstance().debug(L"Creating entity with " + Widen_String(symbolName) + L" factory.");
+
+        auto entityFactory = library.Resolve<T>(symbolName.c_str());
+        if (!entityFactory) {
+            Logger::getInstance().error(L"Error while loading " + Widen_String(symbolName) + L" factory!");
+            return E_FAIL;
+        }
+
+        HRESULT creationResult = entityFactory(args...);
+
+        if (!Succeeded(creationResult)) {
+            return E_FAIL;
+        }
+
+        return S_OK;
+    }
+
+    template<typename T, typename D>
+    HRESULT getEntityDescriptors(CDynamic_Library& library, const std::string& symbolName, D **begin, D **end) {
+        if (!library.Is_Loaded()) {
+            Logger::getInstance().error(L"Library is not loaded! Cannot get entity descriptors.");
+            return E_FAIL;
+        }
+
+        auto descriptorsCreator = library.Resolve<T>(symbolName.c_str());
+        if (!descriptorsCreator) {
+            Logger::getInstance().error(L"Error while loading " + Widen_String(symbolName) + L" descriptors factory!");
+            return E_FAIL;
+        }
+
+        return descriptorsCreator(begin, end);
+    }
+
+    template<typename T, typename D>
+    D* getEntityDescriptor(CDynamic_Library& library, const GUID& guid, const std::string& symbolName) {
+        D *begin, *end;
+
+        HRESULT result = getEntityDescriptors<T>(library, symbolName, &begin, &end);
+        if (!Succeeded(result)) {
+            Logger::getInstance().error(L"Error while acquiring entity descriptors!");
+            return nullptr;
+        }
+
+        while (begin != end) {
+            if (begin->id == guid) {
+                return begin;
+            }
+            begin++;
+        }
+
+        return nullptr;
+    }
 }
 
 

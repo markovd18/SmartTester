@@ -24,17 +24,20 @@ namespace tester {
             return;
         }
 
-        auto creator = m_filterLibrary.Resolve<scgms::TCreate_Filter>("do_create_filter");
-
-        m_testedFilter = nullptr;
-        m_testFilter.clearReceivedEvents();     /// Resetting so there will not be data from last test present
-        auto result = creator(&m_testedGuid, &m_testFilter, &m_testedFilter);
-        if (result != S_OK) {
-            Logger::getInstance().error(L"Error while loading filter from the dynamic library!");
-            m_testedFilter = nullptr;   /// Just to be sure
+        if (m_testedFilter) {
+            m_testedFilter->Release();
+            m_testedFilter = nullptr;
         }
 
-        Logger::getInstance().info(L"Filter loaded from dynamic library.");
+        m_testFilter.clearReceivedEvents();     /// Resetting so there will not be data from last test present
+        HRESULT creationResult = constructEntity<scgms::TCreate_Filter>(m_filterLibrary, "do_create_filter",
+                                                                        &m_testedGuid, &m_testFilter, &m_testedFilter);
+        if (creationResult != S_OK) {
+            Logger::getInstance().error(L"Error while loading filter from the dynamic library!");
+            m_testedFilter = nullptr;   /// Just to be sure
+        } else {
+            Logger::getInstance().info(L"Filter loaded from dynamic library.");
+        }
     }
 
     template<typename T, typename D>
@@ -100,21 +103,15 @@ namespace tester {
     }
 
     void GenericUnitTester::executeTest(const std::wstring& testName, const std::function<HRESULT(void)>& test) {
-        Logger::getInstance().info(L"----------------------------------------");
-        Logger::getInstance().info(L"Executing " + testName + L"...");
-        Logger::getInstance().info(L"----------------------------------------");
-        std::wcout << "Executing " << testName << "... ";
+        logs::printTestStartInfo(testName);
         HRESULT result = runTestInThread(test);
-        log::printResult(result);
+        logs::printResult(result);
     }
 
     void FilterUnitTester::executeConfigTest(const std::wstring& testName, const tester::FilterConfig& configuration, const HRESULT expectedResult) {
-        Logger::getInstance().info(L"----------------------------------------");
-        Logger::getInstance().info(L"Executing " + testName + L"...");
-        Logger::getInstance().info(L"----------------------------------------");
-        std::wcout << "Executing " << testName << "... ";
+        logs::printTestStartInfo(testName);
         HRESULT result = runConfigTestInThread(configuration, expectedResult);
-        log::printResult(result);
+        logs::printResult(result);
     }
 
     HRESULT FilterUnitTester::shutDownTest() {
@@ -279,7 +276,7 @@ namespace tester {
         }
     }
 
-    HRESULT FilterUnitTester::informativeEventsTest(const scgms::NDevice_Event_Code eventCode) {
+    HRESULT FilterUnitTester::informativeEventsTest(const scgms::NDevice_Event_Code& eventCode) {
         if (!isFilterLoaded()) {
             std::wcerr << L"No filter created! Can't execute test.\n";
             Logger::getInstance().error(L"No filter created! Can't execute test...");
@@ -350,7 +347,7 @@ namespace tester {
         if (result == expectedResult) {
             testResult = S_OK;
         } else {
-            log::logConfigurationError(config, expectedResult, result);
+            logs::logConfigurationError(config, expectedResult, result);
             testResult = E_FAIL;
         }
 
@@ -414,6 +411,22 @@ namespace tester {
 
     FilterUnitTester::FilterUnitTester(const GUID guid, const EntityType& type) : m_entityType(type), m_testedGuid(guid), m_testedFilter(nullptr) {
         //
+    }
+
+    CDynamic_Library &FilterUnitTester::getFilterLib() {
+        return m_filterLibrary;
+    }
+
+    const GUID &FilterUnitTester::getFilterGuid() {
+        return m_testedGuid;
+    }
+
+    void FilterUnitTester::setTestedFilter(scgms::IFilter *filter) {
+        if (m_testedFilter) {
+            m_testedFilter->Release();
+        }
+
+        m_testedFilter = filter;
     }
 
     std::vector<std::string> ModuleUnitTester::s_testedModules;
@@ -573,7 +586,8 @@ namespace tester {
 
     HRESULT ModuleUnitTester::filterCreationTest() {
         scgms::TFilter_Descriptor *begin, *end;
-        HRESULT descriptorsResult = getEntityDescriptors<scgms::TGet_Filter_Descriptors>("do_get_filter_descriptors", &begin, &end);
+        HRESULT descriptorsResult = getEntityDescriptors<scgms::TGet_Filter_Descriptors>(m_moduleLibrary,"do_get_filter_descriptors",
+                                                                                         &begin, &end);
         if (!Succeeded(descriptorsResult)) {
             Logger::getInstance().error(L"Error while acquiring filter descriptors!");
             return E_FAIL;
@@ -585,8 +599,8 @@ namespace tester {
             Logger::getInstance().debug(std::wstring(L"Creating ") + begin->description + L" filter...");
 
             scgms::IFilter *filter;
-
-            HRESULT constructionResult = constructEntity<scgms::TCreate_Filter>("do_create_filter", &begin->id, &testFilter, &filter);
+            HRESULT constructionResult = constructEntity<scgms::TCreate_Filter>(m_moduleLibrary, "do_create_filter",
+                                                                                &begin->id, &testFilter, &filter);
             if (!Succeeded(constructionResult)) {
                 Logger::getInstance().error(std::wstring(L"Error while creating ") + begin->description + L" filter!");
                 testResult = E_FAIL;
@@ -596,7 +610,8 @@ namespace tester {
 
             filter->Release();
             Logger::getInstance().info(L"Validating input parameters...");
-            HRESULT invalidConstructionResult = constructEntity<scgms::TCreate_Filter>("do_create_filter", &begin->id, nullptr, &filter);
+            HRESULT invalidConstructionResult = constructEntity<scgms::TCreate_Filter>(m_moduleLibrary, "do_create_filter",
+                                                                                       &begin->id, nullptr, &filter);
             if (Succeeded(invalidConstructionResult)) {
                 Logger::getInstance().error(L"Null pointer accepted as a valid output filter!");
                 testResult = E_FAIL;
@@ -620,7 +635,8 @@ namespace tester {
         Logger::getInstance().info(L"Creating invalid filter...");
 
         scgms::IFilter *filter;
-        HRESULT creationResult = constructEntity<scgms::TCreate_Filter>("do_create_filter", &Invalid_GUID, &testFilter, &filter);
+        HRESULT creationResult = constructEntity<scgms::TCreate_Filter>(m_moduleLibrary, "do_create_filter",
+                                                                        &Invalid_GUID, &testFilter, &filter);
         if (Succeeded(creationResult)) {
             Logger::getInstance().error(L"Invalid filter was created!");
             testResult = E_FAIL;
@@ -633,7 +649,7 @@ namespace tester {
 
     HRESULT ModuleUnitTester::signalCreationTest() {
         scgms::TSignal_Descriptor *begin, *end;
-        HRESULT descriptorsResult = getEntityDescriptors<scgms::TGet_Signal_Descriptors>("do_get_signal_descriptors", &begin, &end);
+        HRESULT descriptorsResult = getEntityDescriptors<scgms::TGet_Signal_Descriptors>(m_moduleLibrary, "do_get_signal_descriptors", &begin, &end);
         if (!Succeeded(descriptorsResult)) {
             Logger::getInstance().error(L"Error while acquiring signal descriptors!");
             return E_FAIL;
@@ -646,8 +662,8 @@ namespace tester {
             scgms::CTime_Segment timeSegment;
             scgms::ISignal *signal;
 
-            HRESULT constructionResult = constructEntity<scgms::TCreate_Signal>("do_create_signal", &begin->id, &timeSegment,
-                                                                                nullptr, &signal);
+            HRESULT constructionResult = constructEntity<scgms::TCreate_Signal>(m_moduleLibrary, "do_create_signal",
+                                                                                &begin->id, &timeSegment, nullptr, &signal);
             if (!Succeeded(constructionResult)) {
                 Logger::getInstance().error(std::wstring(L"Error while creating ") + begin->signal_description + L" signal!");
                 testResult = E_FAIL;
@@ -657,8 +673,8 @@ namespace tester {
             }
 
             Logger::getInstance().info(L"Validating input parameters...");
-            HRESULT invalidConstructionResult = constructEntity<scgms::TCreate_Signal>("do_create_signal", &begin->id,
-                                                                                       nullptr, nullptr, &signal);
+            HRESULT invalidConstructionResult = constructEntity<scgms::TCreate_Signal>(m_moduleLibrary, "do_create_signal",
+                                                                                       &begin->id, nullptr, nullptr, &signal);
             if (Succeeded(invalidConstructionResult)) {
                 Logger::getInstance().error(L"Null pointer accepted as a valid time segment!");
                 testResult = E_FAIL;
@@ -682,8 +698,8 @@ namespace tester {
         Logger::getInstance().info(L"Creating invalid signal...");
         scgms::CTime_Segment timeSegment;
         scgms::ISignal *signal;
-        HRESULT creationResult = constructEntity<scgms::TCreate_Signal>("do_create_signal", &Invalid_GUID, &timeSegment,
-                                                                        nullptr, &signal);
+        HRESULT creationResult = constructEntity<scgms::TCreate_Signal>(m_moduleLibrary, "do_create_signal",
+                                                                        &Invalid_GUID, &timeSegment, nullptr, &signal);
         if (Succeeded(creationResult)) {
             Logger::getInstance().error(L"Invalid signal was created!");
             testResult = E_FAIL;
@@ -696,7 +712,8 @@ namespace tester {
 
     HRESULT ModuleUnitTester::metricCreationTest() {
         scgms::TMetric_Descriptor *begin, *end;
-        HRESULT descriptorsResult = getEntityDescriptors<scgms::TGet_Metric_Descriptors>("do_get_metric_descriptors", &begin, &end);
+        HRESULT descriptorsResult = getEntityDescriptors<scgms::TGet_Metric_Descriptors>(m_moduleLibrary, "do_get_metric_descriptors",
+                                                                                         &begin, &end);
         if (!Succeeded(descriptorsResult)) {
             Logger::getInstance().error(L"Error while acquiring metric descriptors!");
             return E_FAIL;
@@ -707,7 +724,7 @@ namespace tester {
             Logger::getInstance().debug(std::wstring(L"Creating ") + begin->description + L" metric...");
             scgms::IMetric *metric;
             scgms::TMetric_Parameters params { begin->id, 0, 0, 0, 0.0};
-            HRESULT constructionResult = constructEntity<scgms::TCreate_Metric>("do_create_metric", &params, &metric);
+            HRESULT constructionResult = constructEntity<scgms::TCreate_Metric>(m_moduleLibrary, "do_create_metric", &params, &metric);
             if (!Succeeded(constructionResult)) {
                 Logger::getInstance().error(std::wstring(L"Error while creating ") + begin->description + L" metric!");
                 testResult = E_FAIL;
@@ -717,7 +734,8 @@ namespace tester {
 
             metric->Release();
             Logger::getInstance().info(L"Validating input parameters...");
-            HRESULT invalidCreationResult = constructEntity<scgms::TCreate_Metric>("do_create_metric", nullptr, &metric);
+            HRESULT invalidCreationResult = constructEntity<scgms::TCreate_Metric>(m_moduleLibrary, "do_create_metric",
+                                                                                   nullptr, &metric);
             if (Succeeded(invalidCreationResult)) {
                 Logger::getInstance().error(L"Null pointer accepted as a valid metric parameters!");
                 testResult = E_FAIL;
@@ -739,7 +757,8 @@ namespace tester {
 
         Logger::getInstance().info(L"Creating invalid metric...");
         scgms::IMetric *metric;
-        HRESULT constructionResult = constructEntity<scgms::TCreate_Metric>("do_create_metric", &scgms::Null_Metric_Parameters, &metric);
+        HRESULT constructionResult = constructEntity<scgms::TCreate_Metric>(m_moduleLibrary, "do_create_metric",
+                                                                            &scgms::Null_Metric_Parameters, &metric);
         if (Succeeded(constructionResult)) {
             Logger::getInstance().error(L"Invalid metric was created!");
             testResult = E_FAIL;
@@ -752,7 +771,7 @@ namespace tester {
 
     HRESULT ModuleUnitTester::solverCreationTest() {
         scgms::TSolver_Descriptor *begin, *end;
-        HRESULT descriptorsResult = getEntityDescriptors<scgms::TGet_Solver_Descriptors>("do_get_solver_descriptors", &begin, &end);
+        HRESULT descriptorsResult = getEntityDescriptors<scgms::TGet_Solver_Descriptors>(m_moduleLibrary, "do_get_solver_descriptors", &begin, &end);
         if (!Succeeded(descriptorsResult)) {
             Logger::getInstance().error(L"Error while acquiring solver descriptors!");
             return E_FAIL;
@@ -763,8 +782,8 @@ namespace tester {
             Logger::getInstance().debug(std::wstring(L"Creating ") + begin->description + L" solver...");
 
             solver::TSolver_Progress nullProgress = solver::Null_Solver_Progress;
-            HRESULT constructionResult = constructEntity<solver::TGeneric_Solver>("do_solve_generic", &begin->id,
-                                                                                  &solver::Default_Solver_Setup, &nullProgress);
+            HRESULT constructionResult = constructEntity<solver::TGeneric_Solver>(m_moduleLibrary, "do_solve_generic",
+                                                                                  &begin->id, &solver::Default_Solver_Setup, &nullProgress);
             if (!Succeeded(constructionResult)) {
                 Logger::getInstance().error(std::wstring(L"Error while creating ") + begin->description + L" solver!");
                 testResult = E_FAIL;
@@ -773,15 +792,15 @@ namespace tester {
             }
 
             Logger::getInstance().info(L"Validating input parameters...");
-            HRESULT invalidConstructionResult = constructEntity<solver::TGeneric_Solver>("do_solve_generic", &begin->id,
-                                                                                         nullptr, &nullProgress);
+            HRESULT invalidConstructionResult = constructEntity<solver::TGeneric_Solver>(m_moduleLibrary, "do_solve_generic",
+                                                                                         &begin->id, nullptr, &nullProgress);
             if (Succeeded(invalidConstructionResult)) {
                 Logger::getInstance().error(L"Null pointer accepted as a valid solver setup!");
                 testResult = E_FAIL;
             }
 
-            invalidConstructionResult = constructEntity<solver::TGeneric_Solver>("do_solve_generic", &begin->id, &solver::Default_Solver_Setup,
-                                                                                 nullptr);
+            invalidConstructionResult = constructEntity<solver::TGeneric_Solver>(m_moduleLibrary, "do_solve_generic",
+                                                                                 &begin->id, &solver::Default_Solver_Setup, nullptr);
             if (Succeeded(invalidConstructionResult)) {
                 Logger::getInstance().error(L"Null pointer accepted as a valid solver progress!");
                 testResult = E_FAIL;
@@ -796,8 +815,8 @@ namespace tester {
 
         Logger::getInstance().info(L"Creating invalid solver...");
         solver::TSolver_Progress nullProgress = solver::Null_Solver_Progress;
-        HRESULT creationResult = constructEntity<solver::TGeneric_Solver>("do_solve_generic", &Invalid_GUID,
-                                                                          &solver::Default_Solver_Setup, &nullProgress);
+        HRESULT creationResult = constructEntity<solver::TGeneric_Solver>(m_moduleLibrary, "do_solve_generic",
+                                                                          &Invalid_GUID, &solver::Default_Solver_Setup, &nullProgress);
         if (!Succeeded(creationResult)) {
             Logger::getInstance().error(L"Invalid solver created!");
             testResult = E_FAIL;
@@ -810,7 +829,7 @@ namespace tester {
 
     HRESULT ModuleUnitTester::approxCreationTest() {
         scgms::TApprox_Descriptor *begin, *end;
-        HRESULT descriptorsResult = getEntityDescriptors<scgms::TGet_Approx_Descriptors>("do_get_approximator_descriptors", &begin, &end);
+        HRESULT descriptorsResult = getEntityDescriptors<scgms::TGet_Approx_Descriptors>(m_moduleLibrary, "do_get_approximator_descriptors", &begin, &end);
         if (!Succeeded(descriptorsResult)) {
             Logger::getInstance().error(L"Error while acquiring approximator descriptors!");
             return E_FAIL;
@@ -818,8 +837,8 @@ namespace tester {
 
         scgms::CTime_Segment timeSegment;
         scgms::ISignal *signal;
-        HRESULT signalCreation = constructEntity<scgms::TCreate_Signal>("do_create_signal", &scgms::signal_BG, &timeSegment,
-                                                                        nullptr, &signal);
+        HRESULT signalCreation = constructEntity<scgms::TCreate_Signal>(m_moduleLibrary, "do_create_signal",
+                                                                        &scgms::signal_BG, &timeSegment, nullptr, &signal);
         if (!Succeeded(signalCreation)) {
             Logger::getInstance().error(L"Error while creating signal for approximators!");
             return E_FAIL;
@@ -830,8 +849,8 @@ namespace tester {
             Logger::getInstance().debug(std::wstring(L"Creating ") + begin->description + L" approximator...");
 
             scgms::IApproximator *approx;
-            HRESULT creationResult = constructEntity<scgms::TCreate_Approximator>("do_create_approximator", &begin->id,
-                                                                                  signal, &approx);
+            HRESULT creationResult = constructEntity<scgms::TCreate_Approximator>(m_moduleLibrary, "do_create_approximator",
+                                                                                  &begin->id, signal, &approx);
             if (!Succeeded(creationResult)) {
                 Logger::getInstance().error(std::wstring(L"Error while creating ") + begin->description + L" approximator!");
                 testResult = E_FAIL;
@@ -841,8 +860,8 @@ namespace tester {
 
             approx->Release();
             Logger::getInstance().info(L"Validating input parameters...");
-            HRESULT invalidConstructionResult = constructEntity<scgms::TCreate_Approximator>("do_create_approximator", &begin->id,
-                                                                                             nullptr, &approx);
+            HRESULT invalidConstructionResult = constructEntity<scgms::TCreate_Approximator>(m_moduleLibrary, "do_create_approximator",
+                                                                                             &begin->id, nullptr, &approx);
             if (Succeeded(invalidConstructionResult)) {
                 Logger::getInstance().error(L"Null pointer accepted as a valid signal!");
                 testResult = E_FAIL;
@@ -866,8 +885,8 @@ namespace tester {
         Logger::getInstance().info(L"Creating invalid approximator...");
 
         scgms::IApproximator *approx;
-        HRESULT creationResult = constructEntity<scgms::TCreate_Approximator>("do_create_approximator", &Invalid_GUID,
-                                                                              signal, &approx);
+        HRESULT creationResult = constructEntity<scgms::TCreate_Approximator>(m_moduleLibrary, "do_create_approximator",
+                                                                              &Invalid_GUID, signal, &approx);
         if (Succeeded(creationResult)) {
             Logger::getInstance().error(L"Invalid approximator was created!");
             testResult = E_FAIL;
@@ -883,7 +902,7 @@ namespace tester {
         D *begin, *end;
         HRESULT testResult = S_OK;
 
-        HRESULT validResult = getEntityDescriptors<T>(symbolName, &begin, &end);
+        HRESULT validResult = getEntityDescriptors<T>(m_moduleLibrary, symbolName, &begin, &end);
         if (!Succeeded(validResult)) {
             Logger::getInstance().error(L"Error while correctly acquiring descriptors from " + Widen_String(symbolName) + L"!");
             testResult = E_FAIL;
@@ -892,7 +911,7 @@ namespace tester {
         }
 
         D *invalidBegin;
-        HRESULT invalidResult = getEntityDescriptors<T>(symbolName, &invalidBegin, &invalidBegin);
+        HRESULT invalidResult = getEntityDescriptors<T>(m_moduleLibrary, symbolName, &invalidBegin, &invalidBegin);
         if (Succeeded(invalidResult)) {
             Logger::getInstance().error(L"Invalid parameters (begin == end) successfully acquired descriptors from " + Widen_String(symbolName) + L"!");
             testResult = E_FAIL;
@@ -901,36 +920,6 @@ namespace tester {
         }
 
         return testResult;
-    }
-
-    template<typename T, typename D>
-    HRESULT ModuleUnitTester::getEntityDescriptors(const std::string &symbolName, D **begin, D **end) {
-        auto descriptorsCreator = m_moduleLibrary.Resolve<T>(symbolName.c_str());
-        if (!descriptorsCreator) {
-            Logger::getInstance().error(L"Error while loading " + Widen_String(symbolName) + L" descriptors factory!");
-            return E_FAIL;
-        }
-
-        return descriptorsCreator(begin, end);
-    }
-
-    template<typename T, typename... Args>
-    HRESULT ModuleUnitTester::constructEntity(const std::string &symbolName, Args... args) {
-        Logger::getInstance().debug(L"Creating entity with " + Widen_String(symbolName) + L" factory.");
-
-        auto entityFactory = m_moduleLibrary.Resolve<T>(symbolName.c_str());
-        if (!entityFactory) {
-            Logger::getInstance().error(L"Error while loading " + Widen_String(symbolName) + L" factory!");
-            return E_FAIL;
-        }
-
-        HRESULT creationResult = entityFactory(args...);
-
-        if (!Succeeded(creationResult)) {
-            return E_FAIL;
-        }
-
-        return S_OK;
     }
 
     void executeModuleTests(const std::string &modulePath) {
@@ -949,4 +938,5 @@ namespace tester {
 
         moduleTester.executeModuleTests();
     }
+
 }

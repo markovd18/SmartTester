@@ -111,7 +111,7 @@ HRESULT tester::LogReplayFilterUnitTester::emittedEventCountTest() {
         return E_FAIL;
     }
 
-    std::size_t loggedEventsCount = log::getLoggedLinesCount(VALID_LOG_REPLAY_PATH);
+    std::size_t loggedEventsCount = logs::getLoggedLinesCount(VALID_LOG_REPLAY_PATH);
     refcnt::Swstr_list errors;
     std::string memory = config.toString();
     configuration->Load_From_Memory(memory.c_str(), memory.size(), errors.get());
@@ -193,7 +193,7 @@ HRESULT tester::LogReplayFilterUnitTester::logReplayFolderTest() {
     std::size_t loggedLinesCount = 0;
     auto iterator = filesystem::directory_iterator(VALID_LOG_REPLAYS_DIR_PATH);
     for (const auto &item : iterator) {
-        loggedLinesCount += log::getLoggedLinesCount(item.path());
+        loggedLinesCount += logs::getLoggedLinesCount(item.path());
     }
 
     refcnt::Swstr_list errors;

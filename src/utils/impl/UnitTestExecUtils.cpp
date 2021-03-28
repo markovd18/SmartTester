@@ -11,7 +11,7 @@
 #include "../constants.h"
 #include "../../testers/ModelUnitTester.h"
 
-const wchar_t* MODEL_LIBS[] = { cnst::MODEL_LIBRARY, cnst::CONTROLLERS_LIBRARY };
+const wchar_t* MODEL_LIBS[] = { cnst::MODEL_LIBRARY };
 
 void tester::executeFilterTests(const GUID& guid) {
     if (Is_Invalid_GUID(guid)) {
@@ -49,7 +49,7 @@ void tester::executeModelTests(const wchar_t *lib) {
     descriptorsCreator(&begin, &end);
 
     while (begin != end) {
-        tester::ModelUnitTester modelTester(begin->id, libPath.c_str());
+        tester::ModelUnitTester modelTester(begin->id, libPath);
         ((tester::FilterUnitTester*) &modelTester)->executeAllTests();
         begin++;
     }
@@ -60,7 +60,7 @@ void tester::executeAllTests() {
 	std::map<GUID, const wchar_t*> map = GuidFileMapper::GetInstance().getMap();
 
     for (const auto &guidPair : map) {
-        executeFilterTests(guidPair.first);
+//        executeFilterTests(guidPair.first);
     }
 
     for (const auto &modelLib : MODEL_LIBS) {

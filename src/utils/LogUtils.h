@@ -13,10 +13,12 @@
 #include "constants.h"
 #include "UnitTestExecUtils.h"
 
-namespace log {
+namespace logs {
 
     /// Prints result information into the console and log
     void printResult(const HRESULT result);
+    /// Print information about the test that's being started
+    void printTestStartInfo(const std::wstring& testName);
     /// Error logs given line
     void errorLogLine(const std::vector<std::string>& line);
     /// Info logs given line
