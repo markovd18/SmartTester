@@ -5,6 +5,7 @@
 #include <iostream>
 #include <rtl/guid.h>
 #include <utils/string_utils.h>
+#include <rtl/FilterLib.h>
 #include "../UnitTestExecUtils.h"
 #include "../../mappers/GuidTesterMapper.h"
 #include "../../mappers/GuidFileMapper.h"
@@ -61,6 +62,7 @@ void tester::executeAllTests() {
 
     for (const auto &guidPair : map) {
 //        executeFilterTests(guidPair.first);
+//TODO odkomentovat
     }
 
     for (const auto &modelLib : MODEL_LIBS) {
@@ -71,6 +73,34 @@ void tester::executeAllTests() {
 
 tester::FilterUnitTester* tester::getUnitTester(const GUID& guid) {
 	return GuidTesterMapper::GetInstance().getTesterInstance(guid);
+}
+
+HRESULT tester::configureFilter(scgms::IFilter *filter, const tester::FilterConfig &config) {
+    if (!filter) {
+        std::wcerr << L"No filter passed! Can't configure filter.\n";
+        Logger::getInstance().error(L"No filter passed! Can't configure filter.");
+        return E_FAIL;
+    }
+
+    scgms::SPersistent_Filter_Chain_Configuration configuration;
+    refcnt::Swstr_list errors;
+
+    HRESULT result = configuration ? S_OK : E_FAIL;
+    std::string memory = config.toString();
+    if (result == S_OK) {
+        configuration->Load_From_Memory(memory.c_str(), memory.size(), errors.get());
+        Logger::getInstance().debug(L"Loading configuration from memory...");
+    } else {
+        Logger::getInstance().error(L"Error while creating configuration!");
+        return E_FAIL;
+    }
+
+    scgms::IFilter_Configuration_Link** begin, ** end;
+    configuration->get(&begin, &end);
+
+    Logger::getInstance().info(L"Configuring filter...");
+    return filter->Configure(begin[0], errors.get());
+
 }
 
 bool moveToTmp(const filesystem::path& filePath) {

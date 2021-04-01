@@ -36,8 +36,8 @@ namespace cnst {
 
     //correct guid format
     static const wchar_t* GUID_FORMAT = L"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
-    //guid representing a model
-    constexpr GUID MODEL_GUID = { 1, 1, 1, { 1, 1, 1, 1, 1, 1, 1, 1} };
+    //guid of the Bergman minimal extended model
+    constexpr GUID BERGMAN_MODEL_GUID = { 0x8114b2a6, 0xb4b2, 0x4c8d, { 0xa0, 0x29, 0x62, 0x5c, 0xbd, 0xb6, 0x82, 0xef } };
 
 #ifdef _WIN32
     static const wchar_t* LIB_EXTENSION = L".dll";

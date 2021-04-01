@@ -73,17 +73,20 @@ namespace tester {
         }
 
         const wchar_t *entityName;
+        const wchar_t *entityType;
         if (m_entityType == EntityType::FILTER) {
             entityName = getEntityName<scgms::TGet_Filter_Descriptors, scgms::TFilter_Descriptor>("do_get_filter_descriptors");
+            entityType = L"filter";
         } else {
             entityName = getEntityName<scgms::TGet_Model_Descriptors, scgms::TModel_Descriptor>("do_get_model_descriptors");
+            entityType = L"model";
         }
 
         std::wcout << "****************************************\n"
-                   << "Testing " << entityName << " filter:\n"
+                   << "Testing " << entityName << " " << entityType << ":\n"
                    << "****************************************\n";
         Logger::getInstance().debug(L"****************************************");
-        Logger::getInstance().debug(L"Testing " + std::wstring(entityName) + L" filter:");
+        Logger::getInstance().debug(L"Testing " + std::wstring(entityName) + L" " + entityType + L":");
         Logger::getInstance().debug(L"****************************************");
 
         if (m_entityType == EntityType::FILTER) {
@@ -314,30 +317,7 @@ namespace tester {
     }
 
     HRESULT FilterUnitTester::configureFilter(const tester::FilterConfig &config) {
-        if (!isFilterLoaded()) {
-            std::wcerr << L"No filter loaded! Can't execute test.\n";
-            Logger::getInstance().error(L"No filter loaded! Can't execute test.");
-            return E_FAIL;
-        }
-
-        scgms::SPersistent_Filter_Chain_Configuration configuration;
-        refcnt::Swstr_list errors;
-
-        HRESULT result = configuration ? S_OK : E_FAIL;
-        std::string memory = config.toString();
-        if (result == S_OK) {
-            configuration->Load_From_Memory(memory.c_str(), memory.size(), errors.get());
-            Logger::getInstance().debug(L"Loading configuration from memory...");
-        } else {
-            Logger::getInstance().error(L"Error while creating configuration!");
-            return E_FAIL;
-        }
-
-        scgms::IFilter_Configuration_Link** begin, ** end;
-        configuration->get(&begin, &end);
-
-        Logger::getInstance().info(L"Configuring filter...");
-        return m_testedFilter->Configure(begin[0], errors.get());
+        return tester::configureFilter(m_testedFilter, config);
     }
 
     HRESULT FilterUnitTester::configurationTest(const tester::FilterConfig &config, const HRESULT expectedResult) {

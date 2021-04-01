@@ -28,6 +28,14 @@ namespace tester {
      */
     void executeAllTests();
 
+    /**
+     * Configures given filter with passed configuration.
+     * @param filter filter to configure
+     * @param config filter configuration
+     * @return result of the configuration
+     */
+    HRESULT configureFilter(scgms::IFilter* filter, const tester::FilterConfig& config);
+
     /// Returns a unit tester instance based on given guid
     tester::FilterUnitTester *getUnitTester(const GUID &guid);
 }
