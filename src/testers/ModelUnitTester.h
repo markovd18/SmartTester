@@ -12,7 +12,7 @@ namespace tester {
     /**
      * Derived class with tests for individual models.
      */
-    class ModelUnitTester : FilterUnitTester {
+    class ModelUnitTester : public FilterUnitTester {
     private:    // private attributes
         /// Signal generator filter to create models with
         scgms::IFilter * m_signalGenerator = nullptr;
@@ -105,7 +105,7 @@ namespace tester {
         /// Helper method for testing the @a Step method
         HRESULT step(const double timeAdvanceDelta, const bool shouldSucceed, const HRESULT expectedResult);
         /// Custom logic for loading the entity with filter interface
-        void loadFilter() override;
+        void loadEntity() override;
     };
 }
 

@@ -47,6 +47,7 @@ namespace cnst {
     static const wchar_t* SIGNAL_LIBRARY = L"filters/signal";
     static const wchar_t* MODEL_LIBRARY = L"filters/model";
     static const wchar_t* CONTROLLERS_LIBRARY = L"filters/controllers";
+    static const wchar_t* METRIC_LIBRARY = L"filters/metric";
 
 #else
 
@@ -62,6 +63,7 @@ namespace cnst {
     static const wchar_t* SIGNAL_LIBRARY = L"./filters/libsignal";
     static const wchar_t* MODEL_LIBRARY = L"./filters/libmodel";
     static const wchar_t* CONTROLLERS_LIBRARY = L"./filters/libcontrollers";
+    static const wchar_t* METRIC_LIBRARY = L"./filters/libmetric";
 
 
 

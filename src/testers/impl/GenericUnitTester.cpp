@@ -14,62 +14,43 @@
 #include "../../utils/constants.h"
 #include "../../utils/LogUtils.h"
 #include "../../utils/scgmsLibUtils.h"
+#include "../../utils/EntityUtils.h"
 
 namespace tester {
 
-    void FilterUnitTester::loadFilter() {
-        if (!m_filterLibrary.Is_Loaded()) {
+    void FilterUnitTester::loadEntity() {
+        if (!getEntityLib().Is_Loaded()) {
             std::wcerr << L"Filter library is not loaded! Filter will not be loaded.\n";
             Logger::getInstance().error(L"Filter library is not loaded! Filter will not be loaded.");
             return;
         }
 
-        if (m_testedFilter) {
-            m_testedFilter->Release();
-            m_testedFilter = nullptr;
+        if (getTestedEntity()) {
+            setTestedEntity(nullptr);
         }
 
         m_testFilter.clearReceivedEvents();     /// Resetting so there will not be data from last test present
-        HRESULT creationResult = constructEntity<scgms::TCreate_Filter>(m_filterLibrary, "do_create_filter",
-                                                                        &m_testedGuid, &m_testFilter, &m_testedFilter);
+        scgms::IFilter *testedFilter;
+        HRESULT creationResult = constructEntity<scgms::TCreate_Filter>(getEntityLib(), "do_create_filter",
+                                                                        &getEntityGuid(), &m_testFilter, &testedFilter);
         if (creationResult != S_OK) {
             Logger::getInstance().error(L"Error while loading filter from the dynamic library!");
-            m_testedFilter = nullptr;   /// Just to be sure
         } else {
+            setTestedEntity(testedFilter);
             Logger::getInstance().info(L"Filter loaded from dynamic library.");
         }
     }
 
-    template<typename T, typename D>
-    const wchar_t* FilterUnitTester::getEntityName(const std::string& symbolName) {
-        if (!m_filterLibrary.Is_Loaded()) {
-            loadFilterLibrary();
-        }
-
-        auto creator = m_filterLibrary.Resolve<T>(symbolName.c_str());
-        D* begin, * end;
-        creator(&begin, &end);
-        while (begin != end) {
-            if (begin->id == m_testedGuid) {
-                return begin->description;
-            }
-
-            begin++;
-        }
-
-        return nullptr;
-    }
-
     void FilterUnitTester::executeAllTests() {
-        if (m_libraryPath.empty()) {
-            const wchar_t* libraryName = GuidFileMapper::GetInstance().getFileName(m_testedGuid);
-            m_libraryPath = std::wstring(libraryName) + cnst::LIB_EXTENSION;
+        if (getLibraryPath().empty()) {
+            const wchar_t* libraryName = GuidFileMapper::GetInstance().getFileName(getEntityGuid());
+            setLibraryPath(std::wstring(libraryName) + cnst::LIB_EXTENSION);
         }
 
-        if (!ModuleUnitTester::isModuleTested(Narrow_WString(m_libraryPath))) {   /// Executing module tests if we didn't already
-            executeModuleTests(Narrow_WString(m_libraryPath));
+        if (!ModuleUnitTester::isModuleTested(Narrow_WString(getLibraryPath()))) {   /// Executing module tests if we didn't already
+            executeModuleTests(Narrow_WString(getLibraryPath()));
         } else {
-            Logger::getInstance().info(std::wstring(L"Module ") + m_libraryPath + L" already tested. Skipping module tests.");
+            Logger::getInstance().info(L"Module " + getLibraryPath() + L" already tested. Skipping module tests.");
         }
 
         const wchar_t *entityName;
@@ -82,12 +63,7 @@ namespace tester {
             entityType = L"model";
         }
 
-        std::wcout << "****************************************\n"
-                   << "Testing " << entityName << " " << entityType << ":\n"
-                   << "****************************************\n";
-        Logger::getInstance().debug(L"****************************************");
-        Logger::getInstance().debug(L"Testing " + std::wstring(entityName) + L" " + entityType + L":");
-        Logger::getInstance().debug(L"****************************************");
+        logs::printEntityTestsStartInfo(entityName, entityType);
 
         if (m_entityType == EntityType::FILTER) {
             executeGenericTests();      /// When testing model, we need to run creation tests first and create model manually during specific tests
@@ -105,7 +81,7 @@ namespace tester {
         executeTest(L"shut down event test", std::bind(&FilterUnitTester::shutDownEventTest, this));
     }
 
-    void GenericUnitTester::executeTest(const std::wstring& testName, const std::function<HRESULT(void)>& test) {
+    void TestRunner::executeTest(const std::wstring& testName, const std::function<HRESULT(void)>& test) {
         logs::printTestStartInfo(testName);
         HRESULT result = runTestInThread(test);
         logs::printResult(result);
@@ -118,7 +94,7 @@ namespace tester {
     }
 
     HRESULT FilterUnitTester::shutDownTest() {
-        if (!isFilterLoaded()) {
+        if (!isEntityLoaded()) {
             return E_FAIL;
         }
 
@@ -129,14 +105,13 @@ namespace tester {
             return E_FAIL;
         }
 
-        m_testedFilter->Execute(shutDown);
-        m_testedFilter->Release();
-        m_testedFilter = nullptr;
+        getTestedEntity()->Execute(shutDown);
+        setTestedEntity(nullptr);
         m_testFilter.clearReceivedEvents();
         return S_OK;
     }
 
-    HRESULT GenericUnitTester::runTestInThread(const std::function<HRESULT(void)>& test) {
+    HRESULT TestRunner::runTestInThread(const std::function<HRESULT(void)>& test) {
         Logger::getInstance().debug(L"Running test in thread...");
         std::cv_status status;
         HRESULT result;
@@ -144,7 +119,7 @@ namespace tester {
         {
             std::unique_lock<std::mutex> lock(m_testMutex);
 
-            std::thread thread(&GenericUnitTester::runTest, this, test);
+            std::thread thread(&TestRunner::runTest, this, test);
 
             status = m_testCv.wait_for(lock, std::chrono::milliseconds(cnst::MAX_EXEC_TIME));
             lock.unlock();
@@ -203,43 +178,37 @@ namespace tester {
         return result;
     }
 
-    void GenericUnitTester::runTest(const std::function<HRESULT(void)>& test) {
+    void TestRunner::runTest(const std::function<HRESULT(void)>& test) {
         m_lastTestResult = test();
         m_testCv.notify_all();
     }
 
+    FilterUnitTester::FilterUnitTester(const GUID guid, const EntityType& type) : EntityUnitTester<scgms::IFilter>(guid), m_entityType(type){
+        //
+    }
+
     void FilterUnitTester::runConfigTest(const tester::FilterConfig& configuration, const HRESULT expectedResult) {
-        if (!m_filterLibrary.Is_Loaded()) {
-            loadFilterLibrary();
+        if (!getEntityLib().Is_Loaded()) {
+            loadEntityLibrary();
         }
 
-        if (!isFilterLoaded()) {
-            loadFilter();
+        if (!isEntityLoaded()) {
+            loadEntity();
         }
 
-        if (isFilterLoaded()) {
+        if (isEntityLoaded()) {
             m_lastTestResult = configurationTest(configuration, expectedResult);
         } else {
             Logger::getInstance().error(L"Filter is not loaded! Test will not be executed.");
             m_lastTestResult = E_FAIL;
         }
 
-        if (isFilterLoaded()) { /// Need to check, because filter will be unloaded in case of TIMEOUT
+        if (isEntityLoaded()) { /// Need to check, because filter will be unloaded in case of TIMEOUT
             shutDownTest();
         }
 
         m_testCv.notify_all();
     }
-
-    bool FilterUnitTester::isFilterLoaded() {
-        return m_testedFilter != nullptr;
-    }
-
-
-    //      **************************************************
-    //                      Generic tests
-    //      **************************************************
-
 
     HRESULT FilterUnitTester::infoEventTest() {
         return informativeEventsTest(scgms::NDevice_Event_Code::Information);
@@ -269,7 +238,7 @@ namespace tester {
             return E_FAIL;
         }
 
-        HRESULT afterShutDownEventResult = m_testedFilter->Execute(infoEvent);
+        HRESULT afterShutDownEventResult = getTestedEntity()->Execute(infoEvent);
         if (Succeeded(afterShutDownEventResult)) {
             Logger::getInstance().error(L"Execution of event after shutting down did not fail!");
             Logger::getInstance().error(std::wstring(L"Actual result: ") + Describe_Error(afterShutDownEventResult));
@@ -280,7 +249,7 @@ namespace tester {
     }
 
     HRESULT FilterUnitTester::informativeEventsTest(const scgms::NDevice_Event_Code& eventCode) {
-        if (!isFilterLoaded()) {
+        if (!isEntityLoaded()) {
             std::wcerr << L"No filter created! Can't execute test.\n";
             Logger::getInstance().error(L"No filter created! Can't execute test...");
             return E_FAIL;
@@ -294,7 +263,7 @@ namespace tester {
         }
 
         Logger::getInstance().debug(L"Executing event...");
-        HRESULT result = m_testedFilter->Execute(event);
+        HRESULT result = getTestedEntity()->Execute(event);
 
         if (Succeeded(result)) {
             scgms::TDevice_Event receivedEvent = m_testFilter.getLastReceivedEvent();
@@ -317,7 +286,7 @@ namespace tester {
     }
 
     HRESULT FilterUnitTester::configureFilter(const tester::FilterConfig &config) {
-        return tester::configureFilter(m_testedFilter, config);
+        return tester::configureFilter(getTestedEntity(), config);
     }
 
     HRESULT FilterUnitTester::configurationTest(const tester::FilterConfig &config, const HRESULT expectedResult) {
@@ -334,79 +303,8 @@ namespace tester {
         return testResult;
     }
 
-    void FilterUnitTester::setFilterLib(const std::wstring& libPath) {
-        if (m_filterLibrary.Is_Loaded()) {
-            Logger::getInstance().error(L"Attempt to override loaded library! Forbidding...");
-            return;
-        }
-
-        if (m_filterLibrary.Load(libPath)) {
-            m_libraryPath = libPath;
-        } else {
-            Logger::getInstance().error(std::wstring(L"Error while loading library ") + libPath);
-        }
-    }
-
     TestFilter &FilterUnitTester::getTestFilter() {
         return m_testFilter;
-    }
-
-    scgms::IFilter *FilterUnitTester::getTestedFilter() {
-        return m_testedFilter;
-    }
-
-    void FilterUnitTester::loadFilterLibrary() {
-        if (m_libraryPath.empty()) {
-            const wchar_t* file_name = GuidFileMapper::GetInstance().getFileName(m_testedGuid);
-            m_libraryPath = std::wstring(file_name) + cnst::LIB_EXTENSION;
-        }
-
-        m_filterLibrary.Load(m_libraryPath);
-
-        if (!m_filterLibrary.Is_Loaded()) {
-            std::wcerr << L"Couldn't load " << m_libraryPath << " library!\n";
-            Logger::getInstance().error(L"Couldn't load " + std::wstring(m_libraryPath) + L" library.");
-        }
-    }
-
-    void FilterUnitTester::runTest(const std::function<HRESULT(void)> &test) {
-        if (!m_filterLibrary.Is_Loaded()) {
-            loadFilterLibrary();
-        }
-
-        if (!isFilterLoaded()) {
-            loadFilter();
-        }
-
-        if (isFilterLoaded()) {
-            m_lastTestResult = test();
-            shutDownTest();     /// Need to check, because filter will be unloaded in case of TIMEOUT
-        } else {
-            Logger::getInstance().error(L"Filter is not loaded! Test will not be executed.");
-            m_lastTestResult = E_FAIL;
-        }
-
-        m_testCv.notify_all();
-    }
-
-    FilterUnitTester::FilterUnitTester(const GUID guid, const EntityType& type) : m_entityType(type), m_testedGuid(guid), m_testedFilter(nullptr) {
-        //
-    }
-
-    CDynamic_Library &FilterUnitTester::getFilterLib() {
-        return m_filterLibrary;
-    }
-
-    const GUID &FilterUnitTester::getFilterGuid() {
-        return m_testedGuid;
-    }
-
-    void FilterUnitTester::setTestedFilter(scgms::IFilter *filter) {
-        if (m_testedFilter) {
-            m_testedFilter->Release();
-        }
-
-        m_testedFilter = filter;
     }
 
     std::vector<std::string> ModuleUnitTester::s_testedModules;

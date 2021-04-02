@@ -8,11 +8,11 @@
 #include <rtl/FilterLib.h>
 #include "../UnitTestExecUtils.h"
 #include "../../mappers/GuidTesterMapper.h"
-#include "../../mappers/GuidFileMapper.h"
-#include "../constants.h"
 #include "../../testers/ModelUnitTester.h"
+#include "../../testers/MetricUnitTester.h"
 
 const wchar_t* MODEL_LIBS[] = { cnst::MODEL_LIBRARY };
+const wchar_t* METRIC_LIBS[] = { cnst::METRIC_LIBRARY };
 
 void tester::executeFilterTests(const GUID& guid) {
     if (Is_Invalid_GUID(guid)) {
@@ -36,22 +36,43 @@ void tester::executeModelTests(const wchar_t *lib) {
 
     std::wstring libPath = std::wstring(lib) + cnst::LIB_EXTENSION;
     if (!modelLib.Load(libPath)) {
-        Logger::getInstance().info(std::wstring(L"Error while loading ") + lib + L" library. Skipping it's model tests...");
-        return;
-    }
-
-    auto descriptorsCreator = modelLib.Resolve<scgms::TGet_Model_Descriptors>("do_get_model_descriptors");
-    if (!descriptorsCreator) {
-        Logger::getInstance().error(std::wstring(L"Error while resolving model descriptors from ") + lib + L"! Cancelling tests...");
+        Logger::getInstance().error(std::wstring(L"Error while loading ") + lib + L" library. Skipping it's model tests...");
         return;
     }
 
     scgms::TModel_Descriptor *begin, *end;
-    descriptorsCreator(&begin, &end);
+    HRESULT descriptorsResult = getEntityDescriptors<scgms::TGet_Model_Descriptors>(modelLib, "do_get_model_descriptors", &begin, &end);
+    if (!Succeeded(descriptorsResult)) {
+        Logger::getInstance().error(std::wstring(L"Error while resolving model descriptors from ") + lib + L"! Cancelling tests...");
+        return;
+    }
 
     while (begin != end) {
         tester::ModelUnitTester modelTester(begin->id, libPath);
-        ((tester::FilterUnitTester*) &modelTester)->executeAllTests();
+        modelTester.executeAllTests();
+        begin++;
+    }
+}
+
+void tester::executeMetricTests(const wchar_t *lib) {
+    CDynamic_Library metricLib;
+
+    std::wstring libPath = std::wstring(lib) + cnst::LIB_EXTENSION;
+    if (!metricLib.Load(libPath)) {
+        Logger::getInstance().error(std::wstring(L"Erro while loading ") + lib + L" library. Skipping it's metric tests...");
+        return;
+    }
+
+    scgms::TMetric_Descriptor *begin, *end;
+    HRESULT descriptorsResult = getEntityDescriptors<scgms::TGet_Metric_Descriptors>(metricLib, "do_get_metric_descriptors", &begin, &end);
+    if (!Succeeded(descriptorsResult)) {
+        Logger::getInstance().error(std::wstring(L"Error while resolving metric descriptors from ") + lib + L"! Cancelling tests...");
+        return;
+    }
+
+    while (begin != end) {
+        tester::MetricUnitTester metricTester(begin->id, libPath);
+        metricTester.executeAllTests();
         begin++;
     }
 }
@@ -61,11 +82,15 @@ void tester::executeAllTests() {
 	std::map<GUID, const wchar_t*> map = GuidFileMapper::GetInstance().getMap();
 
     for (const auto &guidPair : map) {
-        executeFilterTests(guidPair.first);
+//        executeFilterTests(guidPair.first);
     }
 
     for (const auto &modelLib : MODEL_LIBS) {
-        executeModelTests(modelLib);
+//        executeModelTests(modelLib);
+    }
+
+    for (const auto &metricLib : METRIC_LIBS) {
+        executeMetricTests(metricLib);
     }
 
 }
