@@ -19,6 +19,8 @@ namespace logs {
     void printResult(const HRESULT result);
     /// Print information about the test that's being started
     void printTestStartInfo(const std::wstring& testName);
+    /// Print information about entity that's being tested
+    void printEntityTestsStartInfo(const std::wstring& entityName, const std::wstring& entityType);
     /// Error logs given line
     void errorLogLine(const std::vector<std::string>& line);
     /// Info logs given line

@@ -34,6 +34,15 @@ namespace logs {
         std::wcout << "Executing " << testName << "... ";
     }
 
+    void printEntityTestsStartInfo(const std::wstring &entityName, const std::wstring &entityType) {
+        std::wcout << "****************************************\n"
+                   << "Testing " << entityName << " " << entityType << ":\n"
+                   << "****************************************\n";
+        Logger::getInstance().debug(L"****************************************");
+        Logger::getInstance().debug(L"Testing " + std::wstring(entityName) + L" " + entityType + L":");
+        Logger::getInstance().debug(L"****************************************");
+    }
+
     void errorLogLine(const std::vector<std::string>& line) {
         std::string printedLine;
         for (const auto & token : line) {

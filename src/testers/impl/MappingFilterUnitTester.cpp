@@ -97,7 +97,7 @@ namespace tester {
         scgms::TDevice_Event src_event = *raw_event;
 
         Logger::getInstance().debug(L"Executing " + describeEvent(eventCode));
-        HRESULT execResult = getTestedFilter()->Execute(event);
+        HRESULT execResult = getTestedEntity()->Execute(event);
 
         if (!Succeeded(execResult)) {
             Logger::getInstance().error(L"Error while executing " + describeEvent(eventCode));
@@ -150,7 +150,7 @@ namespace tester {
         scgms::TDevice_Event src_event = *raw_event;
 
         Logger::getInstance().debug(L"Executing " + describeEvent(eventCode));
-        HRESULT execResult = getTestedFilter()->Execute(event);
+        HRESULT execResult = getTestedEntity()->Execute(event);
 
         if (!Succeeded(execResult)) {
             Logger::getInstance().error(L"Error while executing " + describeEvent(eventCode));
@@ -202,7 +202,7 @@ namespace tester {
         raw_event->signal_id = config.getSignalSrcId();
 
         Logger::getInstance().debug(L"Executing " + describeEvent(eventCode));
-        HRESULT execResult = getTestedFilter()->Execute(event);
+        HRESULT execResult = getTestedEntity()->Execute(event);
 
         if (!Succeeded(execResult)) {
             Logger::getInstance().error(L"Error while executing " + describeEvent(eventCode));
@@ -241,7 +241,7 @@ namespace tester {
 
         scgms::TDevice_Event src_event = *raw_event;
         Logger::getInstance().debug(L"Executing " + describeEvent(eventCode));
-        HRESULT execResult = getTestedFilter()->Execute(event);
+        HRESULT execResult = getTestedEntity()->Execute(event);
 
         if (!Succeeded(execResult)) {
             Logger::getInstance().error(L"Error while executing " + describeEvent(eventCode));

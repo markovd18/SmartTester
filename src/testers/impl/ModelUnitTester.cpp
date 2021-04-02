@@ -10,7 +10,7 @@
 #include <rtl/FilterLib.h>
 
 tester::ModelUnitTester::ModelUnitTester(const GUID &guid, const std::wstring& libPath) : FilterUnitTester(guid, EntityType::MODEL) {
-    setFilterLib(libPath);
+    setEntityLib(libPath);
 }
 
 void tester::ModelUnitTester::executeSpecificTests() {
@@ -54,12 +54,11 @@ void tester::ModelUnitTester::executeSpecificTests() {
     executeTest(L"negative step delta time test", std::bind(&ModelUnitTester::negativeStepDeltaTimeTest, this));
     executeTest(L"current time step test", std::bind(&ModelUnitTester::currentTimeStepTest, this));
     executeTest(L"future time step test", std::bind(&ModelUnitTester::futureTimeStepTest, this));
-    executeTest(L"test test", std::bind(&ModelUnitTester::test, this));
 }
 
 HRESULT tester::ModelUnitTester::modelFlagTest() {
     scgms::TModel_Descriptor *descriptor = getEntityDescriptor<scgms::TGet_Model_Descriptors, scgms::TModel_Descriptor>(
-            getFilterLib(), getFilterGuid(), "do_get_model_descriptors");
+            getEntityLib(), getEntityGuid(), "do_get_model_descriptors");
     if (descriptor == nullptr) {
         Logger::getInstance().error(L"Error while acquiring model descriptors!");
         return E_FAIL;
@@ -79,7 +78,7 @@ HRESULT tester::ModelUnitTester::modelFlagTest() {
 }
 
 HRESULT tester::ModelUnitTester::modelCreationTest(const scgms::NModel_Flags &modelFlag) {
-    if (!getFilterLib().Is_Loaded()) {
+    if (!getEntityLib().Is_Loaded()) {
         Logger::getInstance().error(L"Filter library is not loaded! Cannot execute tests.");
         return E_FAIL;
     }
@@ -129,7 +128,7 @@ HRESULT tester::ModelUnitTester::createSignalGeneratorFilter(scgms::IFilter **fi
 HRESULT tester::ModelUnitTester::createModel(scgms::IDiscrete_Model **model, scgms::IFilter* signalGenerator) {
 
     scgms::TModel_Descriptor *descriptor = getEntityDescriptor<scgms::TGet_Model_Descriptors, scgms::TModel_Descriptor>(
-            getFilterLib(), getFilterGuid(), "do_get_model_descriptors");
+            getEntityLib(), getEntityGuid(), "do_get_model_descriptors");
     if (!descriptor) {
         Logger::getInstance().error(L"Model descriptor not found!");
         return E_FAIL;
@@ -148,13 +147,13 @@ HRESULT tester::ModelUnitTester::createModel(scgms::IDiscrete_Model **model, scg
     scgms::SModel_Parameter_Vector parameterVector;
     parameterVector.set(params);
 
-    return constructEntity<scgms::TCreate_Discrete_Model>(getFilterLib(), "do_create_discrete_model", &getFilterGuid(),
+    return constructEntity<scgms::TCreate_Discrete_Model>(getEntityLib(), "do_create_discrete_model", &getEntityGuid(),
                                                           parameterVector.get(), signalGenerator, model);
 }
 
 HRESULT tester::ModelUnitTester::invalidParameterCountTest() {
     scgms::TModel_Descriptor *descriptor = getEntityDescriptor<scgms::TGet_Model_Descriptors, scgms::TModel_Descriptor>(
-            getFilterLib(), getFilterGuid(), "get_model_descriptors");
+            getEntityLib(), getEntityGuid(), "get_model_descriptors");
     if (!descriptor) {
         Logger::getInstance().error(L"Error while acquiring model descriptor!");
         return E_FAIL;
@@ -179,15 +178,15 @@ HRESULT tester::ModelUnitTester::invalidParameterCountTest() {
     return S_OK;
 }
 
-void tester::ModelUnitTester::loadFilter() {
-    if (!getFilterLib().Is_Loaded()) {
+void tester::ModelUnitTester::loadEntity() {
+    if (!getEntityLib().Is_Loaded()) {
         std::wcerr << L"Model library is not loaded! Model will not be loaded.\n";
         Logger::getInstance().error(L"Model library is not loaded! Model will not be loaded.");
         return;
     }
 
-    if (getTestedFilter()) {
-        getTestedFilter()->Release();
+    if (getTestedEntity()) {
+        getTestedEntity()->Release();
     }
 
     if (!m_signalGenerator) {
@@ -207,7 +206,7 @@ void tester::ModelUnitTester::loadFilter() {
     config.setStepping(0.003472222222222222);
     config.setSynchronizeToSignal(true);
     config.setSynchronizationSignal(scgms::signal_BG);
-    config.setModelId(getFilterGuid());
+    config.setModelId(getEntityGuid());
     HRESULT configResult = tester::configureFilter(m_signalGenerator, config);
     if (!Succeeded(configResult)) {
         logs::logConfigurationError(config, S_OK, configResult);
@@ -220,7 +219,7 @@ void tester::ModelUnitTester::loadFilter() {
     if (creationResult != S_OK) {
         Logger::getInstance().error(L"Error while loading model from the dynamic library!");
     } else {
-        setTestedFilter(model);
+        setTestedEntity(model);
         Logger::getInstance().info(L"Model loaded from dynamic library.");
     }
 }
@@ -277,7 +276,7 @@ HRESULT tester::ModelUnitTester::negativeStepDeltaTimeTest() {
 
 HRESULT tester::ModelUnitTester::initialize(const double currentTime, const uint64_t segmentId,
                                             const bool shouldSucceed, const HRESULT expectedResult) {
-    auto *testedModel = dynamic_cast<scgms::IDiscrete_Model*>(getTestedFilter());
+    auto *testedModel = dynamic_cast<scgms::IDiscrete_Model*>(getTestedEntity());
 
     Logger::getInstance().debug(L"Initializing model with currentTime=" + std::to_wstring(currentTime) + L"...");
     HRESULT initializeResult = testedModel->Initialize(currentTime, segmentId);
@@ -294,7 +293,7 @@ HRESULT tester::ModelUnitTester::initialize(const double currentTime, const uint
 }
 
 HRESULT tester::ModelUnitTester::step(const double timeAdvanceDelta, const bool shouldSucceed, const HRESULT expectedResult) {
-    auto *testedModel = dynamic_cast<scgms::IDiscrete_Model*>(getTestedFilter());
+    auto *testedModel = dynamic_cast<scgms::IDiscrete_Model*>(getTestedEntity());
 
     Logger::getInstance().debug(L"Stepping with time_advance_delta=" + std::to_wstring(timeAdvanceDelta) + L"...");
     HRESULT stepResult = testedModel->Step(timeAdvanceDelta);

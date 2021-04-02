@@ -18,12 +18,15 @@
 #include "../utils/TestFilter.h"
 #include "../utils/Logger.h"
 #include "FilterConfiguration.h"
+#include "../utils/constants.h"
+#include "../mappers/GuidFileMapper.h"
+#include "../utils/EntityUtils.h"
 
 namespace tester {
     /**
-     * Contains generic tests and methods, which can be applied on any filter.
+     * Contains methods, for running entity tests.
      */
-    class GenericUnitTester {
+    class TestRunner {
     protected: // protected attributes
         std::mutex m_testMutex;
         std::condition_variable m_testCv;
@@ -47,7 +50,7 @@ namespace tester {
     /**
      * Contains generic tests for any module.
      */
-    class ModuleUnitTester : public GenericUnitTester {
+    class ModuleUnitTester : public TestRunner {
     private:    // private attributes
         /// Vector of already tested modules
         static std::vector<std::string> s_testedModules;
@@ -129,6 +132,142 @@ namespace tester {
     };
 
     /**
+     * Generic class containing information about any tested entity.
+     * @tparam T Type of the entity we are testing
+     */
+    template<typename T>
+    class EntityUnitTester : public TestRunner {
+    private:    // private attributes
+        /// GUID of tested entity
+        const GUID m_entityGuid;
+        /// Tested entity itself
+        T* m_testedEntity = nullptr;
+        /// Dynamic library of the tested entity
+        CDynamic_Library m_entityLibrary;
+        /// Path to the entity library
+        std::wstring m_libraryPath;
+
+    public:     // public methods
+        explicit EntityUnitTester(const GUID& entityGuid) : m_entityGuid(entityGuid) {}
+        virtual ~EntityUnitTester() = default;
+        /// Every derived class has to override this method to execute all tests
+        virtual void executeAllTests() = 0;
+
+        /**
+         * Checks whether the entity is loaded or not.
+         * @return @a true if the entity is loaded, otherwise @a false
+         */
+        bool isEntityLoaded() const noexcept {
+            return m_testedEntity != nullptr;
+        }
+
+        /**
+         * Returns the wrapper of the entity library.
+         * @return entity library wrapper
+         */
+        CDynamic_Library& getEntityLib() noexcept {
+            return m_entityLibrary;
+        }
+
+        /**
+         * Returns the entity @a GUID.
+         * @return entity @a GUID
+         */
+        const GUID& getEntityGuid() const noexcept {
+            return m_entityGuid;
+        }
+
+        /**
+         * Loads library of tested entity.
+         */
+        void loadEntityLibrary() {
+            if (m_libraryPath.empty()) {
+                const wchar_t* file_name = GuidFileMapper::GetInstance().getFileName(m_entityGuid);
+                m_libraryPath = std::wstring(file_name) + cnst::LIB_EXTENSION;
+            }
+
+            m_entityLibrary.Load(m_libraryPath);
+
+            if (!m_entityLibrary.Is_Loaded()) {
+                std::wcerr << L"Couldn't load " << m_libraryPath << " library!\n";
+                Logger::getInstance().error(L"Couldn't load " + std::wstring(m_libraryPath) + L" library.");
+            }
+        }
+
+        /// Loads tested entity. Has to be implemented by derived classes.
+        virtual void loadEntity() = 0;
+
+        template<typename C, typename D>
+        const wchar_t* getEntityName(const std::string& symbolName) {
+            if (!getEntityLib().Is_Loaded()) {
+                loadEntityLibrary();
+            }
+
+            D* descriptor = tester::getEntityDescriptor<C, D>(m_entityLibrary, m_entityGuid, symbolName);
+            if (!descriptor) {
+                return nullptr;
+            }
+
+            return descriptor->description;
+        }
+    protected:  // protected methods
+
+        void setEntityLib(const std::wstring& libPath) {
+            if (m_entityLibrary.Is_Loaded()) {
+                Logger::getInstance().error(L"Attempt to override loaded library! Forbidding...");
+                return;
+            }
+
+            if (m_entityLibrary.Load(libPath)) {
+                m_libraryPath = libPath;
+            } else {
+                Logger::getInstance().error(std::wstring(L"Error while loading library ") + libPath);
+            }
+        }
+
+        void setLibraryPath(const std::wstring& libraryPath) noexcept {
+            m_libraryPath = libraryPath;
+        }
+
+        const std::wstring& getLibraryPath() const {
+            return m_libraryPath;
+        }
+
+        T* getTestedEntity() noexcept {
+            return m_testedEntity;
+        }
+
+        void setTestedEntity(T *entity) {
+            if (m_testedEntity) {
+                m_testedEntity->Release();
+            }
+
+            m_testedEntity = entity;
+        }
+
+        /// We need special behavior of the test execution sequence, so we override this method
+        void runTest(const std::function<HRESULT ()> &test) override {
+            if (!m_entityLibrary.Is_Loaded()) {
+                loadEntityLibrary();
+            }
+
+            if (!isEntityLoaded()) {
+                loadEntity();
+            }
+
+            if (isEntityLoaded()) {
+                m_lastTestResult = test();
+                shutDownTest();     /// Need to check, because filter will be unloaded in case of TIMEOUT
+            } else {
+                Logger::getInstance().error(L"Filter is not loaded! Test will not be executed.");
+                m_lastTestResult = E_FAIL;
+            }
+
+            m_testCv.notify_all();
+        }
+    };
+
+    /**
      * @a scgms::IFilter interface is implemented by multiple entities. This enumeration indicates which entities can
      * implement the interface.
      */
@@ -139,23 +278,15 @@ namespace tester {
     /**
      * Contains generic tests for any object implementing @a scgms::IFilter.
      */
-    class FilterUnitTester : public GenericUnitTester {
+class FilterUnitTester : public EntityUnitTester<scgms::IFilter> {
     private:    // private attributes
         /// What entity, implementing the @a scgms::IFilter interface, are we testing
         EntityType m_entityType;
         /// Our custom filter for testing
         TestFilter m_testFilter;
-        /// GUID of tested filter
-        GUID m_testedGuid;
-        /// Tested filter itself
-        scgms::IFilter* m_testedFilter = nullptr;
-        /// Dynamic library of the tested filter
-        CDynamic_Library m_filterLibrary;
-        /// Path to the filter library
-        std::wstring m_libraryPath;
 
     public:     // public methods
-        explicit FilterUnitTester(GUID guid, const EntityType& type);
+        FilterUnitTester(GUID guid, const EntityType& type);
         virtual ~FilterUnitTester() = default;
         /**
          * If any filter is created, executes an info event upon it. Tested filter should send the info event to
@@ -192,8 +323,7 @@ namespace tester {
          * @param test method to be invoked by this method
          */
         void executeConfigTest(const std::wstring& testName, const tester::FilterConfig& configuration, HRESULT expectedResult);
-        bool isFilterLoaded();
-        void executeAllTests();
+        void executeAllTests() override;
         void executeGenericTests();
         /// Executes all tests for a specific filter. Needs to be implemented by derived class.
         virtual void executeSpecificTests() = 0;
@@ -217,23 +347,13 @@ namespace tester {
          * @return configuration result
          */
         HRESULT configureFilter(const tester::FilterConfig& configuration);
-        void setFilterLib(const std::wstring& libPath);
-        void setTestedFilter(scgms::IFilter *filter);
-        scgms::IFilter* getTestedFilter();
         TestFilter& getTestFilter();
-        CDynamic_Library& getFilterLib();
-        const GUID& getFilterGuid();
     private: // private methods
         HRESULT informativeEventsTest(const scgms::NDevice_Event_Code& eventCode);
-        virtual void loadFilter();
-        void loadFilterLibrary();
-        template<typename T, typename D>
-        const wchar_t* getEntityName(const std::string& symbolName);
+        void loadEntity() override;
 
         HRESULT runConfigTestInThread(const tester::FilterConfig& configuration, HRESULT expectedResult);
         void runConfigTest(const tester::FilterConfig& configuration, HRESULT expectedResult);
-        /// We need special behavior of the test execution sequence, so we override this method
-        void runTest(const std::function<HRESULT ()> &test) override;
     };
 
     /**
@@ -241,66 +361,6 @@ namespace tester {
      * @param modulePath path to the module to test
      */
     void executeModuleTests(const std::string& modulePath);
-
-    template<typename T, typename... Args>
-    HRESULT constructEntity(CDynamic_Library& library, const std::string& symbolName, Args... args) {
-        if (!library.Is_Loaded()) {
-            Logger::getInstance().error(L"Library is not loaded! Cannot construct entity.");
-            return E_FAIL;
-        }
-
-        Logger::getInstance().debug(L"Creating entity with " + Widen_String(symbolName) + L" factory.");
-
-        auto entityFactory = library.Resolve<T>(symbolName.c_str());
-        if (!entityFactory) {
-            Logger::getInstance().error(L"Error while loading " + Widen_String(symbolName) + L" factory!");
-            return E_FAIL;
-        }
-
-        HRESULT creationResult = entityFactory(args...);
-
-        if (!Succeeded(creationResult)) {
-            return E_FAIL;
-        }
-
-        return S_OK;
-    }
-
-    template<typename T, typename D>
-    HRESULT getEntityDescriptors(CDynamic_Library& library, const std::string& symbolName, D **begin, D **end) {
-        if (!library.Is_Loaded()) {
-            Logger::getInstance().error(L"Library is not loaded! Cannot get entity descriptors.");
-            return E_FAIL;
-        }
-
-        auto descriptorsCreator = library.Resolve<T>(symbolName.c_str());
-        if (!descriptorsCreator) {
-            Logger::getInstance().error(L"Error while loading " + Widen_String(symbolName) + L" descriptors factory!");
-            return E_FAIL;
-        }
-
-        return descriptorsCreator(begin, end);
-    }
-
-    template<typename T, typename D>
-    D* getEntityDescriptor(CDynamic_Library& library, const GUID& guid, const std::string& symbolName) {
-        D *begin, *end;
-
-        HRESULT result = getEntityDescriptors<T>(library, symbolName, &begin, &end);
-        if (!Succeeded(result)) {
-            Logger::getInstance().error(L"Error while acquiring entity descriptors!");
-            return nullptr;
-        }
-
-        while (begin != end) {
-            if (begin->id == guid) {
-                return begin;
-            }
-            begin++;
-        }
-
-        return nullptr;
-    }
 }
 
 

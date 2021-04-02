@@ -24,6 +24,12 @@ namespace tester {
     void executeModelTests(const wchar_t *lib);
 
     /**
+     * Executes all defined tests upon metrics in given module.
+     * @param lib path to a module with metrics
+     */
+    void executeMetricTests(const wchar_t *lib);
+
+    /**
      * Executes all defined unit tests across all entities.
      */
     void executeAllTests();

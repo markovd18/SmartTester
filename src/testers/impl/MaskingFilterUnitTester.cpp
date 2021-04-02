@@ -83,7 +83,7 @@ namespace tester {
             raw_event->signal_id = config.getSignalId();
 
             Logger::getInstance().debug(L"Executing " + describeEvent(scgms::NDevice_Event_Code::Level));
-            HRESULT execResult = getTestedFilter()->Execute(event);
+            HRESULT execResult = getTestedEntity()->Execute(event);
             if (!Succeeded(execResult)) {
                 Logger::getInstance().error(L"Error while executing " + describeEvent(scgms::NDevice_Event_Code::Level));
                 return E_FAIL;
@@ -136,7 +136,7 @@ namespace tester {
             raw_event->signal_id = config.getSignalId();
 
             Logger::getInstance().debug(L"Executing " + describeEvent(scgms::NDevice_Event_Code::Information));
-            HRESULT execResult = getTestedFilter()->Execute(event);
+            HRESULT execResult = getTestedEntity()->Execute(event);
 
             if (Succeeded(execResult)) {
                 if (raw_event->event_code != scgms::NDevice_Event_Code::Information) {

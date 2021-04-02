@@ -118,7 +118,7 @@ namespace tester {
         }
 
         Logger::getInstance().debug(L"Executing " + describeEvent(scgms::NDevice_Event_Code::Level));
-        HRESULT execResult = getTestedFilter()->Execute(event);
+        HRESULT execResult = getTestedEntity()->Execute(event);
         if (!Succeeded(execResult)) {
             Logger::getInstance().error(L"Error while executing " + describeEvent(scgms::NDevice_Event_Code::Level));
             event->Release();
@@ -152,14 +152,14 @@ namespace tester {
         }
 
         Logger::getInstance().debug(L"Executing " + describeEvent(scgms::NDevice_Event_Code::Level));
-        HRESULT execResult = getTestedFilter()->Execute(event);
+        HRESULT execResult = getTestedEntity()->Execute(event);
         if (!Succeeded(execResult)) {
             Logger::getInstance().error(L"Error while executing " + describeEvent(scgms::NDevice_Event_Code::Level));
             event->Release();
             return E_FAIL;
         }
 
-        scgms::SDrawing_Filter_Inspection inspection(getTestedFilter());
+        scgms::SDrawing_Filter_Inspection inspection(getTestedEntity());
         if (!inspection) {
             Logger::getInstance().error(L"Error while creating drawing filter inspection!");
             return E_FAIL;
@@ -199,14 +199,14 @@ namespace tester {
         }
 
         Logger::getInstance().debug(L"Executing " + describeEvent(scgms::NDevice_Event_Code::Level));
-        HRESULT execResult = getTestedFilter()->Execute(event);
+        HRESULT execResult = getTestedEntity()->Execute(event);
         if (!Succeeded(execResult)) {
             Logger::getInstance().error(L"Error while executing " + describeEvent(scgms::NDevice_Event_Code::Level));
             event->Release();
             return E_FAIL;
         }
 
-        scgms::SDrawing_Filter_Inspection inspection(getTestedFilter());
+        scgms::SDrawing_Filter_Inspection inspection(getTestedEntity());
         if (!inspection) {
             Logger::getInstance().error(L"Error while creating drawing filter inspection!");
             return E_FAIL;

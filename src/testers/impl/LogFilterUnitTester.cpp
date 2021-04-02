@@ -111,7 +111,7 @@ namespace tester {
 
         HRESULT testResult = S_OK;
         for (scgms::IDevice_Event *event : events) {
-            HRESULT execResult = getTestedFilter()->Execute(event);
+            HRESULT execResult = getTestedEntity()->Execute(event);
             if (!Succeeded(execResult)) {
                 testResult = E_FAIL;
                 break;
@@ -133,7 +133,7 @@ namespace tester {
         if (!shutDown) {
             Logger::getInstance().error(L"Error while creating shut down event during Log Filter testing!");
         } else {
-            HRESULT execResult = getTestedFilter()->Execute(shutDown);   /// Forcing logs to be displayed in the log
+            HRESULT execResult = getTestedEntity()->Execute(shutDown);   /// Forcing logs to be displayed in the log
             if (!Succeeded(execResult)) {
                 Logger::getInstance().error(L"Error while executing " + describeEvent(scgms::NDevice_Event_Code::Shut_Down));
                 shutDown->Release();    /// Here not returning E_FAIL, will try to check the log anyways
@@ -172,7 +172,7 @@ namespace tester {
             return E_FAIL;
         }
 
-        HRESULT execResult = getTestedFilter()->Execute(event);
+        HRESULT execResult = getTestedEntity()->Execute(event);
         if (!Succeeded(execResult)) {
             Logger::getInstance().error(L"Error while executing " + describeEvent(scgms::NDevice_Event_Code::Level));
             event->Release();
@@ -245,7 +245,7 @@ namespace tester {
 
         HRESULT testResult = S_OK;
         for (scgms::IDevice_Event *event : events) {
-            HRESULT execResult = getTestedFilter()->Execute(event);
+            HRESULT execResult = getTestedEntity()->Execute(event);
             if (!Succeeded(execResult)) {
                 testResult = E_FAIL;
                 break;
@@ -316,14 +316,14 @@ namespace tester {
             return E_FAIL;
         }
 
-        HRESULT execResult = getTestedFilter()->Execute(event);
+        HRESULT execResult = getTestedEntity()->Execute(event);
         if (!Succeeded(execResult)) {
             Logger::getInstance().error(L"Error while executing " + describeEvent(scgms::NDevice_Event_Code::Level));
             event->Release();
             return E_FAIL;
         }
 
-        scgms::SLog_Filter_Inspection inspection(getTestedFilter());
+        scgms::SLog_Filter_Inspection inspection(getTestedEntity());
         if (!inspection) {
             Logger::getInstance().error(L"Error while creating interface inspection!");
             return E_FAIL;
@@ -384,7 +384,7 @@ namespace tester {
 
         HRESULT testResult = S_OK;
         for (scgms::IDevice_Event *event : events) {
-            HRESULT execResult = getTestedFilter()->Execute(event);
+            HRESULT execResult = getTestedEntity()->Execute(event);
             if (!Succeeded(execResult)) {
                 testResult = E_FAIL;
                 break;
@@ -403,7 +403,7 @@ namespace tester {
             return E_FAIL;
         }
 
-        scgms::SLog_Filter_Inspection inspection(getTestedFilter());
+        scgms::SLog_Filter_Inspection inspection(getTestedEntity());
         if (!inspection) {
             Logger::getInstance().error(L"Error while creating interface inspection!");
             return E_FAIL;
