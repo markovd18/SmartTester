@@ -61,8 +61,7 @@ void tester::executeAllTests() {
 	std::map<GUID, const wchar_t*> map = GuidFileMapper::GetInstance().getMap();
 
     for (const auto &guidPair : map) {
-//        executeFilterTests(guidPair.first);
-//TODO odkomentovat
+        executeFilterTests(guidPair.first);
     }
 
     for (const auto &modelLib : MODEL_LIBS) {

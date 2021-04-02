@@ -397,11 +397,3 @@ HRESULT tester::ModelUnitTester::futureTimeStepTest() {
     Logger::getInstance().info(L"State in future time emitted correctly.");
     return S_OK;
 }
-
-HRESULT tester::ModelUnitTester::test() {
-//    initialize(0.0, 1, true, S_OK);
-//    while (true) {
-//        step(0.003472222222222222, true, S_OK);
-//    }
-
-}
