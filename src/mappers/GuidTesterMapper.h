@@ -34,14 +34,14 @@ public:
     * @return instance of FileTesterMapper singleton class
     */
 	static GuidTesterMapper& GetInstance();
-	/**
-	 * Returns a pointer to a tester instance based on given guid. Caller TAKES OWNERSHIP of the returned pointer -
-	 * has to delete the instance manually.
-	 *
-	 * @param guid guid of a filter, that we want to test
-	 * @return owning pointer to a tester instance
-	 */
-	tester::FilterUnitTester* getTesterInstance(const GUID& guid);
+    /**
+    * Returns a pointer to a tester instance based on given guid. Caller TAKES OWNERSHIP of the returned pointer -
+    * has to delete the instance manually.
+    *
+    * @param guid guid of a filter, that we want to test
+    * @return owning pointer to a tester instance
+    */
+    tester::FilterUnitTester* getTesterInstance(const GUID& guid);
 	GuidTesterMapper(GuidTesterMapper const&) = delete;
 	void operator=(GuidTesterMapper const&) = delete;
 

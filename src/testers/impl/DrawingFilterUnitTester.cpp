@@ -17,7 +17,7 @@ namespace tester {
     const char* SVG_RETRIEVING_TEST_SVG = "svgRetrievingTest.svg";
     const char* NEW_DATA_AVAILABLE_TEST_SVG = "newDataAvailableTest.svg";
 
-    DrawingFilterUnitTester::DrawingFilterUnitTester() : FilterUnitTester(cnst::DRAWING_GUID) {
+    DrawingFilterUnitTester::DrawingFilterUnitTester() : FilterUnitTester(cnst::DRAWING_GUID, EntityType::FILTER) {
         //
     }
 
@@ -107,7 +107,7 @@ namespace tester {
 
         HRESULT configResult = configureFilter(config);
         if (!Succeeded(configResult)) {
-            log::logConfigurationError(config, S_OK, configResult);
+            logs::logConfigurationError(config, S_OK, configResult);
             return E_FAIL;
         }
 
@@ -141,7 +141,7 @@ namespace tester {
         config.setGraphFilePath(SVG_RETRIEVING_TEST_SVG);
         HRESULT configResult = configureFilter(config);
         if (!Succeeded(configResult)) {
-            log::logConfigurationError(config, S_OK, configResult);
+            logs::logConfigurationError(config, S_OK, configResult);
             return E_FAIL;
         }
 
@@ -188,7 +188,7 @@ namespace tester {
 
         HRESULT configResult = configureFilter(config);
         if (!Succeeded(configResult)) {
-            log::logConfigurationError(config, S_OK, configResult);
+            logs::logConfigurationError(config, S_OK, configResult);
             return E_FAIL;
         }
 

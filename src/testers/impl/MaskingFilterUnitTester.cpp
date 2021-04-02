@@ -10,7 +10,7 @@ namespace tester {
     const GUID INVALID_SIGNAL_ID_GUID = {0xe1cd0700, 0xb079, 0x4911,
                                                           {0xb7, 0x9b, 0xd2, 0x03, 0x48, 0x61, 0x01, 0xc8}};
 
-    MaskingFilterUnitTester::MaskingFilterUnitTester() : FilterUnitTester(cnst::MASKING_GUID) {
+    MaskingFilterUnitTester::MaskingFilterUnitTester() : FilterUnitTester(cnst::MASKING_GUID, EntityType::FILTER) {
         //
     }
 
@@ -67,7 +67,7 @@ namespace tester {
         tester::MaskingFilterConfig config(signalId, bitmask);
         HRESULT configResult = configureFilter(config);
         if (!Succeeded(configResult)) {
-            log::logConfigurationError(config, S_OK, configResult);
+            logs::logConfigurationError(config, S_OK, configResult);
             return E_FAIL;
         }
 
@@ -119,7 +119,7 @@ namespace tester {
         tester::MaskingFilterConfig config(scgms::signal_COB, bitmask);
         HRESULT configResult = configureFilter(config);
         if (!Succeeded(configResult)) {
-            log::logConfigurationError(config, S_OK, configResult);
+            logs::logConfigurationError(config, S_OK, configResult);
             return E_FAIL;
         }
 

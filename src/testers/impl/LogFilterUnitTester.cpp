@@ -15,7 +15,7 @@ namespace tester {
     const char* POP_RESULT_REPEATING_TEST_LOG = "pushResultRepeatingTestLog.csv";
     const char* POP_EVENT_COUNT_TEST_LOG = "popEventCountTEstLog.csv";
 
-    LogFilterUnitTester::LogFilterUnitTester() : FilterUnitTester(cnst::LOG_GUID){
+    LogFilterUnitTester::LogFilterUnitTester() : FilterUnitTester(cnst::LOG_GUID, EntityType::FILTER){
         //
     }
 
@@ -65,7 +65,7 @@ namespace tester {
                 testResult = E_FAIL;
             }
         } else {
-            log::logConfigurationError(config, S_OK, configResult);
+            logs::logConfigurationError(config, S_OK, configResult);
             testResult = E_FAIL;
         }
 
@@ -77,7 +77,7 @@ namespace tester {
 
         HRESULT configResult = configureFilter(config);
         if (!Succeeded(configResult)) {
-            log::logConfigurationError(config, S_OK, configResult);
+            logs::logConfigurationError(config, S_OK, configResult);
             return E_FAIL;
         }
 
@@ -162,7 +162,7 @@ namespace tester {
 
         HRESULT configResult = configureFilter(config);
         if (!Succeeded(configResult)) {
-            log::logConfigurationError(config, S_OK, configResult);
+            logs::logConfigurationError(config, S_OK, configResult);
             return E_FAIL;
         }
 
@@ -180,7 +180,7 @@ namespace tester {
         }
 
         try {
-            std::vector<std::vector<std::string>> logLines = log::readLogFile(FILTER_OUTPUT_TEST_LOG);
+            std::vector<std::vector<std::string>> logLines = logs::readLogFile(FILTER_OUTPUT_TEST_LOG);
             if (logLines.size() < 2) {
                 Logger::getInstance().error(L"Log file does not contain a record of executed event!");
                 return E_FAIL;
@@ -204,7 +204,7 @@ namespace tester {
 
         HRESULT configResult = configureFilter(config);
         if (!Succeeded(configResult)) {
-            log::logConfigurationError(config, S_OK, configResult);
+            logs::logConfigurationError(config, S_OK, configResult);
             return E_FAIL;
         }
 
@@ -265,7 +265,7 @@ namespace tester {
 
         std::vector<std::vector<std::string>> logLines;
         try {
-            logLines = log::readLogFile(EVENT_ORDER_TEST_LOG);
+            logLines = logs::readLogFile(EVENT_ORDER_TEST_LOG);
         } catch (const std::runtime_error &error) {
             Logger::getInstance().error(L"Log file " + Widen_Char(EVENT_ORDER_TEST_LOG) + L" does not exist!");
             return E_FAIL;
@@ -306,7 +306,7 @@ namespace tester {
 
         HRESULT configResult = configureFilter(config);
         if (!Succeeded(configResult)) {
-            log::logConfigurationError(config, S_OK, configResult);
+            logs::logConfigurationError(config, S_OK, configResult);
             return E_FAIL;
         }
 
@@ -355,7 +355,7 @@ namespace tester {
 
         HRESULT configResult = configureFilter(config);
         if (!Succeeded(configResult)) {
-            log::logConfigurationError(config, S_OK, configResult);
+            logs::logConfigurationError(config, S_OK, configResult);
             return E_FAIL;
         }
 

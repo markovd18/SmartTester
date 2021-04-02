@@ -34,13 +34,13 @@ GuidTesterMapper& GuidTesterMapper::GetInstance() {
 }
 
 tester::FilterUnitTester* GuidTesterMapper::getTesterInstance(const GUID& guid) {
-	logger.info(L"Getting unit tester instance..");
+	Logger::getInstance().info(L"Getting unit tester instance..");
 	try{
 		return m_guidTesterMap[guid]();
 	}
 	catch (const std::exception&) {
 		std::wcerr << L"No filter is matching given guid!\n";
-		logger.error(L"No filter is matching given guid!");
+		Logger::getInstance().error(L"No filter is matching given guid!");
 		return nullptr;
 	}
 }
