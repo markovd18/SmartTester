@@ -87,9 +87,12 @@ namespace tester {
          */
         HRESULT currentTimeStepTest();
 
+        /**
+         * When Step method is called with positive @a time_advance_delta, future state of N units from now should be emitted.
+         * This test checks, whether any events are emitted and if so, whether they represent the right time or not.
+         * @return S_OK if correct events were emitted, otherwise E_FAIL
+         */
         HRESULT futureTimeStepTest();
-
-        HRESULT test();
 
     private:    // private methods
         /// Helper method for creating a signal generator filter. It's output filter is set to the @a m_testFilter.
