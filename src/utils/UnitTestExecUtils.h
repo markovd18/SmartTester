@@ -13,7 +13,7 @@ namespace tester {
 
     /**
      * Executes all defined unit tests upon a filter with given GUID.
-     * @param guid guid of a filter that is to be dested
+     * @param guid guid of a filter that is to be tested
      */
     void executeFilterTests(const GUID &guid);
 
@@ -28,6 +28,12 @@ namespace tester {
      * @param lib path to a module with metrics
      */
     void executeMetricTests(const wchar_t *lib);
+
+    /**
+     * Executes all defined tests upon approximators in given module.
+     * @param lib path to a module with approximators
+     */
+    void executeApproximatorTests(const wchar_t *lib);
 
     /**
      * Executes all defined unit tests across all entities.
