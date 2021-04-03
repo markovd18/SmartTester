@@ -9,10 +9,11 @@
 #include "../UnitTestExecUtils.h"
 #include "../../mappers/GuidTesterMapper.h"
 #include "../../testers/ModelUnitTester.h"
-#include "../../testers/MetricUnitTester.h"
+#include "../../testers/SecondaryUnitTesters.h"
 
 const wchar_t* MODEL_LIBS[] = { cnst::MODEL_LIBRARY };
 const wchar_t* METRIC_LIBS[] = { cnst::METRIC_LIBRARY };
+const wchar_t* APPROX_LIBS[] = { cnst::APPROX_LIBRARY };
 
 void tester::executeFilterTests(const GUID& guid) {
     if (Is_Invalid_GUID(guid)) {
@@ -59,7 +60,7 @@ void tester::executeMetricTests(const wchar_t *lib) {
 
     std::wstring libPath = std::wstring(lib) + cnst::LIB_EXTENSION;
     if (!metricLib.Load(libPath)) {
-        Logger::getInstance().error(std::wstring(L"Erro while loading ") + lib + L" library. Skipping it's metric tests...");
+        Logger::getInstance().error(std::wstring(L"Error while loading ") + lib + L" library. Skipping it's metric tests...");
         return;
     }
 
@@ -77,20 +78,47 @@ void tester::executeMetricTests(const wchar_t *lib) {
     }
 }
 
+void tester::executeApproximatorTests(const wchar_t *lib) {
+    CDynamic_Library approxLib;
+
+    std::wstring libPath = std::wstring(lib) + cnst::LIB_EXTENSION;
+    if (!approxLib.Load(libPath)) {
+        Logger::getInstance().error(std::wstring(L"Error while loading ") + lib + L" library. Skipping it's approximator tests...");
+        return;
+    }
+
+    scgms::TApprox_Descriptor *begin, *end;
+    HRESULT descriptorsResult = getEntityDescriptors<scgms::TGet_Approx_Descriptors>(approxLib, "do_get_approximator_descriptors", &begin, &end);
+    if (!Succeeded(descriptorsResult)) {
+        Logger::getInstance().error(std::wstring(L"Error while resolving approximator descriptors from ") + lib + L"! Cancelling tests...");
+        return;
+    }
+
+    while (begin != end) {
+        tester::ApproximatorUnitTester approxTester(begin->id, libPath);
+        approxTester.executeAllTests();
+        begin++;
+    }
+}
+
 void tester::executeAllTests() {
 	Logger::getInstance().info(L"Executing all tests across all entities.");
 	std::map<GUID, const wchar_t*> map = GuidFileMapper::GetInstance().getMap();
 
     for (const auto &guidPair : map) {
-//        executeFilterTests(guidPair.first);
+        executeFilterTests(guidPair.first);
     }
 
     for (const auto &modelLib : MODEL_LIBS) {
-//        executeModelTests(modelLib);
+        executeModelTests(modelLib);
     }
 
     for (const auto &metricLib : METRIC_LIBS) {
         executeMetricTests(metricLib);
+    }
+
+    for (const auto &approxLib : APPROX_LIBS) {
+        executeApproximatorTests(approxLib);
     }
 
 }

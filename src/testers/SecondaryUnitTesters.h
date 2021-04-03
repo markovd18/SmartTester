@@ -2,11 +2,12 @@
 // Author: markovd@students.zcu.cz
 //
 
-#ifndef SMARTTESTER_METRICUNITTESTER_H
-#define SMARTTESTER_METRICUNITTESTER_H
+#ifndef SMARTTESTER_SECONDARYUNITTESTERS_H
+#define SMARTTESTER_SECONDARYUNITTESTERS_H
 
 
 #include <iface/SolverIface.h>
+#include <iface/ApproxIface.h>
 #include "GenericUnitTester.h"
 
 namespace tester {
@@ -48,7 +49,32 @@ namespace tester {
         /// Helper method for calculating metric. All vectors must have the same size, otherwise calculating may not work correctly.
         double calculateMetric(const std::vector<double>& times, const std::vector<double>& reference, const std::vector<double>& calculated);
     };
+
+    /**
+     * Class for testing @a scgms::IApproximator interface.
+     */
+    class ApproximatorUnitTester : public EntityUnitTester<scgms::IApproximator> {
+    private:    // private attributes
+        /// Number of values we set to the signal
+        static constexpr std::size_t s_signalValuesCount = 10;
+        /// Times we set to the signal
+        static constexpr std::array<double, s_signalValuesCount> s_times { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0};
+        /// Measured levels we set to the signal
+        static constexpr std::array<double, s_signalValuesCount> s_levels { 2.0, 4.0, 8.0, 16.0, 32.0, 64.0, 128.0, 256.0, 512.0, 1024.0};
+    public:     // public methods
+        ApproximatorUnitTester(const GUID& guid, const std::wstring& libraryPath);
+        void loadEntity() override;
+        void executeAllTests() override;
+        HRESULT shutDownTest() override;
+
+        HRESULT middleTimeApproximationTest();
+
+        HRESULT middleTimeDerivativeApproximationTest();
+
+    private:    // private methods
+        HRESULT calculateApproximations(const std::size_t derivativeOrder = 0);
+    };
 }
 
 
-#endif //SMARTTESTER_METRICUNITTESTER_H
+#endif //SMARTTESTER_SECONDARYUNITTESTERS_H

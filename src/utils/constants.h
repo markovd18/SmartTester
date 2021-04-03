@@ -14,8 +14,6 @@ namespace cnst {
     static const wchar_t* CONFIG_FILE = L"config.ini";
     //temp directory name
     static const wchar_t* TMP_DIR = L"tmp";
-    //regression log in temp directory
-    static const wchar_t* TMP_LOG_FILE = L"tmp/log.csv";
 
     constexpr int firstComparedIndex = 2;
     constexpr int firstNumberValueIndex = 4;
@@ -48,6 +46,7 @@ namespace cnst {
     static const wchar_t* MODEL_LIBRARY = L"filters/model";
     static const wchar_t* CONTROLLERS_LIBRARY = L"filters/controllers";
     static const wchar_t* METRIC_LIBRARY = L"filters/metric";
+    static const wchar_t* APPROX_LIBRARY = L"filters/approx";
 
 #else
 
@@ -64,6 +63,7 @@ namespace cnst {
     static const wchar_t* MODEL_LIBRARY = L"./filters/libmodel";
     static const wchar_t* CONTROLLERS_LIBRARY = L"./filters/libcontrollers";
     static const wchar_t* METRIC_LIBRARY = L"./filters/libmetric";
+    static const wchar_t* APPROX_LIBRARY = L"./filters/libapprox";
 
 
 
