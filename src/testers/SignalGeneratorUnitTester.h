@@ -13,10 +13,20 @@ namespace tester {
      * Derived class used for testing of the Signal Generator filter.
      */
     class SignalGeneratorUnitTester : public FilterUnitTester {
-    public:
+    public:     // public methods
         SignalGeneratorUnitTester();
 
         void executeSpecificTests() override;
+
+        HRESULT asynchronousModeTest();
+
+        HRESULT timeSegmentStartTest();
+
+        HRESULT twiceIdenticalTimeSegmentStartTest();
+
+        HRESULT eventDeviceTimeLessThanSteppingTest();
+
+        HRESULT eventDeviceTimeAsSteppingTest();
     };
 }
 
