@@ -24,6 +24,8 @@ public:
 
     /// Returns a reference to the event data we got from the tested filter.
     const scgms::TDevice_Event& getLastReceivedEvent();
+    /// Returns a reference to the first event we received from the tested filter
+    const scgms::TDevice_Event& getFirstReceivedEvent();
     /// Clears the vector of received events
     void clearReceivedEvents() noexcept;
     /// Returns the number of unique segment id's on the vector of received events

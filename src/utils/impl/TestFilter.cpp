@@ -27,6 +27,10 @@ const scgms::TDevice_Event& TestFilter::getLastReceivedEvent() {
     return m_receivedEvents.back();
 }
 
+const scgms::TDevice_Event &TestFilter::getFirstReceivedEvent() {
+    return m_receivedEvents.front();
+}
+
 void TestFilter::clearReceivedEvents() noexcept {
     m_receivedEvents.clear();
 }
