@@ -1,6 +1,7 @@
 //
 // Author: markovd@students.zcu.cz
 //
+#include <unordered_set>
 #include "../TestFilter.h"
 #include "../constants.h"
 
@@ -36,13 +37,13 @@ void TestFilter::clearReceivedEvents() noexcept {
 }
 
 const scgms::TDevice_Event* TestFilter::getLastNonShutDownEvent() {
-    auto iterator = m_receivedEvents.end();
-    while (iterator != m_receivedEvents.begin()) {
+    auto iterator = m_receivedEvents.rbegin();
+    while (iterator != m_receivedEvents.rend()) {
         if (iterator->event_code != scgms::NDevice_Event_Code::Shut_Down) {
-            return iterator.base();
+            return &*iterator;
         }
 
-        iterator--;
+        iterator++;
     }
 
     return nullptr;
@@ -53,11 +54,9 @@ std::size_t TestFilter::getReceivedEventsCount() {
 }
 
 std::size_t TestFilter::getUniqueSegmentIdsFromReceivedEventsCount() {
-    std::vector<uint64_t> uniqueIds;
+    std::unordered_set<uint64_t> uniqueIds;
     for (const auto &event : m_receivedEvents) {
-        if (std::find(uniqueIds.begin(), uniqueIds.end(), event.segment_id) != uniqueIds.end()) {
-            uniqueIds.push_back(event.segment_id);
-        }
+        uniqueIds.insert(event.segment_id);
     }
 
     return uniqueIds.size();

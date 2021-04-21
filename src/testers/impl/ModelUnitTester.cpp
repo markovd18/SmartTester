@@ -189,33 +189,9 @@ void tester::ModelUnitTester::loadEntity() {
         getTestedEntity()->Release();
     }
 
-    if (!m_signalGenerator) {
-        HRESULT sigGenCreationResult = createSignalGeneratorFilter(&m_signalGenerator);
-        if (!Succeeded(sigGenCreationResult)) {
-            Logger::getInstance().error(L"Error while creating signal generator filter! Model will not be created!");
-            return;
-        }
-    }
-
-    /// Configuring signal generator to default values
-    tester::SignalGeneratorConfig config;
-    config.setFeedbackName("fb1");
-    config.setTimeSegmentId(1);
-    config.setMaximumTime(0.5);
-    config.setParameters({0.005000, 0.005000, 0.000000, 0.100000, 0.001000, 0.001000, 8.000000, 10.000000, 0.050000, 0.010000, 0.010000, 0.010000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, -0.500000, -10.000000, 0.000000, -1.000000, 0.000000, 0.050000, 0.028735, 0.028344, 0.000050, 0.300000, 0.100000, 0.100000, 12.000000, 70.000000, 0.220000, 0.050000, 0.050000, 0.040000, 95.000000, 9.200000, 220.000000, 100.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 95.000000, 0.000000, 0.929000, -0.037000, 0.000000, 0.023310, 0.000000, 0.018600, 0.950000, 0.100000, 0.100000, 0.050000, 1.000000, 0.300000, 0.300000, 18.000000, 100.000000, 1.000000, 1.000000, 1.000000, 1.000000, 200.000000, 20.000000, 300.000000, 300.000000, 100.000000, 200.000000, 150.000000, 150.000000, 50.000000, 300.000000, 5.000000, 2.000000, 0.000000, 5.000000, 0.041667, 0.000000, 0.041667, 1.500000});
-    config.setStepping(0.003472222222222222);
-    config.setSynchronizeToSignal(true);
-    config.setSynchronizationSignal(scgms::signal_BG);
-    config.setModelId(getEntityGuid());
-    HRESULT configResult = tester::configureFilter(m_signalGenerator, config);
-    if (!Succeeded(configResult)) {
-        logs::logConfigurationError(config, S_OK, configResult);
-        return;
-    }
-
     getTestFilter().clearReceivedEvents();     /// Resetting so there will not be data from last test present
     scgms::IDiscrete_Model *model;
-    HRESULT creationResult = createModel(&model, m_signalGenerator);
+    HRESULT creationResult = createModel(&model, &getTestFilter());
     if (creationResult != S_OK) {
         Logger::getInstance().error(L"Error while loading model from the dynamic library!");
     } else {
@@ -322,6 +298,11 @@ HRESULT tester::ModelUnitTester::currentTimeStepTest() {
         return E_FAIL;
     }
 
+    if (getTestFilter().getReceivedEventsCount() == 0) {
+        Logger::getInstance().error(L"No event received!");
+        return E_FAIL;
+    }
+
     scgms::TDevice_Event event = getTestFilter().getLastReceivedEvent();
     if (event.event_code == scgms::NDevice_Event_Code::Nothing) {
         Logger::getInstance().error(L"No event was acquired when emitting current state!");
@@ -376,6 +357,11 @@ HRESULT tester::ModelUnitTester::futureTimeStepTest() {
     double steppedDeviceTime = 1.0;
     HRESULT stepResult = step(steppedDeviceTime, true, S_OK);
     if (!Succeeded(stepResult)) {
+        return E_FAIL;
+    }
+
+    if (getTestFilter().getReceivedEventsCount() == 0) {
+        Logger::getInstance().error(L"No events received!!");
         return E_FAIL;
     }
 

@@ -209,10 +209,12 @@ namespace tester {
             return E_FAIL;
         }
 
-        scgms::TDevice_Event receivedEvent = getTestFilter().getLastReceivedEvent();
-        if (receivedEvent.event_code == eventCode) {
-            Logger::getInstance().error(L"Executed event arrived to the appended filter!");
-            return E_FAIL;
+        if (getTestFilter().getReceivedEventsCount() > 0) {
+            scgms::TDevice_Event receivedEvent = getTestFilter().getLastReceivedEvent();
+            if (receivedEvent.event_code == eventCode) {
+                Logger::getInstance().error(L"Executed event arrived to the appended filter!");
+                return E_FAIL;
+            }
         }
 
         Logger::getInstance().info(L"Executed event did not arrive to the appended filter.");

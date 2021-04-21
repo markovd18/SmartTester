@@ -87,12 +87,12 @@ namespace tester {
             return E_FAIL;
         }
 
-        std::size_t eventCount = 3;
+        constexpr std::size_t eventCount = 3;
         scgms::IDevice_Event* events[eventCount];
         HRESULT creationResult = S_OK;
-        for (std::size_t i = 0; i < eventCount; ++i) {
-            events[i] = createEvent(scgms::NDevice_Event_Code::Level);
-            if (!events[i]) {       /// If creating failed, setting flag to failed
+        for (auto & event : events) {
+            event = createEvent(scgms::NDevice_Event_Code::Level);
+            if (!event) {       /// If creating failed, setting flag to failed
                 Logger::getInstance().error(L"Error while creating " + describeEvent(scgms::NDevice_Event_Code::Level));
                 creationResult = E_FAIL;
                 break;
@@ -193,7 +193,7 @@ namespace tester {
                 Logger::getInstance().error(L"Level event record not found!");
                 return E_FAIL;
             }
-        } catch (const std::runtime_error &error) {
+        } catch (const std::runtime_error &) {
             Logger::getInstance().error(L"Log file " + Widen_Char(FILTER_OUTPUT_TEST_LOG) + L" does not exist!");
             return E_FAIL;
         }
@@ -359,12 +359,12 @@ namespace tester {
             return E_FAIL;
         }
 
-        std::size_t eventCount = 3;
+        constexpr std::size_t eventCount = 3;
         scgms::IDevice_Event* events[eventCount];
         HRESULT creationResult = S_OK;
-        for (std::size_t i = 0; i < eventCount; ++i) {
-            events[i] = createEvent(scgms::NDevice_Event_Code::Level);
-            if (!events[i]) {
+        for (auto & event : events) {
+            event = createEvent(scgms::NDevice_Event_Code::Level);
+            if (!event) {
                 Logger::getInstance().error(L"Error while creating " + describeEvent(scgms::NDevice_Event_Code::Level));
                 creationResult = E_FAIL;
                 break;
