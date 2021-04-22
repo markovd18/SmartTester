@@ -141,11 +141,8 @@ HRESULT tester::configureFilter(scgms::IFilter *filter, const tester::FilterConf
     std::string memory = config.toString();
     if (result == S_OK) {
         configuration->Load_From_Memory(memory.c_str(), memory.size(), errors.get());
-        errors.for_each([](const std::wstring& string) { std::wcerr << string << std::endl; });
+//        errors.for_each([](const std::wstring& string) { std::wcerr << string << std::endl; });
         Logger::getInstance().debug(L"Loading configuration from memory...");
-
-        scgms::SFilter_Executor executor { configuration.get(), nullptr, nullptr, errors };
-        errors.for_each([](const std::wstring& string) { std::wcerr << string << std::endl; });
 
     } else {
         Logger::getInstance().error(L"Error while creating configuration!");

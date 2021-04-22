@@ -256,6 +256,7 @@ HRESULT tester::SignalGeneratorUnitTester::eventDeviceTimeLessThanSteppingTest()
     segmentStartEvent->Raw(&rawEvent);
     rawEvent->segment_id = 1;   /// Setting segmentStartEvent's segment id to a valid value
     rawEvent->device_time = 0.1;    /// Starting at this time
+    rawEvent->signal_id = scgms::signal_BG;
     HRESULT execResult = getTestedEntity()->Execute(segmentStartEvent);
     if (!Succeeded(execResult)) {
         Logger::getInstance().warn(L"Error while executing " + describeEvent(scgms::NDevice_Event_Code::Time_Segment_Start));
@@ -274,7 +275,7 @@ HRESULT tester::SignalGeneratorUnitTester::eventDeviceTimeLessThanSteppingTest()
     levelEvent->Raw(&rawEvent);
     rawEvent->segment_id = 1;   /// setting level event's segment id to the same value as the previous event
     rawEvent->device_time = 0.1 + scgms::One_Minute;    /// With stepping 5 minutes, adding one minute should not return any event
-
+    rawEvent->signal_id = scgms::signal_BG;
     Logger::getInstance().info(L"Executing event stepped by " + std::to_wstring(scgms::One_Minute));
     HRESULT levelExecResult = getTestedEntity()->Execute(levelEvent);
     if (!Succeeded(levelExecResult)) {
@@ -282,11 +283,11 @@ HRESULT tester::SignalGeneratorUnitTester::eventDeviceTimeLessThanSteppingTest()
         Logger::getInstance().warn(std::wstring(L"Execution result: ") + Describe_Error(execResult));
     }
 
-    /// We added less time than the stepping is, so the event should not be emitted
-    if (getTestFilter().getReceivedEventsCount() != currentStateEventCount) {
+    /// We added less time than the stepping is, so the event should not be emitted, +1 for the executed event
+    if (getTestFilter().getReceivedEventsCount() != (currentStateEventCount + 1)) {
         Logger::getInstance().error(L"Received event count after executing " + describeEvent(scgms::NDevice_Event_Code::Level) +
                                     L" does not match received event count after last " + describeEvent(scgms::NDevice_Event_Code::Time_Segment_Start));
-        Logger::getInstance().error(L"Expected event count: " + std::to_wstring(currentStateEventCount));
+        Logger::getInstance().error(L"Expected event count: " + std::to_wstring(currentStateEventCount + 1));
         Logger::getInstance().error(L"Actual event count: " + std::to_wstring(getTestFilter().getReceivedEventsCount()));
         return E_FAIL;
     }
@@ -326,6 +327,7 @@ HRESULT tester::SignalGeneratorUnitTester::eventDeviceTimeAsSteppingTest() {
     segmentStartEvent->Raw(&rawEvent);
     rawEvent->segment_id = 1;   /// Setting segmentStartEvent's segment id to a valid value
     rawEvent->device_time = 0.1;    /// Starting at this time
+    rawEvent->signal_id = scgms::signal_BG;
     HRESULT execResult = getTestedEntity()->Execute(segmentStartEvent);
     if (!Succeeded(execResult)) {
         Logger::getInstance().warn(L"Error while executing " + describeEvent(scgms::NDevice_Event_Code::Time_Segment_Start));
@@ -343,7 +345,8 @@ HRESULT tester::SignalGeneratorUnitTester::eventDeviceTimeAsSteppingTest() {
 
     levelEvent->Raw(&rawEvent);
     rawEvent->segment_id = 1;   /// setting level event's segment id to the same value as the previous event
-    rawEvent->device_time = 0.1 + 6 * scgms::One_Minute;    /// With stepping 5 minutes, adding six minutes should call the step method
+    rawEvent->device_time = 0.1 + 7 * scgms::One_Minute;    /// With stepping 5 minutes, adding seven minutes should call the step method
+    rawEvent->signal_id = scgms::signal_BG;
 
     Logger::getInstance().info(L"Executing event stepped by " + std::to_wstring(6 * scgms::One_Minute));
     HRESULT levelExecResult = getTestedEntity()->Execute(levelEvent);
@@ -393,6 +396,8 @@ HRESULT tester::SignalGeneratorUnitTester::eventDeviceTimeAsSeveralSteppingsTest
     segmentStartEvent->Raw(&rawEvent);
     rawEvent->segment_id = 1;   /// Setting segmentStartEvent's segment id to a valid value
     rawEvent->device_time = 0.1;    /// Starting at this time
+    rawEvent->signal_id = scgms::signal_BG;
+
     HRESULT execResult = getTestedEntity()->Execute(segmentStartEvent);
     if (!Succeeded(execResult)) {
         Logger::getInstance().warn(L"Error while executing " + describeEvent(scgms::NDevice_Event_Code::Time_Segment_Start));
@@ -400,7 +405,7 @@ HRESULT tester::SignalGeneratorUnitTester::eventDeviceTimeAsSeveralSteppingsTest
     }
 
     /// Generator emits current state when registers time segment start
-    std::size_t currentStateEventCount = getTestFilter().getReceivedEventsCount();
+    std::size_t currentStateEventCount = getTestFilter().getReceivedEventsCount() - 1;  // - 1 for the time segment start event
     Logger::getInstance().info(L"Event count representing one current state: " + std::to_wstring(currentStateEventCount));
     getTestFilter().clearReceivedEvents();  /// Clearing events so we can easily check incoming event count after next execution
 
@@ -413,7 +418,8 @@ HRESULT tester::SignalGeneratorUnitTester::eventDeviceTimeAsSeveralSteppingsTest
     levelEvent->Raw(&rawEvent);
     rawEvent->segment_id = 1;   /// setting level event's segment id to the same value as the previous event
     rawEvent->device_time = 0.1 + 21 * scgms::One_Minute;    /// With stepping 5 minutes, adding twenty minutes should emit states
-                                                                /// in several other times
+    rawEvent->signal_id = scgms::signal_BG;                  /// in several other times
+
     Logger::getInstance().info(L"Executing event stepped by " + std::to_wstring(6 * scgms::One_Minute));
     HRESULT levelExecResult = getTestedEntity()->Execute(levelEvent);
     if (!Succeeded(levelExecResult)) {

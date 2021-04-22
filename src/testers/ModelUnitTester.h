@@ -43,13 +43,6 @@ namespace tester {
         HRESULT invalidParameterCountTest();
 
         /**
-         * Calling initialize method of a model while passing negative @a current_time value should result in an error.
-         * This test checks, whether the initialization with negative time fails or not.
-         * @return S_OK if initialization fails, otherwise E_FAIL
-         */
-        HRESULT initializeNegativeCurrentTimeTest();
-
-        /**
          * Calling initialize method of a model while passing positive @a current_time value should not result
          * in an error. This test checks, whether the initialization with positive time passes or not.
          * @return S_OK if initialization passes, otherwise E_FAIL

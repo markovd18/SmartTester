@@ -47,7 +47,6 @@ void tester::ModelUnitTester::executeSpecificTests() {
     /// Executing generic tests after we executed and passed all the construction tests
     executeGenericTests();
 
-    executeTest(L"initialize negative current time test", std::bind(&ModelUnitTester::initializeNegativeCurrentTimeTest, this));
     executeTest(L"initialize positive current time test", std::bind(&ModelUnitTester::initializePositiveCurrentTimeTest, this));
     executeTest(L"repeated initialize test", std::bind(&ModelUnitTester::repeatedInitializeCallTest, this));
     executeTest(L"step before initialization test", std::bind(&ModelUnitTester::stepBeforeInitializeTest, this));
@@ -198,10 +197,6 @@ void tester::ModelUnitTester::loadEntity() {
         setTestedEntity(model);
         Logger::getInstance().info(L"Model loaded from dynamic library.");
     }
-}
-
-HRESULT tester::ModelUnitTester::initializeNegativeCurrentTimeTest() {
-    return initialize(-1.5, 2, false, E_FAIL);
 }
 
 HRESULT tester::ModelUnitTester::initializePositiveCurrentTimeTest() {

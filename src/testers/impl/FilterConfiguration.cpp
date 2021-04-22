@@ -172,7 +172,7 @@ namespace tester {
     }
 
     std::string MaskingFilterConfig::toString() const {
-        return getHeader() + "Signal_Id = " + (m_signalId == Invalid_GUID ? "" : Narrow_WString(GUID_To_WString(m_signalId))) + getParamSeparator() +
+        return getHeader() + "Signal = " + (m_signalId == Invalid_GUID ? "" : Narrow_WString(GUID_To_WString(m_signalId))) + getParamSeparator() +
                             "Bitmask = " + m_bitmask;
     }
 
