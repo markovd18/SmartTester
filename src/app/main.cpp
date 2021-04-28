@@ -141,12 +141,11 @@ HRESULT execute_regression_testing(const std::wstring& config_filepath) {
     HRESULT result;
     try {
         tester::RegressionTester regTester(config_filepath);
-        std::string log_filepath = Narrow_WString(config_filepath);
 
-        log_filepath.erase(log_filepath.size() - Narrow_WChar(cnst::CONFIG_FILE).size());
-        log_filepath += Narrow_WChar(cnst::LOG_FILE);
+        filesystem::path logFilepath { config_filepath };
+        logFilepath = filesystem::absolute(logFilepath).remove_filename().append(cnst::REF_LOG_FILE);
 
-        result = regTester.compareLogs(log_filepath);
+        result = regTester.compareLogs(logFilepath.string());
     } catch (const std::exception& ex) {
         std::wcerr << L"Error while executing configuration!\n" << ex.what() << std::endl;
         return E_FAIL;

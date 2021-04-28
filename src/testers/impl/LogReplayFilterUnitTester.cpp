@@ -103,7 +103,7 @@ HRESULT tester::LogReplayFilterUnitTester::invalidLogFileTest(const tester::LogR
 
 HRESULT tester::LogReplayFilterUnitTester::emittedEventCountTest() {
     tester::LogReplayFilterConfig config(VALID_LOG_REPLAY_PATH);
-
+    config.setEmitShutdown(true);
     Logger::getInstance().debug(L"Creating configuration...");
     scgms::SPersistent_Filter_Chain_Configuration configuration;
     if (!configuration) {
@@ -193,7 +193,7 @@ HRESULT tester::LogReplayFilterUnitTester::logReplayFolderTest() {
     std::size_t loggedLinesCount = 0;
     auto iterator = filesystem::directory_iterator(VALID_LOG_REPLAYS_DIR_PATH);
     for (const auto &item : iterator) {
-        loggedLinesCount += logs::getLoggedLinesCount(item.path());
+        loggedLinesCount += logs::getLoggedLinesCount(item.path().string());
     }
 
     refcnt::Swstr_list errors;

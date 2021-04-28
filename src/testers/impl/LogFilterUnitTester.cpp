@@ -30,6 +30,9 @@ namespace tester {
         executeConfigTest(L"correct log file name test", config, S_OK);
         moveToTmp(CORRECT_LOG_FILE_NAME_TEST_LOG);    /// the test above should create junk file so we delete it
 
+        config.setLogFile(std::string("/") + CORRECT_LOG_FILE_NAME_TEST_LOG);
+        executeConfigTest(L"invalid log file path test", config, E_INVALIDARG);
+
         /// Functional tests
         executeTest(L"log file generation test", std::bind(&LogFilterUnitTester::logFileGenerationTest, this));
         moveToTmp(LOG_FILE_GENERATION_TEST_LOG);
@@ -87,12 +90,12 @@ namespace tester {
             return E_FAIL;
         }
 
-        std::size_t eventCount = 3;
+        constexpr std::size_t eventCount = 3;
         scgms::IDevice_Event* events[eventCount];
         HRESULT creationResult = S_OK;
-        for (std::size_t i = 0; i < eventCount; ++i) {
-            events[i] = createEvent(scgms::NDevice_Event_Code::Level);
-            if (!events[i]) {       /// If creating failed, setting flag to failed
+        for (auto & event : events) {
+            event = createEvent(scgms::NDevice_Event_Code::Level);
+            if (!event) {       /// If creating failed, setting flag to failed
                 Logger::getInstance().error(L"Error while creating " + describeEvent(scgms::NDevice_Event_Code::Level));
                 creationResult = E_FAIL;
                 break;
@@ -193,7 +196,7 @@ namespace tester {
                 Logger::getInstance().error(L"Level event record not found!");
                 return E_FAIL;
             }
-        } catch (const std::runtime_error &error) {
+        } catch (const std::runtime_error &) {
             Logger::getInstance().error(L"Log file " + Widen_Char(FILTER_OUTPUT_TEST_LOG) + L" does not exist!");
             return E_FAIL;
         }
@@ -359,12 +362,12 @@ namespace tester {
             return E_FAIL;
         }
 
-        std::size_t eventCount = 3;
+        constexpr std::size_t eventCount = 3;
         scgms::IDevice_Event* events[eventCount];
         HRESULT creationResult = S_OK;
-        for (std::size_t i = 0; i < eventCount; ++i) {
-            events[i] = createEvent(scgms::NDevice_Event_Code::Level);
-            if (!events[i]) {
+        for (auto & event : events) {
+            event = createEvent(scgms::NDevice_Event_Code::Level);
+            if (!event) {
                 Logger::getInstance().error(L"Error while creating " + describeEvent(scgms::NDevice_Event_Code::Level));
                 creationResult = E_FAIL;
                 break;

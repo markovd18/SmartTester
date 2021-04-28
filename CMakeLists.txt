@@ -51,7 +51,8 @@ add_library(scgms_common "${SMARTCGMS_COMMON_DIR}/rtl/Dynamic_Library.cpp"
         "${SMARTCGMS_COMMON_DIR}/utils/string_utils.cpp"
         "${SMARTCGMS_COMMON_DIR}/utils/winapi_mapping.c"
         "${SMARTCGMS_COMMON_DIR}/rtl/hresult.c"
-        "${SMARTCGMS_COMMON_DIR}/rtl/FilesystemLib.cpp")
+        "${SMARTCGMS_COMMON_DIR}/rtl/FilesystemLib.cpp"
+        "${SMARTCGMS_COMMON_DIR}/iface/DeviceIface.cpp")
 
 
 file(GLOB APP ${PROJECT_SOURCE_DIR}/src/app/*.cpp)

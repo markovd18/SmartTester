@@ -36,7 +36,7 @@ void MainCalling tester::RegressionTester::loadConfig() {
     }
 
     configuration->Load_From_File(this->config_filepath.c_str(), errors.get());
-    errors.for_each([](auto str) { std::wcerr << str << std::endl; });
+    logs::printAndEmptyErrors(errors);
 
     if (!Succeeded(rc)) {
         std::wcerr << L"Cannot load the configuration file " << this->config_filepath << std::endl << std::endl;
@@ -46,11 +46,9 @@ void MainCalling tester::RegressionTester::loadConfig() {
     if (rc == S_FALSE) {
         std::wcerr << L"Warning: some filters were not loaded!" << std::endl;
         Logger::getInstance().warn(L"Warning: some filters were not loaded!");
-        logs::printAndEmptyErrors(errors);
     }
 
     scgms::SFilter_Executor executor { configuration.get(), nullptr, nullptr, errors };
-
     logs::printAndEmptyErrors(errors);
 
     if (!executor) {
@@ -71,7 +69,12 @@ HRESULT tester::RegressionTester::compareLogs(const std::string& referenceLog) {
         return E_FAIL;
     }
 
-    std::vector<std::vector<std::string>> resultLogLinesVector = logs::readLogFile(this->resultLog);
+    filesystem::path configBase { config_filepath };
+    configBase = filesystem::absolute(configBase).remove_filename();
+
+    auto logPath = configBase / this->resultLog;
+
+    std::vector<std::vector<std::string>> resultLogLinesVector = logs::readLogFile(logPath.string());
     std::sort(resultLogLinesVector.begin() + 1, resultLogLinesVector.end(),
         [](const std::vector<std::string>& first, const std::vector<std::string>& second) {
         return std::stoi(first[0]) < std::stoi(second[0]);
@@ -102,14 +105,14 @@ HRESULT tester::RegressionTester::compareLogs(const std::string& referenceLog) {
             if (logs::compareLines(resultLogLinesVector[j], referenceLogLinesVector[i])) {
                 resultLogLinesVector.erase(resultLogLinesVector.begin() + j);
                 lastComparedLine = j;
-                match = true;
+                match = true;   /// Line was found
                 break;
             }
         }
 
-        if (!match) {
+        if (!match) {   /// If the line was not found, note it down
             missingLines.push_back(referenceLogLinesVector[i]);
-            if (firstMismatch) {
+            if (firstMismatch) {    /// If this is the first mismatch, we note the expected and actual log lines
                 expectedLine = missingLines[0];
                 mismatchLine = resultLogLinesVector[lastComparedLine];
                 firstMismatch = false;
@@ -132,7 +135,7 @@ HRESULT tester::RegressionTester::compareLogs(const std::string& referenceLog) {
 
         return S_OK;
     } else {
-        Logger::getInstance().error(L"Test failed!");
+        Logger::getInstance().error(L"ERROR! Test failed!");
         Logger::getInstance().error(L"First mismatch:");
         Logger::getInstance().error(L"Expected line:");
         logs::errorLogLine(expectedLine);

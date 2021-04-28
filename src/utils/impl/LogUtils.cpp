@@ -68,12 +68,14 @@ namespace logs {
     }
 
     void printAndEmptyErrors(const refcnt::Swstr_list& errors) {
+        errors.for_each([](const auto& error) {
+            std::wcerr << error << std::endl;
+            Logger::getInstance().error(error);
+        });
+
         refcnt::wstr_container* wstr;
         if (errors->empty() != S_OK) {
-            std::wcerr << "Error description: " << std::endl;
             while (errors->pop(&wstr) == S_OK) {
-                std::wcerr << refcnt::WChar_Container_To_WString(wstr) << std::endl;
-                Logger::getInstance().error(refcnt::WChar_Container_To_WString(wstr));
                 wstr->Release();
             }
         }

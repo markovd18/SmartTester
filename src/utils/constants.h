@@ -10,6 +10,8 @@ namespace cnst {
     constexpr long MAX_EXEC_TIME = 1000;
     //expected name of tested log file
     static const wchar_t* LOG_FILE = L"log.csv";
+    //expected name of reference log file
+    static const wchar_t* REF_LOG_FILE = L"reference_log.csv";
     //expected name of imported configuration file
     static const wchar_t* CONFIG_FILE = L"config.ini";
     //temp directory name
