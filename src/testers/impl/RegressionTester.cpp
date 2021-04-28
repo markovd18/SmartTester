@@ -135,7 +135,7 @@ HRESULT tester::RegressionTester::compareLogs(const std::string& referenceLog) {
 
         return S_OK;
     } else {
-        Logger::getInstance().error(L"Test failed!");
+        Logger::getInstance().error(L"ERROR! Test failed!");
         Logger::getInstance().error(L"First mismatch:");
         Logger::getInstance().error(L"Expected line:");
         logs::errorLogLine(expectedLine);
