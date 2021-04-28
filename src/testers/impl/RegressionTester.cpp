@@ -105,14 +105,14 @@ HRESULT tester::RegressionTester::compareLogs(const std::string& referenceLog) {
             if (logs::compareLines(resultLogLinesVector[j], referenceLogLinesVector[i])) {
                 resultLogLinesVector.erase(resultLogLinesVector.begin() + j);
                 lastComparedLine = j;
-                match = true;
+                match = true;   /// Line was found
                 break;
             }
         }
 
-        if (!match) {
+        if (!match) {   /// If the line was not found, note it down
             missingLines.push_back(referenceLogLinesVector[i]);
-            if (firstMismatch) {
+            if (firstMismatch) {    /// If this is the first mismatch, we note the expected and actual log lines
                 expectedLine = missingLines[0];
                 mismatchLine = resultLogLinesVector[lastComparedLine];
                 firstMismatch = false;

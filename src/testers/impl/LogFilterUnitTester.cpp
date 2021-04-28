@@ -30,6 +30,9 @@ namespace tester {
         executeConfigTest(L"correct log file name test", config, S_OK);
         moveToTmp(CORRECT_LOG_FILE_NAME_TEST_LOG);    /// the test above should create junk file so we delete it
 
+        config.setLogFile(std::string("/") + CORRECT_LOG_FILE_NAME_TEST_LOG);
+        executeConfigTest(L"invalid log file path test", config, E_INVALIDARG);
+
         /// Functional tests
         executeTest(L"log file generation test", std::bind(&LogFilterUnitTester::logFileGenerationTest, this));
         moveToTmp(LOG_FILE_GENERATION_TEST_LOG);
