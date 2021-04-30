@@ -70,7 +70,7 @@ void tester::SignalGeneratorUnitTester::executeSpecificTests() {
     executeConfigTest(L"less than stepping maximum time test", config, E_INVALIDARG);
 
     /// Functional tests
-//    executeTest(L"asynchronous mode test",std::bind(&SignalGeneratorUnitTester::asynchronousModeTest, this));
+    executeTest(L"asynchronous mode test",std::bind(&SignalGeneratorUnitTester::asynchronousModeTest, this));
     executeTest(L"time segment start test", std::bind(&SignalGeneratorUnitTester::timeSegmentStartTest, this));
     executeTest(L"twice identical time segment start test", std::bind(&SignalGeneratorUnitTester::twiceIdenticalTimeSegmentStartTest, this));
     executeTest(L"event time stepped by less than stepping test", std::bind(&SignalGeneratorUnitTester::eventDeviceTimeLessThanSteppingTest, this));
@@ -80,7 +80,6 @@ void tester::SignalGeneratorUnitTester::executeSpecificTests() {
 }
 
 HRESULT tester::SignalGeneratorUnitTester::asynchronousModeTest() {
-    //TODO otestovat, až bude opravena chyba ve SmartCGMS, které padá na std::logic_error
     tester::SignalGeneratorConfig config;
     config.setFeedbackName("fb1");
     config.setTimeSegmentId(1);
@@ -109,7 +108,6 @@ HRESULT tester::SignalGeneratorUnitTester::asynchronousModeTest() {
 }
 
 HRESULT tester::SignalGeneratorUnitTester::shutdownAfterLastTest() {
-    //TODO otestovat, až bude opravena chyba ve SmartCGMS, které padá na std::logic_error
     tester::SignalGeneratorConfig config;
     config.setFeedbackName("fb1");
     config.setTimeSegmentId(1);

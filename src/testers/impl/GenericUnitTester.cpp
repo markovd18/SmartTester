@@ -125,8 +125,7 @@ namespace tester {
             lock.unlock();
 
             if (status == std::cv_status::timeout) {
-//                shutDownTest();
-                    //TODO markovda odkomentovat
+                shutDownTest();
             }
 
             if (thread.joinable()) {
@@ -496,13 +495,13 @@ namespace tester {
             }
 
             filter->Release();
-//            invalidConstructionResult = constructEntity<scgms::TCreate_Filter>("do_create_filter", &begin->id, &testFilter,
-//                                                                               nullptr);
-//            if (Succeeded(invalidConstructionResult)) {
-//                Logger::getInstance().error(L"Null pointer accepted as a valid filter pointer!");
-//                testResult = E_FAIL;
-//            }
-//TODO markovda odkomentovat do produkce
+            invalidConstructionResult = constructEntity<scgms::TCreate_Filter>("do_create_filter", &begin->id, &testFilter,
+                                                                               nullptr);
+            if (Succeeded(invalidConstructionResult)) {
+                Logger::getInstance().error(L"Null pointer accepted as a valid filter pointer!");
+                testResult = E_FAIL;
+            }
+
             begin++;
         }
 
@@ -559,13 +558,13 @@ namespace tester {
                 signal->Release();
             }
 
-//            invalidConstructionResult = constructEntity<scgms::TCreate_Signal>("do_create_signal", &begin->id, &timeSegment,
-//                                                                               nullptr, nullptr);
-//            if (Succeeded(invalidConstructionResult)) {
-//                Logger::getInstance().error(L"Null pointer accepted as a valid signal pointer!");
-//                testResult = E_FAIL;
-//            }
-//TODO markovda odkomentovat do produkce
+            invalidConstructionResult = constructEntity<scgms::TCreate_Signal>("do_create_signal", &begin->id, &timeSegment,
+                                                                               nullptr, nullptr);
+            if (Succeeded(invalidConstructionResult)) {
+                Logger::getInstance().error(L"Null pointer accepted as a valid signal pointer!");
+                testResult = E_FAIL;
+            }
+
             begin++;
         }
 
@@ -620,12 +619,11 @@ namespace tester {
             }
 
             metric->Release();
-//            invalidCreationResult = constructEntity<scgms::TCreate_Metric>("do_create_metric", &params, nullptr);
-//            if (Succeeded(invalidCreationResult)) {
-//                Logger::getInstance().error(L"Null pointer accepted as a valid metric pointer!");
-//                testResult = E_FAIL;
-//            }
-//TODO markovda odkomentovat do produkce
+            invalidCreationResult = constructEntity<scgms::TCreate_Metric>("do_create_metric", &params, nullptr);
+            if (Succeeded(invalidCreationResult)) {
+                Logger::getInstance().error(L"Null pointer accepted as a valid metric pointer!");
+                testResult = E_FAIL;
+            }
             begin++;
         }
 
@@ -746,13 +744,12 @@ namespace tester {
             }
 
             approx->Release();
-//            invalidConstructionResult = constructEntity<scgms::TCreate_Approximator>("do_create_approximator", &begin->id, signal,
-//                                                                                     nullptr);
-//            if (Succeeded(invalidConstructionResult)) {
-//                Logger::getInstance().error(L"Null pointer accepted as a valid approximator pointer!");
-//                testResult = E_FAIL;
-//            }
-//TODO markovda odkomentovat do produkce
+            invalidConstructionResult = constructEntity<scgms::TCreate_Approximator>("do_create_approximator", &begin->id, signal,
+                                                                                     nullptr);
+            if (Succeeded(invalidConstructionResult)) {
+                Logger::getInstance().error(L"Null pointer accepted as a valid approximator pointer!");
+                testResult = E_FAIL;
+/            }
             begin++;
         }
 
