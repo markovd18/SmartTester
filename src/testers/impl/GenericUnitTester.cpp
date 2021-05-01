@@ -495,7 +495,7 @@ namespace tester {
             }
 
             filter->Release();
-            invalidConstructionResult = constructEntity<scgms::TCreate_Filter>("do_create_filter", &begin->id, &testFilter,
+            invalidConstructionResult = constructEntity<scgms::TCreate_Filter>(m_moduleLibrary, "do_create_filter", &begin->id, &testFilter,
                                                                                nullptr);
             if (Succeeded(invalidConstructionResult)) {
                 Logger::getInstance().error(L"Null pointer accepted as a valid filter pointer!");
@@ -558,7 +558,7 @@ namespace tester {
                 signal->Release();
             }
 
-            invalidConstructionResult = constructEntity<scgms::TCreate_Signal>("do_create_signal", &begin->id, &timeSegment,
+            invalidConstructionResult = constructEntity<scgms::TCreate_Signal>(m_moduleLibrary, "do_create_signal", &begin->id, &timeSegment,
                                                                                nullptr, nullptr);
             if (Succeeded(invalidConstructionResult)) {
                 Logger::getInstance().error(L"Null pointer accepted as a valid signal pointer!");
@@ -619,7 +619,7 @@ namespace tester {
             }
 
             metric->Release();
-            invalidCreationResult = constructEntity<scgms::TCreate_Metric>("do_create_metric", &params, nullptr);
+            invalidCreationResult = constructEntity<scgms::TCreate_Metric>(m_moduleLibrary, "do_create_metric", &params, nullptr);
             if (Succeeded(invalidCreationResult)) {
                 Logger::getInstance().error(L"Null pointer accepted as a valid metric pointer!");
                 testResult = E_FAIL;
@@ -744,12 +744,12 @@ namespace tester {
             }
 
             approx->Release();
-            invalidConstructionResult = constructEntity<scgms::TCreate_Approximator>("do_create_approximator", &begin->id, signal,
+            invalidConstructionResult = constructEntity<scgms::TCreate_Approximator>(m_moduleLibrary, "do_create_approximator", &begin->id, signal,
                                                                                      nullptr);
             if (Succeeded(invalidConstructionResult)) {
                 Logger::getInstance().error(L"Null pointer accepted as a valid approximator pointer!");
                 testResult = E_FAIL;
-/            }
+            }
             begin++;
         }
 
