@@ -211,7 +211,7 @@ namespace tester {
             return E_FAIL;
         }
 
-        std::size_t eventCount = 3;
+        constexpr std::size_t eventCount = 3;
         scgms::IDevice_Event* events[eventCount];
         HRESULT creationResult = S_OK;
         for (std::size_t i = 0; i < eventCount; ++i) {
@@ -247,7 +247,7 @@ namespace tester {
         }
 
         HRESULT testResult = S_OK;
-        for (scgms::IDevice_Event *event : events) {
+        for (scgms::IDevice_Event* event : events) {
             HRESULT execResult = getTestedEntity()->Execute(event);
             if (!Succeeded(execResult)) {
                 testResult = E_FAIL;
